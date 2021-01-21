@@ -1,0 +1,18 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/ood/staging.json#/table_definition"
+    },
+    "destination_record_map": {
+        "staging": {
+            "host": "host",
+            "user": "user",
+            "log_time_ts": "stamp",
+            "header_referer": "HeaderReferer",
+            "ua_family": "ua_family",
+            "ua_os_family": "ua_os_family",
+            "city": "geo_city_name",
+            "state": "geo_subdivision",
+            "country": "geo_country"
+        }
+    }
+}

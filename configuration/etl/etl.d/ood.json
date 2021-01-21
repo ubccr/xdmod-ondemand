@@ -1,0 +1,55 @@
+{
+    "module": "xdmod-ood",
+    "defaults": {
+        "global": {
+            "truncate_destination": true,
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions", 
+            "endpoints": {
+                "source": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "database",
+                    "schema": "modw_ondemand"
+                },
+                "destination": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "database",
+                    "schema": "modw_ondemand"
+                }
+            }
+        }
+    },
+    "ood-log-ingestion": [
+        {
+            "name": "staging",
+            "description": "Load webserver log data into a staging table.",
+            "class": "StructuredFileIngestor",
+            "truncate_destination": true,
+            "definition_file": "ood/staging.json",
+            "endpoints": {
+                "source": {
+                    "type": "webserverlog",
+                    "record_separator": "\n",
+                    "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"",
+                    "geoip_file": "/tmp/GeoLite2-City.mmdb",
+                    "name": "Web Server Logs",
+                    "path": "/scratch/ondemand/ondemand.log.02"
+                }
+            }
+        },
+        {
+            "name": "staging-to-dimensions",
+            "description": "Load log data from the staging table to the dimension tables",
+            "class": "DatabaseIngestor",
+            "definition_file": "ood/dimensions.json"
+        },
+        {
+            "name": "staging-to-facts",
+            "description": "Load log data from the staging table to the fact table",
+            "class": "DatabaseIngestor",
+            "definition_file": "ood/facts.json"
+        }
+    ]
+}

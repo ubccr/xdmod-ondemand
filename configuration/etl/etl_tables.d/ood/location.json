@@ -1,0 +1,49 @@
+{
+    "table_definition": {
+        "name": "location",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "extra": "auto_increment",
+                "nullable": false
+            },
+            {
+                "name": "city",
+                "type": "varchar(128)",
+                "nullable": false
+            },
+            {
+                "name": "state",
+                "type": "varchar(32)",
+                "nullable": false
+            },
+            {
+                "name": "country",
+                "type": "varchar(32)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ]
+            },
+            {
+                "name": "UNIQ",
+                "columns": [
+                    "city",
+                    "state",
+                    "country"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}
+

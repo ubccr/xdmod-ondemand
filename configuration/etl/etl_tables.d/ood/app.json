@@ -1,0 +1,41 @@
+{
+    "table_definition": {
+        "name": "app",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "extra": "auto_increment",
+                "nullable": false
+            },
+            {
+                "name": "app_path",
+                "type": "varchar(256)",
+                "nullable": false
+            },
+            {
+                "name": "name",
+                "type": "varchar(64)",
+                "nullable": true
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ]
+            },
+            {
+                "name": "UNIQ",
+                "columns": [
+                    "app_path"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}

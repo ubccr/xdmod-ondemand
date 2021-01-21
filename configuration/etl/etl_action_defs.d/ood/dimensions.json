@@ -1,0 +1,60 @@
+{
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/ood/app.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/users.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/client.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/os.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/location.json#/table_definition"
+        }
+    ],
+    "source_query": {
+        "records": {
+            "app": "SUBSTRING(s.header_referer, LENGTH('${OOD_HOSTNAME}/pun/') + 1)",
+            "user": "s.user",
+            "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
+            "state": "CASE WHEN s.state = '' THEN 'NA' ELSE s.state END",
+            "country": "CASE WHEN s.country = '' THEN 'NA' ELSE s.country END",
+            "ua_family": "s.ua_family",
+            "ua_os_family": "s.ua_os_family"
+        },
+        "joins": [
+            {
+                "name": "staging",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "s"
+            }
+        ],
+        "where": [
+            "s.user != '-'",
+            "s.header_referer LIKE '${OOD_HOSTNAME}/pun/%'"
+        ]
+    },
+    "destination_record_map": {
+        "app": {
+            "app_path": "app"
+        },
+        "users": {
+            "username": "user"
+        },
+        "location": {
+            "city": "city",
+            "state": "state",
+            "country": "country"
+        },
+        "client": {
+            "family": "ua_family"
+        },
+        "os": {
+            "family": "ua_os_family"
+        }
+    }
+}

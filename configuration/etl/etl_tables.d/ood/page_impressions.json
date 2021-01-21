@@ -1,0 +1,69 @@
+{
+    "table_definition": {
+        "name": "page_impressions",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "log_time_ts",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "log_day_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "user_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "app_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "ua_family_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "ua_os_family_id",
+                "type": "int(11)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ],
+                "is_unique": true
+            },
+            {
+                "name": "uniq",
+                "columns": [
+                    "log_time_ts",
+                    "user_id",
+                    "app_id"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}
