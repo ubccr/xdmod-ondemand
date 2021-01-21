@@ -40,6 +40,12 @@
             }
         },
         {
+            "name": "normalize-staging",
+            "description": "Filter and normalized staged data",
+            "class": "RegexTransformIngestor",
+            "definition_file": "ood/normalized.json"
+        },
+        {
             "name": "staging-to-dimensions",
             "description": "Load log data from the staging table to the dimension tables",
             "class": "DatabaseIngestor",

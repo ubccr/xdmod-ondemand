@@ -1,60 +1,66 @@
 {
     "table_definition": [
         {
-            "$ref": "${table_definition_dir}/ood/app.json#/table_definition"
-        },
-        {
-            "$ref": "${table_definition_dir}/ood/users.json#/table_definition"
-        },
-        {
-            "$ref": "${table_definition_dir}/ood/client.json#/table_definition"
-        },
-        {
-            "$ref": "${table_definition_dir}/ood/os.json#/table_definition"
-        },
-        {
-            "$ref": "${table_definition_dir}/ood/location.json#/table_definition"
+            "$ref": "${table_definition_dir}/ood/page_impressions.json#/table_definition"
         }
     ],
     "source_query": {
         "records": {
-            "app": "SUBSTRING(s.header_referer, LENGTH('${OOD_HOSTNAME}/pun/') + 1)",
-            "user": "s.user",
-            "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
-            "state": "CASE WHEN s.state = '' THEN 'NA' ELSE s.state END",
-            "country": "CASE WHEN s.country = '' THEN 'NA' ELSE s.country END",
-            "ua_family": "s.ua_family",
-            "ua_os_family": "s.ua_os_family"
+            "log_time_ts": "n.log_time_ts",
+            "log_day_id": "YEAR(FROM_UNIXTIME(n.log_time_ts)) * 100000 + DAYOFYEAR(FROM_UNIXTIME(n.log_time_ts))",
+            "user_id": "u.id",
+            "app_id": "a.id",
+            "location_id": "l.id",
+            "ua_family_id": "ua.id",
+            "ua_os_family_id": "os.id"
         },
         "joins": [
             {
-                "name": "staging",
+                "name": "normalized",
                 "schema": "${SOURCE_SCHEMA}",
-                "alias": "s"
+                "alias": "n"
+            },
+            {
+                "name": "app",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "a",
+                "on": "a.app_path = n.app"
+            },
+            {
+                "name": "users",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "u",
+                "on": "u.username = n.user"
+            },
+            {
+                "name": "location",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "l",
+                "on": "l.city = n.city AND l.state = n.state AND l.country = n.country"
+            },
+            {
+                "name": "client",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "ua",
+                "on": "ua.family = n.ua_family"
+            },
+            {
+                "name": "os",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "os",
+                "on": "os.family = n.ua_os_family"
             }
-        ],
-        "where": [
-            "s.user != '-'",
-            "s.header_referer LIKE '${OOD_HOSTNAME}/pun/%'"
         ]
     },
     "destination_record_map": {
-        "app": {
-            "app_path": "app"
-        },
-        "users": {
-            "username": "user"
-        },
-        "location": {
-            "city": "city",
-            "state": "state",
-            "country": "country"
-        },
-        "client": {
-            "family": "ua_family"
-        },
-        "os": {
-            "family": "ua_os_family"
+        "page_impressions": {
+            "log_time_ts": "log_time_ts",
+            "log_day_id": "log_day_id",
+            "user_id": "user_id",
+            "app_id": "app_id",
+            "location_id": "location_id",
+            "ua_family_id": "ua_family_id",
+            "ua_os_family_id": "ua_os_family_id"
         }
     }
 }

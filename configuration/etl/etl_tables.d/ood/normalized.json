@@ -1,0 +1,60 @@
+{
+    "table_definition": {
+        "name": "normalized",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "log_time_ts",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "user",
+                "type": "char(64)",
+                "nullable": false
+            },
+            {
+                "name": "app",
+                "type": "varchar(64)",
+                "nullable": false
+            },
+            {
+                "name": "city",
+                "type": "varchar(255)",
+                "nullable": true
+            },
+            {
+                "name": "state",
+                "type": "varchar(32)",
+                "nullable": true
+            },
+            {
+                "name": "country",
+                "type": "varchar(32)",
+                "nullable": true
+            },
+            {
+                "name": "ua_family",
+                "type": "varchar(255)",
+                "nullable": true
+            },
+            {
+                "name": "ua_os_family",
+                "type": "varchar(255)",
+                "nullable": true
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "log_time_ts",
+                    "user",
+                    "app"
+                ]
+            }
+        ]
+    }
+}
