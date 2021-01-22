@@ -30,12 +30,16 @@
             "definition_file": "ood/staging.json",
             "endpoints": {
                 "source": {
-                    "type": "webserverlog",
-                    "record_separator": "\n",
-                    "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"",
-                    "geoip_file": "/tmp/GeoLite2-City.mmdb",
+                    "type": "directoryscanner",
                     "name": "Web Server Logs",
-                    "path": "/scratch/ondemand/ondemand.log.02"
+                    "path": "/scratch/ondemand",
+                    "file_pattern": "/\\.log\\..*$/",
+                    "handler": {
+                        "type": "webserverlog",
+                        "record_separator": "\n",
+                        "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"",
+                        "geoip_file": "/tmp/GeoLite2-City.mmdb"
+                    }
                 }
             }
         },
@@ -43,13 +47,22 @@
             "name": "normalize-staging",
             "description": "Filter and normalized staged data",
             "class": "RegexTransformIngestor",
+            "regex_column": {
+                "referer_path": "app"
+            },
+            "regex_config": {
+                "$include": "etl_data.d/ood/application_map.json"
+            },
             "definition_file": "ood/normalized.json"
         },
         {
             "name": "staging-to-dimensions",
             "description": "Load log data from the staging table to the dimension tables",
             "class": "DatabaseIngestor",
-            "definition_file": "ood/dimensions.json"
+            "definition_file": "ood/dimensions.json",
+            "hide_sql_warning_codes": [
+                1062
+            ]
         },
         {
             "name": "staging-to-facts",

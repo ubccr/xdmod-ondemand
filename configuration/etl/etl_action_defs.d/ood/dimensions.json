@@ -18,24 +18,20 @@
     ],
     "source_query": {
         "records": {
-            "app": "SUBSTRING(s.header_referer, LENGTH('${OOD_HOSTNAME}/pun/') + 1)",
-            "user": "s.user",
-            "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
-            "state": "CASE WHEN s.state = '' THEN 'NA' ELSE s.state END",
-            "country": "CASE WHEN s.country = '' THEN 'NA' ELSE s.country END",
-            "ua_family": "s.ua_family",
-            "ua_os_family": "s.ua_os_family"
+            "app": "n.app",
+            "user": "n.user",
+            "city": "n.city",
+            "state": "n.state",
+            "country": "n.country",
+            "ua_family": "n.ua_family",
+            "ua_os_family": "n.ua_os_family"
         },
         "joins": [
             {
-                "name": "staging",
+                "name": "normalized",
                 "schema": "${SOURCE_SCHEMA}",
-                "alias": "s"
+                "alias": "n"
             }
-        ],
-        "where": [
-            "s.user != '-'",
-            "s.header_referer LIKE '${OOD_HOSTNAME}/pun/%'"
         ]
     },
     "destination_record_map": {
