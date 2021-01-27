@@ -44,6 +44,6 @@
     "#^/sys/vncsim/sys/bc_osc_owens_vdi#": "sys/owens_vdi",
     "#^/sys/vncsim/sys/([^/]+).*#": "sys/$1 (sys/ihpc)",
     "#^/sys/vncsim/usr/([^/]+)/([^/]+).*#": "usr/$1/$2 (sys/ihpc)",
-    "#^/sys/([^/]+).*$#": "sys/$1",
+    "#^/sys/([^/^?]+).*$#": "sys/$1",
     "#^/usr/([^/]+)/([^/]+).*#": "usr/$1/$2"
 }

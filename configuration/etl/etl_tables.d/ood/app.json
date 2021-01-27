@@ -13,13 +13,8 @@
             },
             {
                 "name": "app_path",
-                "type": "varchar(256)",
+                "type": "varchar(128)",
                 "nullable": false
-            },
-            {
-                "name": "name",
-                "type": "varchar(64)",
-                "nullable": true
             }
         ],
         "indexes": [

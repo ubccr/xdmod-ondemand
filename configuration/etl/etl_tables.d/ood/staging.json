@@ -52,15 +52,6 @@
             }
         ],
         "indexes": [
-            {
-                "name": "PRIMARY",
-                "columns": [
-                    "host",
-                    "user",
-                    "log_time_ts",
-                    "header_referer"
-                ]
-            }
         ]
     }
 }
