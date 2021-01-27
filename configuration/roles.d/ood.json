@@ -1,0 +1,29 @@
+{
+    "module": "ondemand",
+    "+roles": {
+        "+po": {
+            "+query_descripters": [
+                {
+                    "realm": "OnDemand",
+                    "group_by": "none"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "person"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "ood_app"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "location"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "useragent"
+                }
+            ]
+        }
+    }
+}

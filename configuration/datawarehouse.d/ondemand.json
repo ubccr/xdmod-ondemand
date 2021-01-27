@@ -1,0 +1,30 @@
+{
+    "OnDemand": {
+        "aggregate_schema": "modw_ondemand",
+        "aggregate_table_alias": "agg",
+        "aggregate_table_prefix": "logtimes_by_",
+        "datasource": "Open OnDemand server logs",
+        "group_bys": {
+            "day": {
+                "$ref": "datawarehouse.d/ref/group-by-time-period.json#/day"
+            },
+            "month": {
+                "$ref": "datawarehouse.d/ref/group-by-time-period.json#/month"
+            },
+            "quarter": {
+                "$ref": "datawarehouse.d/ref/group-by-time-period.json#/quarter"
+            },
+            "year": {
+                "$ref": "datawarehouse.d/ref/group-by-time-period.json#/year"
+            },
+            "none": {
+                "$ref": "datawarehouse.d/ref/group-by-none.json"
+            }
+        },
+        "module": "introspection",
+        "name": "Introspection",
+        "order": 100,
+        "statistics": {
+        }
+    }
+}

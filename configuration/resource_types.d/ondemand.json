@@ -1,0 +1,9 @@
+{
+    "resource_types": {
+        "Gateway": {
+            "realms": [
+                "OnDemand"
+            ]
+        }
+    }
+}
