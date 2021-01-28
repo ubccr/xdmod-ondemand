@@ -2,7 +2,7 @@
     "module": "ondemand",
     "defaults": {
         "global": {
-            "truncate_destination": true,
+            "truncate_destination": false,
             "namespace": "ETL\\Ingestor",
             "options_class": "IngestorOptions", 
             "endpoints": {
@@ -47,6 +47,7 @@
             "name": "normalize-staging",
             "description": "Filter and normalized staged data",
             "class": "RegexTransformIngestor",
+            "truncate_destination": true,
             "regex_column": {
                 "referer_path": "app"
             },

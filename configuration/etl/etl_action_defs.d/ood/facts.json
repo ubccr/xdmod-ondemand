@@ -8,6 +8,8 @@
         "records": {
             "log_time_ts": "n.log_time_ts",
             "log_day_id": "YEAR(FROM_UNIXTIME(n.log_time_ts)) * 100000 + DAYOFYEAR(FROM_UNIXTIME(n.log_time_ts))",
+            "resource_id": "r.id",
+            "person_id": -1,
             "user_id": "u.id",
             "app_id": "a.id",
             "location_id": "l.id",
@@ -19,6 +21,12 @@
                 "name": "normalized",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "n"
+            },
+            {
+                "name": "resourcefact",
+                "schema": "${UTILITY_SCHEMA}",
+                "alias": "r",
+                "on": "r.code = '${OOD_RESOURCE_CODE}'"
             },
             {
                 "name": "app",
@@ -56,6 +64,8 @@
         "page_impressions": {
             "log_time_ts": "log_time_ts",
             "log_day_id": "log_day_id",
+            "person_id": "person_id",
+            "resource_id": "resource_id",
             "user_id": "user_id",
             "app_id": "app_id",
             "location_id": "location_id",

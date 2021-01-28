@@ -8,10 +8,11 @@
         "include_patterns": [
         ],
         "exclude_paths": [
-            "docs"
         ],
         "exclude_patterns": [
-            "#/\\.#"
+            "#/\\.#",
+            "#/docs#",
+            "#/tests#"
         ]
     },
     "file_maps": {
