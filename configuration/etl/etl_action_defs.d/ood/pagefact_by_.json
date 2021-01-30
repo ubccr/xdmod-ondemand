@@ -1,0 +1,64 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/ood/pagefact_by_.json#/table_definition"
+    },
+    "aggregation_period_query": {
+        "overseer_restrictions": {
+            "last_modified_start_date": "last_modified >= ${VALUE}",
+            "last_modified_end_date": "last_modified <= ${VALUE}",
+            "include_only_resource_codes": "resource_id IN ${VALUE}",
+            "exclude_resource_codes": "resource_id NOT IN ${VALUE}"
+        },
+        "conversions": {
+            "start_day_id": "log_day_id",
+            "end_day_id": "log_day_id"
+        }
+    },
+    "destination_query": {
+        "overseer_restrictions": {
+            "include_only_resource_codes": "record_resource_id IN ${VALUE}",
+            "exclude_resource_codes": "record_resource_id NOT IN ${VALUE}"
+        }
+    },
+    "source_query": {
+        "overseer_restrictions": {
+            "include_only_resource_codes": "record.resource_id IN ${VALUE}",
+            "exclude_resource_codes": "record.resource_id NOT IN ${VALUE}"
+        },
+        "query_hint": "SQL_NO_CACHE",
+        "joins": [
+            {
+                "alias": "pf",
+                "name": "page_impressions",
+                "schema": "${SOURCE_SCHEMA}"
+            }
+        ],
+        "records": {
+            "${AGGREGATION_UNIT}_id": "${:PERIOD_ID}",
+            "year": "${:YEAR_VALUE}",
+            "${AGGREGATION_UNIT}": "${:PERIOD_VALUE}",
+            "resource_id": "resource_id",
+            "resource_organization_id": "resource_organization_id",
+            "person_id": "person_id",
+            "user_id": "user_id",
+            "app_id": "app_id",
+            "location_id": "location_id",
+            "ua_family_id": "ua_family_id",
+            "ua_os_family_id": "ua_os_family_id",
+            "impression_count": "SUM(1)",
+            "session_count": "COUNT(DISTINCT log_day_id)"
+        },
+        "groupby": [
+            "resource_id",
+            "person_id",
+            "user_id",
+            "app_id",
+            "location_id",
+            "ua_family_id",
+            "ua_os_family_id"
+        ],
+        "where": [
+            "log_day_id BETWEEN ${:PERIOD_START_DAY_ID} AND ${:PERIOD_END_DAY_ID}"
+        ]
+    }
+}

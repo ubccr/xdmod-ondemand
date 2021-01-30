@@ -27,6 +27,11 @@
                 "nullable": false
             },
             {
+                "name": "resource_organization_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
                 "name": "person_id",
                 "type": "int(11)",
                 "nullable": false

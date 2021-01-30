@@ -1,7 +1,7 @@
 {
     "module": "ondemand",
     "+roles": {
-        "+po": {
+        "+default": {
             "+query_descripters": [
                 {
                     "realm": "OnDemand",
@@ -13,15 +13,11 @@
                 },
                 {
                     "realm": "OnDemand",
-                    "group_by": "ood_app"
+                    "group_by": "resource"
                 },
                 {
                     "realm": "OnDemand",
-                    "group_by": "location"
-                },
-                {
-                    "realm": "OnDemand",
-                    "group_by": "useragent"
+                    "group_by": "browser"
                 }
             ]
         }

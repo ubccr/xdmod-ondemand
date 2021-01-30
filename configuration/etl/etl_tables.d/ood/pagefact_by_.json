@@ -1,0 +1,150 @@
+{
+    "table_definition": {
+        "name": "pagefact_by_",
+        "comment": "OnDemand Page Impression facts aggregated by ${AGGREGATION_UNIT}.",
+        "engine": "MyISAM",
+        "columns": [
+            {
+                "name": "${AGGREGATION_UNIT}_id",
+                "type": "int(10) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The id related to modw.${AGGREGATION_UNIT}s."
+            },
+            {
+                "name": "year",
+                "type": "smallint(5) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The year of the ${AGGREGATION_UNIT}"
+            },
+            {
+                "name": "${AGGREGATION_UNIT}",
+                "type": "smallint(5) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The ${AGGREGATION_UNIT} of the year."
+            },
+            {
+                "name": "resource_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The resource on which the request was made"
+            },
+            {
+                "name": "resource_organization_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The organization of the resource that the jobs ran on."
+            },
+            {
+                "name": "person_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The id of the person that was logged in to OnDemand"
+            },
+            {
+                "name": "user_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The id of the resource system account (local username) under which the job ran. References modw_ondemand.user.id"
+            },
+            {
+                "name": "app_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The OnDemand app that was accessed. Inferred from the referer path"
+            },
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The location of the web client that accessed OnDemand. Inferred from the IP address."
+            },
+            {
+                "name": "ua_family_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The user agent that accessed OnDemand. Inferred from the UA string"
+            },
+            {
+                "name": "ua_os_family_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: The operating system that accessed OnDemand. Inferred from the UA string"
+            },
+            {
+                "name": "impression_count",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "FACT: The total number of page impressions in this bin"
+            },
+            {
+                "name": "session_count",
+                "type": "int(11)",
+                "comment": "FACT: The total number of sessions.",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "index_resource_id",
+                "columns": [
+                    "resource_id"
+                ]
+            },
+            {
+                "name": "index_resource_organization_id",
+                "columns": [
+                    "resource_organization_id"
+                ]
+            },
+            {
+                "name": "index_person_id",
+                "columns": [
+                    "person_id"
+                ]
+            },
+            {
+                "name": "index_user_id",
+                "columns": [
+                    "user_id"
+                ]
+            },
+            {
+                "name": "index_app_id",
+                "columns": [
+                    "app_id"
+                ]
+            },
+            {
+                "name": "index_location_id",
+                "columns": [
+                    "location_id"
+                ]
+            },
+            {
+                "name": "index_ua_family_id",
+                "columns": [
+                    "ua_family_id"
+                ]
+            },
+            {
+                "name": "index_ua_os_family_id",
+                "columns": [
+                    "ua_os_family_id"
+                ]
+            },
+            {
+                "name": "index_period_value",
+                "columns": [
+                    "${AGGREGATION_UNIT}"
+                ]
+            },
+            {
+                "name": "index_period",
+                "columns": [
+                    "${AGGREGATION_UNIT}_id"
+                ]
+            }
+        ],
+        "table_prefix": "pagefact_by_"
+    }
+}

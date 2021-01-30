@@ -2,7 +2,7 @@
     "OnDemand": {
         "aggregate_schema": "modw_ondemand",
         "aggregate_table_alias": "agg",
-        "aggregate_table_prefix": "logtimes_by_",
+        "aggregate_table_prefix": "pagefact_by_",
         "datasource": "Open OnDemand server logs",
         "group_bys": {
             "day": {
@@ -19,12 +19,52 @@
             },
             "none": {
                 "$ref": "datawarehouse.d/ref/group-by-none.json"
+            },
+            "person": {
+                "$ref": "datawarehouse.d/ref/group-by-common.json#/person"
+            },
+            "resource": {
+                "$ref": "datawarehouse.d/ref/group-by-common.json#/resource"
+            },
+            "browser": {
+                "attribute_table_schema": "modw_ondemand",
+                "attribute_to_aggregate_table_key_map": [
+                    {
+                        "id": "ua_family_id"
+                    }
+                ],
+                "attribute_values_query": {
+                    "joins": [
+                        {
+                            "name": "client"
+                        }
+                    ],
+                    "orderby": [
+                        "family"
+                    ],
+                    "records": {
+                        "id": "id",
+                        "name": "family",
+                        "order_id": "family",
+                        "short_name": "family"
+                    }
+                },
+                "category": "Administrative",
+                "description_html": "The web browser that was used to access On Demand. This value is obtained from the user-agent string supplied by the browser",
+                "name": "Browser"
             }
         },
-        "module": "introspection",
-        "name": "Introspection",
-        "order": 100,
+        "module": "ondemand",
+        "name": "OnDemand",
+        "order": 200,
         "statistics": {
+            "page_load_count": {
+                "formula": "SUM(impression_count)",
+                "description_html": "The total number of page loads.",
+                "name": "Number of page loads",
+                "precision": 0,
+                "unit": "Number of loads"
+            }
         }
     }
 }

@@ -21,7 +21,7 @@
             }
         }
     },
-    "ood-log-ingestion": [
+    "log-ingestion": [
         {
             "name": "staging",
             "description": "Load webserver log data into a staging table.",
@@ -70,6 +70,18 @@
             "description": "Load log data from the staging table to the fact table",
             "class": "DatabaseIngestor",
             "definition_file": "ood/facts.json"
+        }
+    ],
+    "aggregation": [
+        {
+            "name": "aggregate",
+            "namespace": "ETL\\Aggregator",
+            "options_class": "AggregatorOptions",
+            "class": "SimpleAggregator",
+            "description": "Aggregate On Demand Log records",
+            "definition_file": "ood/pagefact_by_.json",
+            "table_prefix": "pagefact_by_",
+            "aggregation_units": ["day", "month", "quarter", "year"]
         }
     ]
 }

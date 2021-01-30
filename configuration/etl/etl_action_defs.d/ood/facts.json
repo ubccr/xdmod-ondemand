@@ -9,6 +9,7 @@
             "log_time_ts": "n.log_time_ts",
             "log_day_id": "YEAR(FROM_UNIXTIME(n.log_time_ts)) * 100000 + DAYOFYEAR(FROM_UNIXTIME(n.log_time_ts))",
             "resource_id": "r.id",
+            "resource_organization_id": "r.organization_id",
             "person_id": -1,
             "user_id": "u.id",
             "app_id": "a.id",
