@@ -52,6 +52,114 @@
                 "category": "Administrative",
                 "description_html": "The web browser that was used to access On Demand. This value is obtained from the user-agent string supplied by the browser",
                 "name": "Browser"
+            },
+            "oodapplication": {
+                "attribute_table_schema": "modw_ondemand",
+                "attribute_to_aggregate_table_key_map": [
+                    {
+                        "id": "app_id"
+                    }
+                ],
+                "attribute_values_query": {
+                    "joins": [
+                        {
+                            "name": "app"
+                        }
+                    ],
+                    "orderby": [
+                        "app_path"
+                    ],
+                    "records": {
+                        "id": "id",
+                        "name": "app_path",
+                        "order_id": "app_path",
+                        "short_name": "app_path"
+                    }
+                },
+                "category": "Administrative",
+                "description_html": "The Open OnDemand application that was accessed.",
+                "name": "OnDemand Application"
+            },
+            "ooduser": {
+                "attribute_table_schema": "modw_ondemand",
+                "attribute_to_aggregate_table_key_map": [
+                    {
+                        "id": "user_id"
+                    }
+                ],
+                "attribute_values_query": {
+                    "joins": [
+                        {
+                            "name": "users"
+                        }
+                    ],
+                    "orderby": [
+                        "username"
+                    ],
+                    "records": {
+                        "id": "id",
+                        "name": "username",
+                        "order_id": "username",
+                        "short_name": "username"
+                    }
+                },
+                "category": "Administrative",
+                "description_html": "The OnDemand username.",
+                "name": "OnDemand Username"
+            },
+            "operatingsys": {
+                "attribute_table_schema": "modw_ondemand",
+                "attribute_to_aggregate_table_key_map": [
+                    {
+                        "id": "ua_os_family_id"
+                    }
+                ],
+                "attribute_values_query": {
+                    "joins": [
+                        {
+                            "name": "os"
+                        }
+                    ],
+                    "orderby": [
+                        "family"
+                    ],
+                    "records": {
+                        "id": "id",
+                        "name": "family",
+                        "order_id": "family",
+                        "short_name": "family"
+                    }
+                },
+                "category": "Administrative",
+                "description_html": "The operating system that was used to access On Demand. This value is obtained from the user-agent string supplied by the browser",
+                "name": "Operating System"
+            },
+            "location": {
+                "attribute_table_schema": "modw_ondemand",
+                "attribute_to_aggregate_table_key_map": [
+                    {
+                        "id": "location_id"
+                    }
+                ],
+                "attribute_values_query": {
+                    "joins": [
+                        {
+                            "name": "location"
+                        }
+                    ],
+                    "orderby": [
+                        "order_id"
+                    ],
+                    "records": {
+                        "id": "id",
+                        "name": "name",
+                        "order_id": "order_id",
+                        "short_name": "name"
+                    }
+                },
+                "category": "Administrative",
+                "description_html": "The location of the broweser that was used to access On Demand. This value is inferred from the IP address in the server logs.",
+                "name": "Location"
             }
         },
         "module": "ondemand",
@@ -61,9 +169,37 @@
             "page_load_count": {
                 "formula": "SUM(impression_count)",
                 "description_html": "The total number of page loads.",
-                "name": "Number of page loads",
+                "name": "Number of Page Loads",
                 "precision": 0,
-                "unit": "Number of loads"
+                "unit": "Number of Page Loads"
+            },
+            "session_count": {
+                "formula": "SUM(session_count)",
+                "description_html": "The total number of sessions. Where a session is defined as one user visit to an app from a distinct IP address per day.",
+                "name": "Number of Sessions",
+                "precision": 0,
+                "unit": "Number of Sessions"
+            },
+            "user_count": {
+                "formula": "COUNT(DISTINCT user_id)",
+                "description_html": "The total number of users that used Open OnDemand.",
+                "precision": 0,
+                "name": "Number of Users: Active",
+                "unit": "Number of Users"
+            },
+            "app_count": {
+                "formula": "COUNT(DISTINCT app_id)",
+                "description_html": "The total number of apps used.",
+                "precision": 0,
+                "name": "Number of Apps: Active",
+                "unit": "Number of Apps"
+            },
+            "sessions_per_user": {
+                "formula": "SUM(session_count) / COUNT(DISTINCT user_id)",
+                "description_html": "The total number of sessions per user. Where a session is defined as one user visit to an app from a distinct IP address per day.",
+                "name": "Number of Sessions: Per User",
+                "precision": 2,
+                "unit": "Number of Sessions"
             }
         }
     }

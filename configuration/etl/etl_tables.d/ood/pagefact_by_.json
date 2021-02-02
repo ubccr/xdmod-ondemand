@@ -23,7 +23,7 @@
                 "comment": "DIMENSION: The ${AGGREGATION_UNIT} of the year."
             },
             {
-                "name": "resource_id",
+                "name": "record_resource_id",
                 "type": "int(11)",
                 "nullable": false,
                 "comment": "DIMENSION: The resource on which the request was made"
@@ -87,7 +87,7 @@
             {
                 "name": "index_resource_id",
                 "columns": [
-                    "resource_id"
+                    "record_resource_id"
                 ]
             },
             {

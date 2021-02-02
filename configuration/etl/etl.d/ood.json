@@ -66,6 +66,18 @@
             ]
         },
         {
+            "name": "dimension-orderids",
+            "description": "Update the order_id columns in the various dimensions",
+            "namespace": "ETL\\Maintenance",
+            "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
+            "sql_file_list": [
+                {
+                    "sql_file": "ood/dimension_orderid.sql"
+                }
+            ]
+        },
+        {
             "name": "staging-to-facts",
             "description": "Load log data from the staging table to the fact table",
             "class": "DatabaseIngestor",

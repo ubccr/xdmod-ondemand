@@ -25,6 +25,16 @@
                 "name": "country",
                 "type": "varchar(32)",
                 "nullable": false
+            },
+            {
+                "name": "name",
+                "type": "varchar(196)",
+                "nullable": false
+            },
+            {
+                "name": "order_id",
+                "type": "int(11)",
+                "nullable": false
             }
         ],
         "indexes": [
@@ -42,6 +52,12 @@
                     "country"
                 ],
                 "is_unique": true
+            },
+            {
+                "name": "ordering",
+                "columns": [
+                    "order_id"
+                ]
             }
         ]
     }
