@@ -18,6 +18,22 @@
                 {
                     "realm": "OnDemand",
                     "group_by": "browser"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "operatingsys"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "location"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "oodapplication"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "ooduser"
                 }
             ]
         }
