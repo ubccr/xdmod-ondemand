@@ -20,7 +20,7 @@ tested with [MaxMind's GeoLite2 City database](https://dev.maxmind.com/geoip/geo
 The database file is not distributed with Open XDMoD and must be
 obtained seperately. If no database is present then all location
 information will be marked as 'Unknown'. The database is not
-required for the Open XDMoD module to display and process OnDemand 
+required for the Open XDMoD module to display and process OnDemand
 server log data.
 
 TODO: specify GeoIP data file location
@@ -42,4 +42,4 @@ as it appears in the server logs. This includes the `https://` parts and any por
 do not include the trailing forward slash. You also need to specify the XDMoD resource name.
 For example:
 
-    /usr/share/xdmod/tools/etl/etl_overseer.php -p ondemand.ood-log-ingestion -d OOD_HOSTNAME=https://ondemand.ccr.buffalo.edu -d OOD_RESOURCE_CODE=ondemand -v debug
+    /usr/share/xdmod/tools/etl/etl_overseer.php -p ondemand.log-ingestion -p ondemand.aggregation -d OOD_HOSTNAME=https://ondemand.ccr.buffalo.edu -d OOD_RESOURCE_CODE=ondemand -v debug

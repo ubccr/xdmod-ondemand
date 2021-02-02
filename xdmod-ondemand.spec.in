@@ -1,4 +1,4 @@
-Name:          xdmod-ood
+Name:          xdmod-ondemand
 Version:       __VERSION__
 Release:       __RELEASE__%{?dist}
 Summary:       Open OnDemand log analysis module for Open XDMoD
