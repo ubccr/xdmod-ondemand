@@ -82,6 +82,18 @@
             "description": "Load log data from the staging table to the fact table",
             "class": "DatabaseIngestor",
             "definition_file": "ood/facts.json"
+        },
+        {
+            "name": "resolve-people",
+            "description": "cross reference the ondemand usernames to identify corresponding person in the person table",
+            "namespace": "ETL\\Maintenance",
+            "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
+            "sql_file_list": [
+                {
+                    "sql_file": "ood/person_lookup.sql"
+                }
+            ]
         }
     ],
     "aggregation": [
