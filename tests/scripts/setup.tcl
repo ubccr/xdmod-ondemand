@@ -23,6 +23,18 @@ enterToContinue
 confirmFileWrite yes
 enterToContinue
 
+# Setup the OnDemand database
+selectMenuOption 9
+
+selectMenuOption d
+
+answerQuestion {DB Admin Username:} root
+providePassword {DB Admin Password:} {}
+
+provideInput {Do you want to see the output*} {no}
+
+selectMenuOption q
+
 selectMenuOption q
 
 lassign [wait] pid spawnid os_error_flag value
