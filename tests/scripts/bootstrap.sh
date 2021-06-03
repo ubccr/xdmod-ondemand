@@ -9,10 +9,6 @@ XDMOD_SRC_DIR=${XDMOD_SRC_DIR:-$BASEDIR/../../../xdmod}
 set -e
 set -o pipefail
 
-# Get a copy of the GeoIP data (this is not up to date hence we don't explictly
-# add it as a dependency)
-yum install -y GeoIP-data
-
 # bootstrap XDMoD
 $XDMOD_SRC_DIR/tests/ci/bootstrap.sh
 
@@ -22,14 +18,16 @@ expect $BASEDIR/setup.tcl | col -b
 # run xdmod-ingestor to add the new resource to the datawarehouse.
 sudo -u xdmod xdmod-ingestor
 
-# Copy example log files into a temp directory and import
+# Copy example log files into a temp directory since the
+# import process runs as xdmod user and needs read access.
 mkdir $LOGPATH
 cp $BASEDIR/../artifacts/*.log $LOGPATH
+cp $BASEDIR/../artifacts/empty.mmdb /tmp
 
 sudo -u xdmod /usr/share/xdmod/tools/etl/etl_overseer.php \
     -p ondemand.log-ingestion \
     -p ondemand.aggregation \
-    -d GEOIP_FILE_PATH=/usr/share/GeoIP/GeoIPCity-initial.dat \
+    -d GEOIP_FILE_PATH=/tmp/empty.mmdb \
     -d OOD_LOG_PATH=$LOGPATH \
     -d OOD_HOSTNAME=https://localhost:3443 \
     -d OOD_RESOURCE_CODE=styx \
