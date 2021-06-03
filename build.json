@@ -16,9 +16,14 @@
         ]
     },
     "file_maps": {
+        "data": [
+            "classes",
+            "db"
+        ],
         "etc": {
             "configuration/etl": "",
             "configuration/modules.d": "",
+            "configuration/setup.d": "",
             "configuration/roles.d": "",
             "configuration/datawarehouse.d": "",
             "configuration/resource_types.d": ""
