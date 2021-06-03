@@ -1,7 +1,43 @@
 {
     "module": "ondemand",
     "+roles": {
-        "+default": {
+        "+cd": {
+            "+query_descripters": [
+                {
+                    "realm": "OnDemand",
+                    "group_by": "none"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "person"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "resource"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "browser"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "operatingsys"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "location"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "oodapplication"
+                },
+                {
+                    "realm": "OnDemand",
+                    "group_by": "ooduser"
+                }
+            ]
+        },
+        "+cs": {
             "+query_descripters": [
                 {
                     "realm": "OnDemand",
