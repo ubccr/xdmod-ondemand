@@ -1,0 +1,9 @@
+{
+    "+menu": [
+        {
+            "position": 250,
+            "label": "Open OnDemand",
+            "handler": "OnDemandSetup"
+        }
+    ]
+}

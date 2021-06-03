@@ -2,7 +2,7 @@ Name:          xdmod-ondemand
 Version:       __VERSION__
 Release:       __RELEASE__%{?dist}
 Summary:       Open OnDemand log analysis module for Open XDMoD
-URL:           https://introspection.xdmod.org/
+URL:           https://ondemand.xdmod.org/
 Vendor:        Center for Computational Research, University at Buffalo
 Packager:      Joseph P. White <jpwhite4@buffalo.edu>
 Group:         Applications/Internet
@@ -36,3 +36,4 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_sysconfdir}/xdmod/
+%{_datadir}/xdmod/
