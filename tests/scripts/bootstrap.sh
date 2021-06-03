@@ -4,6 +4,7 @@
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOGPATH=/tmp/ondemand
+XDMOD_SRC_DIR=${XDMOD_SRC_DIR:-$BASEDIR/../../../xdmod}
 
 set -e
 set -o pipefail
@@ -13,7 +14,7 @@ set -o pipefail
 yum install -y GeoIP-data
 
 # bootstrap XDMoD
-$BASEDIR/../../../../xdmod/tests/ci/bootstrap.sh
+$XDMOD_SRC_DIR/tests/ci/bootstrap.sh
 
 # Run the interactive setup to add a new resource and setup the database.
 expect $BASEDIR/setup.tcl | col -b
