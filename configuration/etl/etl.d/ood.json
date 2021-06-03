@@ -18,6 +18,10 @@
                     "config": "database",
                     "schema": "modw_ondemand"
                 }
+            },
+            "paths": {
+                "OOD_LOG_PATH": "/scratch/ondemand",
+                "GEOIP_FILE_PATH": "/scratch/GeoLite2-City.mmdb"
             }
         }
     },
@@ -32,13 +36,13 @@
                 "source": {
                     "type": "directoryscanner",
                     "name": "Web Server Logs",
-                    "path": "/scratch/ondemand",
-                    "file_pattern": "/\\.log\\..*$/",
+                    "path": "${OOD_LOG_PATH}",
+                    "file_pattern": "/\\.log(\\.[0-9]+)?$/",
                     "handler": {
                         "type": "webserverlog",
+                        "geoip_file": "${GEOIP_FILE_PATH}",
                         "record_separator": "\n",
-                        "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"",
-                        "geoip_file": "/tmp/GeoLite2-City.mmdb"
+                        "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
                     }
                 }
             }
@@ -54,7 +58,10 @@
             "regex_config": {
                 "$include": "etl_data.d/ood/application_map.json"
             },
-            "definition_file": "ood/normalized.json"
+            "definition_file": "ood/normalized.json",
+            "hide_sql_warning_codes": [
+                1062
+            ]
         },
         {
             "name": "staging-to-dimensions",
