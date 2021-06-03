@@ -50,6 +50,7 @@
         },
         "groupby": [
             "record_resource_id",
+            "resource_organization_id",
             "person_id",
             "user_id",
             "app_id",
