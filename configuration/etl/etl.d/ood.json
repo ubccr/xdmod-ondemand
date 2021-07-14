@@ -4,7 +4,7 @@
         "global": {
             "truncate_destination": false,
             "namespace": "ETL\\Ingestor",
-            "options_class": "IngestorOptions", 
+            "options_class": "IngestorOptions",
             "endpoints": {
                 "source": {
                     "type": "mysql",
@@ -18,10 +18,6 @@
                     "config": "database",
                     "schema": "modw_ondemand"
                 }
-            },
-            "paths": {
-                "OOD_LOG_PATH": "/scratch/ondemand",
-                "GEOIP_FILE_PATH": "/scratch/GeoLite2-City.mmdb"
             }
         }
     },
@@ -42,7 +38,7 @@
                         "type": "webserverlog",
                         "geoip_file": "${GEOIP_FILE_PATH}",
                         "record_separator": "\n",
-                        "log_format": "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
+                        "log_format": "${APACHE_LOG_FORMAT}"
                     }
                 }
             }

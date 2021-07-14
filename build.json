@@ -19,9 +19,17 @@
     "file_maps": {
         "data": [
             "classes",
-            "db"
+            "db",
+            { "templates": "templates/ondemand" }
+        ],
+        "bin": [
+            "bin/"
+        ],
+        "doc": [
+            "LICENSE"
         ],
         "etc": {
+            "configuration/portal_settings.d/ondemand.ini": "portal_settings.d/ondemand.ini",
             "configuration/etl": "",
             "configuration/modules.d": "",
             "configuration/setup.d": "",

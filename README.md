@@ -96,17 +96,16 @@ the resource information into the XDMoD datawarehouse.
 
 ### GeoIP database setup
 
-If a GeoIP database is used then the file should be copied to the XDMoD server.
-The `xdmod` user must have read access to the file.
+The module infers geographic location based on the IP address in the Open OnDemand
+logs. If a GeoLite2 City database file is available then it should be copied
+to a path where the `xdmod` user has read access.
 
-If a GeoIP database is not going to be used then the `etl/etl.d/ood.json` configuration
-file should be edited to remove the `geoip_file` configuration parameter
-from the `log-ingestion` endpoint definition. A `sed` command that will remove
-the line is shown below:
+The `/etc/xdmod/portal_settings.d/ondemand.ini` configuration
+file should be edited to add the path to the file to the `geoip_database` option. The full path
+to the file should be used.
 
-```bash
-# sed -i '/"geoip_file":/d' /etc/xdmod/etl/etl.d/ood.json
-```
+If a GeoLite2 City database file is not available then the `geoip_database` option
+should be set to an empty string.
 
 # Usage
 
@@ -115,32 +114,26 @@ Prerequisites:
 2) The `acl-config` command has been run (`xdmod-setup` does this automatically after the database is setup).
 3) The OnDemand resource has been added via `xdmod-setup` and `xdmod-ingestor` run to load the resource
    into XDMoD's datawarehouse.
-4) Either: a GeoIP database file available or GeoIP lookup disabled by editing the configuration.
+4) The `portal_settings.d/ondemand.ini` configuration file updated to specify the path to a GeoLite2 City database file.
 
 
-The OnDemand weblog ingestion pipeline requires four parameters:
+The OnDemand weblog ingestion pipeline requires three parameters:
 
-| Parameter Name | Default | Description
-| -------------- | ------- | -----------
-| `OOD_RESOURCE_CODE` | - | Must be set to the name of the resource when it was added to XDMoD in the `xdmod-setup` command. |
-| `OOD_HOSTNAME` | - | Must be set to the hostname of the ondemand instance exactly as it appears in the server logs. This includes the `https://` parts and any port numbers but do not include the trailing forward slash. |
-| `GEOIP_FILE_PATH` | `/scratch/GeoLite2-City.mmdb` | Set to the path to the GeoIP file. This variable is not used if the geoip lookup is disabled. |
-| `OOD_LOG_PATH` | `/scratch/ondemand` | Set to the path to a directory containing webserver log files from the Open OnDemand server. The ingestor will process all files in this directory that have the suffix `.log` or `.log.X` where X is a number |
+| Parameter Name | Description
+| -------------- | -----------
+| `-r` or `--resource` | Must be set to the name of the resource when it was added to XDMoD in the `xdmod-setup` command. |
+| `-u` or `--url` | Must be set to the hostname of the ondemand instance exactly as it appears in the server logs. This includes the `https://` parts and any port numbers but do not include the trailing forward slash. |
+| `-d` or `--dir` | Set to the path to a directory containing webserver log files from the Open OnDemand server. The ingestor will process all files in this directory that have the suffix `.log` or `.log.X` where X is a number |
 
 
-The pipeline is then run as follows:
+The pipeline should be run as the `xdmod` user as follows:
 
-    /usr/share/xdmod/tools/etl/etl_overseer.php -p ondemand.log-ingestion -p ondemand.aggregation -d GEOIP_FILE_PATH=/path/to/geoipfile -d OOD_LOG_PATH=/path/to/ood_server_logs -d OOD_HOSTNAME=https://ondemand.ccr.xdmod.org -d OOD_RESOURCE_CODE=ondemand -v debug
-
-You do not need to override the `OOD_LOG_PATH` and `GEOIP_FILE_PATH` variables if the files are in the default locations.
-Finally the filter list cache is updated:
-
-    /usr/bin/xdmod-build-filter-lists --realm OnDemand
+    xdmod-ondemand-ingestor -d /path/to/ood_server_logs -r [resource] -u [ondemand hostname]
 
 ### Hints
 
 For log files with a large amount of data (hundreds of thousands of lines), the ingestion pipeline
-will run faster if you split large log files into smaller ones. An example of how to do this 
+will run faster if you split large log files into smaller ones. An example of how to do this
 is to use the `split` commandline tool to split the large logf file by lines and generate
 output files with a numbered suffix (note the period at the end of the output filename):
 
@@ -156,4 +149,10 @@ Make sure you are logged in with a user account that has either Center Director
 or Center Staff role. Note the admin user account that is created with `xdmod-setup`
  does not have these roles by default.
 
+#### The xdmod-ondemand-ingestor command ran without error, but no data
 
+Re-run the `xdmod-ondemand-ingestor` command with the `--debug` flag to show detailed information
+about what it is running. Things to double check:
+- The `webserver_format_str` setting matches the data format in the log files
+- The filenames of the log files end in `.log` or `.log.N` where `N` is a number
+- The url specified on the command line exactly matches the url in the webserver log files. This should include the protocol part (https://) and any port numbers but not the trailing forward slash character.

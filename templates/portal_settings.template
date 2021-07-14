@@ -1,0 +1,10 @@
+[ondemand-general]
+
+; The version number is updated during the upgrade process.
+version = "[:ondemand-general_version:]"
+
+; The path to the GEO IP Lite City database
+geoip_database = "[:ondemand-general_geoip_database:]"
+
+; The Apache log file format string used to interpret the data in the webserver log files.
+webserver_format_str = "[:ondemand-general_webserver_format_str:]"

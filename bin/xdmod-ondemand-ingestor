@@ -1,0 +1,226 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Shred, Ingest and Aggregate log files from Open OnDemand
+ *
+ */
+
+require_once __DIR__ . '/../configuration/linker.php';
+
+use CCR\Log;
+use ETL\Utilities;
+
+try {
+    main();
+} catch (Exception $e) {
+    do {
+        fwrite(STDERR, $e->getMessage() . "\n");
+        fwrite(STDERR, $e->getTraceAsString() . "\n");
+    } while ($e = $e->getPrevious());
+    exit(1);
+}
+
+function main()
+{
+    global $argv, $logger;
+
+    $opts = array(
+        array('h',  'help'),
+        array('v',  'verbose'),
+        array('',   'debug'),
+        array('q',  'quiet'),
+        array('',   'dry-run'),
+        array('d:', 'dir:'),
+        array('r:', 'resource:'),
+        array('u:',   'url:'),
+    );
+
+    $shortOptions = implode(
+        '',
+        array_map(function ($opt) { return $opt[0]; }, $opts)
+    );
+    $longOptions = array_map(function ($opt) { return $opt[1]; }, $opts);
+
+    $args = getopt($shortOptions, $longOptions);
+
+    if ($args === false) {
+        fwrite(STDERR, "Failed to parse arguments\n");
+        exit(1);
+    }
+
+    $help = false;
+    $dryRun = false;
+    $logLevel = -1;
+    $last_modified = null;
+
+    $dir = null;
+    $resource = null;
+    $url = null;
+
+    foreach ($args as $key => $value) {
+        if (is_array($value)) {
+            fwrite(STDERR, "Multiple values not allowed for '$key'\n");
+            exit(1);
+        }
+
+        switch ($key) {
+            case 'h':
+            case 'help':
+                $help = true;
+                break;
+            case 'q':
+            case 'quiet':
+                $logLevel = max($logLevel, Log::WARNING);
+                break;
+            case 'v':
+            case 'verbose':
+                $logLevel = max($logLevel, Log::INFO);
+                break;
+            case 'debug':
+                $logLevel = max($logLevel, Log::DEBUG);
+                break;
+            case 'm':
+            case 'last-modified-start-date':
+                if (strtotime($value) === false) {
+                    $logger->crit("Could not parse last modified start date: '$value'");
+                    exit(1);
+                }
+                $last_modified = $value;
+                break;
+            case 'd':
+            case 'dir':
+                $dir = $value;
+                break;
+            case 'r':
+            case 'resource':
+                $resource = $value;
+                break;
+            case 'u':
+            case 'url':
+                $url = $value;
+                break;
+            case 'dry-run':
+                $dryRun = true;
+                break;
+            default:
+                fwrite(STDERR, "Unexpected option '$key'\n");
+                exit(1);
+                break;
+        }
+    }
+
+    if ($logLevel === -1) { $logLevel = Log::NOTICE; }
+
+    if ($help) {
+        displayHelpText();
+        exit;
+    }
+
+    if ($resource === null || $url === null || $dir === null) {
+        fwrite(STDERR, "Missing mandatory options\n");
+        displayHelpText();
+        exit(1);
+    }
+
+    $siteConfig = \xd_utilities\getConfigurationSection('ondemand-general');
+
+    $geoip_database = CONFIG_DIR . '/etl/etl_data.d/ood/empty.mmdb';
+    if ($siteConfig['geoip_database'] != '') {
+        $geoip_database = $siteConfig['geoip_database'];
+    }
+    $conf = array(
+        'file'            => false,
+        'mail'            => false,
+        'consoleLogLevel' => $logLevel,
+    );
+
+    $logger = Log::factory('xdmod-ondemand-ingestor', $conf);
+
+    $cmd = implode(' ', array_map('escapeshellarg', $argv));
+    $logger->info("Command: $cmd");
+
+    $process_start_time = date('Y-m-d H:i:s');
+
+    $scriptOptions = array(
+        'process-sections' => array(
+            'ondemand.log-ingestion',
+            'ondemand.aggregation'
+        ),
+        'last-modified-start-date' => $process_start_time,
+        'verbosity' => $conf['consoleLogLevel'],
+        'option-overrides' => array(),
+        'variable-overrides' => array(
+            'OOD_LOG_PATH' => $dir,
+            'OOD_RESOURCE_CODE' => $resource,
+            'OOD_HOSTNAME' => $url,
+            'APACHE_LOG_FORMAT' => $siteConfig['webserver_format_str'],
+            'GEOIP_FILE_PATH' => $geoip_database
+        ),
+        'default-module-name' => 'xdmod'
+    );
+
+    if ($dryRun) {
+        $scriptOptions['dryrun'] = true;
+    }
+
+    if ($last_modified !== null) {
+        $scriptOptions['last-modified-start-date'] = $last_modified;
+    }
+
+    $etlConfig = \ETL\Configuration\EtlConfiguration::factory(
+        CONFIG_DIR . '/etl/etl.json',
+        null,
+        $logger,
+        array(
+            'option_overrides' => $scriptOptions['option-overrides'],
+            'config_variables' => $scriptOptions['variable-overrides'],
+            'default_module_name' => $scriptOptions['default-module-name']
+        )
+    );
+    Utilities::setEtlConfig($etlConfig);
+    $overseerOptions = new \ETL\EtlOverseerOptions($scriptOptions, $logger);
+    $overseer = new \ETL\EtlOverseer($overseerOptions, $logger);
+    $overseer->execute($etlConfig);
+
+    $process_end_time = date('Y-m-d H:i:s');
+
+    $filterListBuilder = new FilterListBuilder($logger);
+    $filterListBuilder->buildRealmLists('OnDemand');
+}
+
+function displayHelpText()
+{
+    echo <<<'EOF'
+
+Usage: xdmod-ondemand-helper [-v] -r resource -u url -d dir
+
+    -h, --help
+        Display this message and exit.
+
+    -v, --verbose
+        Output info level logging.
+
+    --debug
+        Output debug level logging.
+
+    -q, --quiet
+        Output warning level logging.
+
+    --dry-run
+        Parse log files, but don't insert anything into the database.
+
+    -m, --last-modified-start-date
+        override the datestamp used to determine which rows to process in the database.
+
+    -r, --resource *resource*
+        Specify the resource name of the log files being shredded.
+
+    -u, --url *URL*
+        Specify the URL of the Open OnDemand website. This should exactly
+        match the url as it appears in the webserver log files.
+
+    -d, --dir *directory*
+        Specify a directory containing Open OnDemand web server log files to shred.
+
+EOF;
+}
