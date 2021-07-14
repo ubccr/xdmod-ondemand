@@ -67,6 +67,7 @@
             "log_day_id": "log_day_id",
             "person_id": "person_id",
             "resource_id": "resource_id",
+            "resource_organization_id": "resource_organization_id",
             "user_id": "user_id",
             "app_id": "app_id",
             "location_id": "location_id",

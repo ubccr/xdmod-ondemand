@@ -24,6 +24,7 @@
             "state": "n.state",
             "country": "n.country",
             "location_name": "CASE WHEN n.country = 'unknown' AND n.state = 'unknown' AND n.country = 'unknown' THEN 'Unknown' ELSE CONCAT_WS(', ', n.city, n.state, n.country) END",
+            "location_order_id": "-1",
             "ua_family": "n.ua_family",
             "ua_os_family": "n.ua_os_family"
         },
@@ -46,7 +47,8 @@
             "city": "city",
             "state": "state",
             "country": "country",
-            "name": "location_name"
+            "name": "location_name",
+            "order_id": "location_order_id"
         },
         "client": {
             "family": "ua_family"
