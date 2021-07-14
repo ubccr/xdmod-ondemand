@@ -28,7 +28,7 @@ selectMenuOption 9
 
 selectMenuOption d
 
-answerQuestion {DB Admin Username:} root
+answerQuestion {DB Admin Username} root
 providePassword {DB Admin Password:} {}
 
 provideInput {Do you want to see the output*} {no}
