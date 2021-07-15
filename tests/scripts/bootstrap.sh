@@ -22,14 +22,5 @@ sudo -u xdmod xdmod-ingestor
 # import process runs as xdmod user and needs read access.
 mkdir $LOGPATH
 cp $BASEDIR/../artifacts/*.log $LOGPATH
-cp $BASEDIR/../artifacts/empty.mmdb /tmp
 
-sudo -u xdmod /usr/share/xdmod/tools/etl/etl_overseer.php \
-    -p ondemand.log-ingestion \
-    -p ondemand.aggregation \
-    -d GEOIP_FILE_PATH=/tmp/empty.mmdb \
-    -d OOD_LOG_PATH=$LOGPATH \
-    -d OOD_HOSTNAME=https://localhost:3443 \
-    -d OOD_RESOURCE_CODE=styx \
-    -v debug
-
+sudo -u xdmod xdmod-ondemand-ingestor -d $LOGPATH -u https://localhost:3443 -r styx --debug

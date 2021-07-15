@@ -35,5 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
+%config(noreplace) %attr(0440,apache,xdmod) %{_sysconfdir}/xdmod/portal_settings.d/ondemand.ini
+%{_bindir}/xdmod-ondemand-ingestor
+%{_docdir}/%{name}-%{version}__PRERELEASE__/
 %{_sysconfdir}/xdmod/
 %{_datadir}/xdmod/
