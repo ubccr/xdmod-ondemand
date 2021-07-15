@@ -2,7 +2,7 @@
     "name": "xdmod-ondemand",
     "version": "9.5.0",
     "release": "1.0",
-    "prerelease": "rc.1",
+    "prerelease": "rc.2",
     "files": {
         "include_paths": [
         ],
