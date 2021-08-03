@@ -13,5 +13,11 @@ toc:
         url: /9.5/requirements.html
       - page: Installation Guide
         url: /9.5/install.html
+      - page: Configuration Guide
+        url: /9.5/configuration.html
+      - page: Usage
+        url: /9.5/usage.html
+  - title: Help
+    subfolderitems:
       - page: FAQ
         url: /9.5/faq.html

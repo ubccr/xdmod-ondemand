@@ -15,3 +15,7 @@ An MMDB database file is only required for, and used by, the location lookup
 when log data are loaded into XDMoD.  If no database file is available, then
 the location information for all sessions will show as 'Unknown'. However
 all of the other data dimensions are unaffected.
+
+## Next Step
+
+Next [install](install.md) the package.
