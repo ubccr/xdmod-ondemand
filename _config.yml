@@ -19,7 +19,7 @@ description: >
   Open XDMoD Module for Open OnDemand log data allows the display and analysis
   of the usage of Open OnDemand in Open XDMoD. 
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://ondemand.xdmod.org" # the base hostname & protocol for your site
+url: "http://ondemand.xdmod.org" # the base hostname & protocol for your site
 github_username: ubccr
 github_url: https://github.com/ubccr/xdmod-ondemand
 xdmod_module_name: OnDemand
