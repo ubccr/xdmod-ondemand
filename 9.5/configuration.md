@@ -44,9 +44,8 @@ The resource setup menu will prompt for the node and core count for the resource
 data are not currently used by the On Demand module, but it is recommmended to use the
 correct core and node counts for the Open OnDemand webserver for consistency.
 
-** After the resource has been added then the `xdmod-ingestor` script must be run to load
-the resource information into the XDMoD datawarehouse. **
-
+**The `xdmod-ingestor` script must be run after the new resource is added**. Running
+`xdmod-ingestor` loads the resource information into the XDMoD datawarehouse.
 
 ## Configuration file
 

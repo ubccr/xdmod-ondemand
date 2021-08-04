@@ -1,8 +1,8 @@
 ## Prerequisites:
-1) The OnDemand module [installed](install.md)
-2) The database schema has been [created](configuration.md#Database_Configuration)
-3) The OnDemand resource has been [added](configuration.md#Resource_Setup)
-4) The `portal_settings.d/ondemand.ini` configuration file [edited as needed](configuration.md#Configuration_file)
+1. The OnDemand module [installed](install.md)
+2. The database schema has been [created](configuration.md#database-configuration)
+3. The OnDemand resource has been [added](configuration.md#resource-setup)
+4. The `portal_settings.d/ondemand.ini` configuration file [edited as needed](configuration.md#configuration-file)
 
 ## Shred, Ingest, Aggregate
 
