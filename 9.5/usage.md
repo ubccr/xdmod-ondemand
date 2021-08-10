@@ -22,10 +22,10 @@ The pipeline should be run as the `xdmod` user as follows:
 ### Hints
 
 For log files with a large amount of data (hundreds of thousands of lines), the ingestion pipeline
-will run faster if you split large log files into smaller ones. An example of how to do this
-is to use the `split` commandline tool to split the large logf file by lines and generate
+will use less memory and run faster if you split large log files into smaller ones. An example of how to do this
+is to use the `split` commandline tool to split the large log file by lines and generate
 output files with a numbered suffix (note the period at the end of the output filename):
 
 ```bash
-split -d -l 30000 [LARGE INPUT FILE] /scratch/ondemand/webserver.log.
+split -d -l 20000 [LARGE INPUT FILE] /scratch/ondemand/webserver.log.
 ```
