@@ -1,7 +1,7 @@
 ## Prerequisites
 
 The OnDemand module should be added to an existing working instance of
-Open XDMoD version 9.5 or later. See the [Open XDMoD site](https://open.xdmod.org/9.5/)
+Open XDMoD version {{ page.version }} or later. See the [Open XDMoD site](https://open.xdmod.org/)
 for setup and install instructions.
 
 ## Source code install

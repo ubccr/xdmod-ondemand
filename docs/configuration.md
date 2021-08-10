@@ -36,7 +36,7 @@ Once the schema is created then the `acl-config` command should be run:
 ## Resource Setup
 
 Add a new resource to Open XDMoD using the `xdmod-setup` script.
-Instructions for adding the resource are on the [main Open XDMoD page](https://open.xdmod.org/9.5/configuration.html#resources)
+Instructions for adding the resource are on the [main Open XDMoD page](https://open.xdmod.org/{{ page.version }}/configuration.html#resources)
 
 The Open OnDemand resource must have a type set to `gateway`.
 
