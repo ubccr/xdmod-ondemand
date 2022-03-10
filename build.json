@@ -1,8 +1,7 @@
 {
     "name": "xdmod-ondemand",
     "version": "10.0.0",
-    "release": "0.4",
-    "prerelease": "rc4",
+    "release": "1.0",
     "files": {
         "include_paths": [
         ],
