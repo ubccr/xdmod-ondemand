@@ -1,7 +1,6 @@
 ---
 redirect_from:
     - "/9.5/"
-    - ""
 ---
 The XDMoD Open OnDemand Module is an optional module for
 tracking usage of the Open OnDemand software in XDMoD.
