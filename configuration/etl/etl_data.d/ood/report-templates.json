@@ -1,0 +1,4 @@
+[
+    ["id", "name", "description", "template", "title", "header", "footer", "format", "schedule", "delivery", "charts_per_page", "use_submenu"],
+    [1000, "Open OnDemand Usage Report - Center Director", "Open OnDemand Usage Report - Center Director", "GenericReportTemplate", "Open OnDemand Usage Report - Center Director", "", "", "Pdf", "Quarterly", "E-mail", 1, 0]
+]

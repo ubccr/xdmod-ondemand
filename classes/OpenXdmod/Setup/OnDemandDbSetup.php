@@ -7,6 +7,7 @@ namespace OpenXdmod\Setup;
 
 use CCR\DB\MySQLHelper;
 use CCR\Log;
+use ETL\Utilities;
 
 /**
  * Setup database schema for the Open OnDemand module.
@@ -89,6 +90,13 @@ EOT
             $this->console->prompt('Press ENTER to continue.');
             return;
         }
+
+        Utilities::runEtlPipeline(
+            array('bootstrap'),
+            $logger,
+            array(),
+            'ondemand'
+        );
 
         $aclConfig = new AclConfig($this->console);
         $aclConfig->handle();
