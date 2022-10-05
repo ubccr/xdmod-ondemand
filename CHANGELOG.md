@@ -1,6 +1,8 @@
 XDMoD Open OnDemand Module ChangeLog
 =====================
 
+## XXXX-XX-XX v10.5.0
+
 ## 2022-03-10 v10.0.0
 
 - Updates to support Open XDMoD 10.0
