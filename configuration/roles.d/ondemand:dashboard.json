@@ -1,0 +1,192 @@
+{
+    "+roles": {
+        "+cd": {
+            "dashboard_components": [
+                {
+                    "name": "DashBoardChart_CdOnDemandUsers",
+                    "type": "xdmod-dash-chart-cmp",
+                    "config": {
+                        "chart": {
+                            "trend_line": false,
+                            "swap_xy": false,
+                            "share_y_axis": false,
+                            "hide_tooltip": false,
+                            "show_remainder": false,
+                            "timeseries": true,
+                            "title": "Active Users",
+                            "legend_type": "bottom_center",
+                            "font_size": 3,
+                            "show_filters": true,
+                            "show_warnings": true,
+                            "data_series": {
+                                "data": [
+                                    {
+                                        "group_by": "none",
+                                        "color": "auto",
+                                        "log_scale": false,
+                                        "std_err": false,
+                                        "value_labels": false,
+                                        "display_type": "line",
+                                        "combine_type": "side",
+                                        "sort_type": "value_desc",
+                                        "ignore_global": false,
+                                        "long_legend": true,
+                                        "x_axis": false,
+                                        "has_std_err": false,
+                                        "trend_line": false,
+                                        "line_type": "Solid",
+                                        "line_width": 2,
+                                        "shadow": false,
+                                        "filters": {
+                                            "data": [],
+                                            "total": 0
+                                        },
+                                        "z_index": 0,
+                                        "visibility": null,
+                                        "enabled": true,
+                                        "metric": "user_count",
+                                        "realm": "OnDemand",
+                                        "category": "OnDemand",
+                                        "id": 3019017706021349
+                                    },
+                                    {
+                                        "group_by": "none",
+                                        "color": "auto",
+                                        "log_scale": false,
+                                        "std_err": false,
+                                        "value_labels": false,
+                                        "display_type": "line",
+                                        "combine_type": "side",
+                                        "sort_type": "value_desc",
+                                        "ignore_global": false,
+                                        "long_legend": true,
+                                        "x_axis": false,
+                                        "has_std_err": false,
+                                        "trend_line": false,
+                                        "line_type": "Solid",
+                                        "line_width": 2,
+                                        "shadow": false,
+                                        "filters": {
+                                            "data": [],
+                                            "total": 0
+                                        },
+                                        "z_index": 1,
+                                        "visibility": null,
+                                        "enabled": true,
+                                        "metric": "active_person_count",
+                                        "realm": "Jobs",
+                                        "category": "Jobs",
+                                        "id": 8246303931560769
+                                    }
+                                ],
+                                "total": 2
+                            },
+                            "aggregation_unit": "Auto",
+                            "timeframe_label": "90 day",
+                            "start": 0,
+                            "limit": 10
+                        },
+                        "location": {
+                            "column": 0,
+                            "row": 2
+                        }
+                    }
+                }
+            ]
+        },
+        "+cs": {
+            "dashboard_components": [
+                {
+                    "name": "DashBoardChart_CdOnDemandUsers",
+                    "type": "xdmod-dash-chart-cmp",
+                    "config": {
+                        "chart": {
+                            "trend_line": false,
+                            "swap_xy": false,
+                            "share_y_axis": false,
+                            "hide_tooltip": false,
+                            "show_remainder": false,
+                            "timeseries": true,
+                            "title": "Active Users",
+                            "legend_type": "bottom_center",
+                            "font_size": 3,
+                            "show_filters": true,
+                            "show_warnings": true,
+                            "data_series": {
+                                "data": [
+                                    {
+                                        "group_by": "none",
+                                        "color": "auto",
+                                        "log_scale": false,
+                                        "std_err": false,
+                                        "value_labels": false,
+                                        "display_type": "line",
+                                        "combine_type": "side",
+                                        "sort_type": "value_desc",
+                                        "ignore_global": false,
+                                        "long_legend": true,
+                                        "x_axis": false,
+                                        "has_std_err": false,
+                                        "trend_line": false,
+                                        "line_type": "Solid",
+                                        "line_width": 2,
+                                        "shadow": false,
+                                        "filters": {
+                                            "data": [],
+                                            "total": 0
+                                        },
+                                        "z_index": 0,
+                                        "visibility": null,
+                                        "enabled": true,
+                                        "metric": "user_count",
+                                        "realm": "OnDemand",
+                                        "category": "OnDemand",
+                                        "id": 3019017706021349
+                                    },
+                                    {
+                                        "group_by": "none",
+                                        "color": "auto",
+                                        "log_scale": false,
+                                        "std_err": false,
+                                        "value_labels": false,
+                                        "display_type": "line",
+                                        "combine_type": "side",
+                                        "sort_type": "value_desc",
+                                        "ignore_global": false,
+                                        "long_legend": true,
+                                        "x_axis": false,
+                                        "has_std_err": false,
+                                        "trend_line": false,
+                                        "line_type": "Solid",
+                                        "line_width": 2,
+                                        "shadow": false,
+                                        "filters": {
+                                            "data": [],
+                                            "total": 0
+                                        },
+                                        "z_index": 1,
+                                        "visibility": null,
+                                        "enabled": true,
+                                        "metric": "active_person_count",
+                                        "realm": "Jobs",
+                                        "category": "Jobs",
+                                        "id": 8246303931560769
+                                    }
+                                ],
+                                "total": 2
+                            },
+                            "aggregation_unit": "Auto",
+                            "timeframe_label": "90 day",
+                            "start": 0,
+                            "limit": 10
+                        },
+                        "location": {
+                            "column": 0,
+                            "row": 2
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
