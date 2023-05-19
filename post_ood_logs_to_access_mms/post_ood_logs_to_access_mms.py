@@ -5,21 +5,60 @@
 # will ingest and aggregate the data to be included in ACCESS XDMoD.
 
 # Import required libraries.
+import argparse
 import configparser
 import glob
+import logging
 import os
 import subprocess
 import time
 
-# If true, print debugging statements as the script runs.
-DEBUG = True
+# Read version number from file.
+with open('VERSION', 'r') as version_file:
+    version = version_file.read()
 
-# Name of the configuration file in which metadata about the logs and the runs
-# of this script are read/written. Assumed to be in the same directory as this
-# script.
-CONF_FILENAME = 'conf.ini'
+# Parse arguments.
+parser = argparse.ArgumentParser(
+    description='Parse Open OnDemand logs and POST them to the ACCESS MMS team'
+    + ' for inclusion in XDMoD.',
+    allow_abbrev=False,
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
+parser.add_argument(
+    '-c',
+    '--conf-path',
+    default='conf.ini',
+    help='path to the configuration file that declares where to'
+    + ' find log files and how to parse them',
+)
+parser.add_argument(
+    '-l',
+    '--log-level',
+    choices=('DEBUG', 'WARNING', 'ERROR'),
+    default='WARN',
+)
+parser.add_argument(
+    '-t',
+    '--token-path',
+    default='/root/.access_mms_ood_token',
+    help='path to the file containing the API token obtained from the ACCESS'
+    + ' MMS team',
+)
+parser.add_argument(
+    '--version',
+    action='version',
+    version=version,
+)
+args = parser.parse_args()
 
-# Initialize a configuration file parser.
+# Initialize the logger.
+logging.basicConfig()
+logger = logging.getLogger(__file__)
+logger.setLevel(args.log_level)
+
+logger.debug('Using arguments:' + str(args))
+
+logger.debug('Initializing configuration file parser.')
 conf = configparser.ConfigParser(
     # Empty values are OK and will be handled by this script.
     allow_no_value=True,
@@ -27,23 +66,29 @@ conf = configparser.ConfigParser(
     interpolation=None,
 )
 
-# Parse this script's configuration file.
-parsed_filenames = conf.read(CONF_FILENAME)
-
-# If the configuration file cannot be read, raise an exception.
+logger.debug("Parsing this script's configuration file.")
+parsed_filenames = conf.read(args.conf_path)
 if not parsed_filenames:
-    raise FileNotFoundError(CONF_FILENAME + ' not found.')
+    raise FileNotFoundError(args.conf_path + ' not found.')
 
-# Read the [logs] properties from the configuration file.
-log_dir = conf.get('logs', 'dir')
-log_format = conf.get('logs', 'format')
-filename_pattern = conf.get('logs', 'filename_pattern')
+# Define a function to get a property from the configuration file.
+def __get_conf_property(conf, section, key):
+    logger.debug(
+        'Getting ' + key + ' property from the [' + section
+        + '] section of the configuration file:'
+    )
+    value = conf.get(section, key)
+    logger.debug(value)
+    return value
 
-# Read the [runs] properties from the configuration file.
-last_run = conf.get('runs', 'last_run')
+log_dir = __get_conf_property(conf, 'logs', 'dir')
+log_format = __get_conf_property(conf, 'logs', 'format')
+filename_pattern = __get_conf_property(conf, 'logs', 'filename_pattern')
+last_run = __get_conf_property(conf, 'runs', 'last_run')
 
-# Record the current time just before we start processing logs.
+logger.debug('Recording current time just before processing logs:')
 current_time = time.time()
+logger.debug(current_time)
 
 # Find all the log files at the given directory whose name matches the given
 # pattern.
@@ -68,7 +113,7 @@ comment_header = """\
 # The values in the [runs] section will be overwritten in-place in this file by
 # the script when it runs.
 """
-with open(CONF_FILENAME, 'w') as conf_file:
+with open(args.conf_path, 'w') as conf_file:
     conf_file.write(comment_header)
-with open(CONF_FILENAME, 'a') as conf_file:
+with open(args.conf_path, 'a') as conf_file:
     conf.write(conf_file)
