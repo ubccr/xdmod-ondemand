@@ -6,7 +6,10 @@
 
 # Import required libraries.
 import configparser
+import glob
+import os
 import subprocess
+import time
 
 # If true, print debugging statements as the script runs.
 DEBUG = True
@@ -16,13 +19,15 @@ DEBUG = True
 # script.
 CONF_FILENAME = 'conf.ini'
 
-# Read this script's configuration file.
+# Initialize a configuration file parser.
 conf = configparser.ConfigParser(
     # Empty values are OK and will be handled by this script.
     allow_no_value=True,
     # Make sure not to try to interpolate % signs in the log format.
     interpolation=None,
 )
+
+# Parse this script's configuration file.
 parsed_filenames = conf.read(CONF_FILENAME)
 
 # If the configuration file cannot be read, raise an exception.
@@ -32,9 +37,26 @@ if not parsed_filenames:
 # Read the [logs] properties from the configuration file.
 log_dir = conf.get('logs', 'dir')
 log_format = conf.get('logs', 'format')
+filename_pattern = conf.get('logs', 'filename_pattern')
 
 # Read the [runs] properties from the configuration file.
 last_run = conf.get('runs', 'last_run')
+
+# Record the current time just before we start processing logs.
+current_time = time.time()
+
+# Find all the log files at the given directory whose name matches the given
+# pattern.
+log_files = glob.glob(log_dir + '/' + filename_pattern)
+
+# For each file,
+for log_file in log_files:
+
+    # Get the last modified time.
+    mtime = os.path.getmtime(log_file)
+
+# Record the current time in the configuration file.
+conf.set('runs', 'last_run', str(current_time))
 
 # Write the configuration values back to the configuration file.
 comment_header = """\
