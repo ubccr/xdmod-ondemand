@@ -34,8 +34,8 @@ parser.add_argument(
 parser.add_argument(
     '-l',
     '--log-level',
-    choices=('DEBUG', 'WARNING', 'ERROR'),
-    default='WARN',
+    choices=('DEBUG', 'INFO', 'WARNING', 'ERROR'),
+    default='WARNING',
 )
 parser.add_argument(
     '-t',
@@ -56,6 +56,7 @@ logging.basicConfig()
 logger = logging.getLogger(__file__)
 logger.setLevel(args.log_level)
 
+logger.info('Script starting.')
 logger.debug('Using arguments:' + str(args))
 
 logger.debug('Initializing configuration file parser.')
@@ -86,20 +87,35 @@ log_format = __get_conf_property(conf, 'logs', 'format')
 filename_pattern = __get_conf_property(conf, 'logs', 'filename_pattern')
 last_run = __get_conf_property(conf, 'runs', 'last_run')
 
+if last_run == '':
+    logger.debug('Last run is empty, setting to 0.0')
+    last_run = 0.0
+
 logger.debug('Recording current time just before processing logs:')
 current_time = time.time()
 logger.debug(current_time)
 
-# Find all the log files at the given directory whose name matches the given
-# pattern.
+logger.debug('Finding the log files:')
 log_files = glob.glob(log_dir + '/' + filename_pattern)
+logger.debug(log_files)
 
-# For each file,
+logger.debug('Sorting by modified time and excluding old files')
+mtimes = {}
 for log_file in log_files:
+    mtimes[log_file] = os.path.getmtime(log_file)
+    logger.debug(
+        'modified time of ' + log_file + ' is ' + str(mtimes[log_file])
+    )
+    if float(mtimes[log_file]) < float(last_run):
+        logger.debug(
+            'which is older than the last run, so will not be parsing it.'
+        )
+        del mtimes[log_file]
+sorted_log_files = sorted(mtimes)
+logger.debug('Sorted list of log files:')
+logger.debug(sorted_log_files)
 
-    # Get the last modified time.
-    mtime = os.path.getmtime(log_file)
-
+logger.debug('Writing values back to configuration file.')
 # Record the current time in the configuration file.
 conf.set('runs', 'last_run', str(current_time))
 
@@ -111,9 +127,13 @@ comment_header = """\
 # and how to parse them.
 #
 # The values in the [runs] section will be overwritten in-place in this file by
-# the script when it runs.
+# the script when it runs. Log files will only be processed whose modified
+# times are greater than the value for last_run.
+
 """
 with open(args.conf_path, 'w') as conf_file:
     conf_file.write(comment_header)
 with open(args.conf_path, 'a') as conf_file:
     conf.write(conf_file)
+
+logger.info('Script finished.')
