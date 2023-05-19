@@ -16,7 +16,6 @@ maintainers = [
 ]
 requires-python = ">=3"
 dependencies = [
-    "configparser",
     "requests"
 ]
 
