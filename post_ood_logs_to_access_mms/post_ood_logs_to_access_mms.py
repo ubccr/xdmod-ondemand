@@ -13,17 +13,20 @@ import glob
 import logging
 import operator
 import os
+import requests
 import subprocess
 import sys
 import time
 
 class LogPoster:
     def __init__(self):
+        self.__access_mms_server_url = 'http://localhost:1234'
         self.__datetime_format = '%Y-%m-%d %H:%M:%S%z'
         self.__version = self.__read_version()
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
+        sys.excepthook = self.__excepthook
         self.__logger.debug('Using arguments: ' + str(self.__args))
         self.__logger = self.__init_logger()
         self.__conf_parser = self.__init_conf_parser()
@@ -37,7 +40,7 @@ class LogPoster:
             self.__parse_and_post()
         finally:
             self.__write_conf()
-            self.__logger.info('Script finished.')
+        self.__logger.info('Script finished.')
 
 
     def __read_version(self):
@@ -82,6 +85,13 @@ class LogPoster:
         return args
 
 
+    def __excepthook(self, exctype, value, traceback):
+        if self.__args.log_level == 'DEBUG':
+            sys.__excepthook__(exctype, value, traceback)
+        else:
+            self.__logger.error(value)
+
+
     def __init_logger(self):
         logging.basicConfig()
         logger = logging.getLogger(__file__)
@@ -120,11 +130,7 @@ class LogPoster:
             'Getting `' + key + '` property from the [' + section
             + '] section of the configuration file:'
         )
-        try:
-            value = self.__conf_parser.get(section, key)
-        except Exception as e:
-            self.__logger.error('Getting configuration property: ' + str(e))
-            sys.exit(1)
+        value = self.__conf_parser.get(section, key)
         self.__logger.debug(value)
         return value
 
@@ -150,11 +156,7 @@ class LogPoster:
                 + self.__datetime_to_str(previous_entry)
             )
         else:
-            try:
-                previous_entry = self.__str_to_datetime(previous_entry_str)
-            except ValueError as e:
-                self.__logger.error(str(e))
-                sys.exit(1)
+            previous_entry = self.__str_to_datetime(previous_entry_str)
         return previous_entry
 
 
@@ -228,28 +230,36 @@ class LogPoster:
 
 
     def __parse_and_post(self):
-        self.__logger.info('Starting parsing and POSTing of log files.')
+        self.__logger.debug('Starting parsing and POSTing of log files.')
         for log_file_path in self.__sorted_log_file_paths:
             self.__logger.info('Parsing and posting ' + log_file_path)
-            with open(log_file_path, 'r') as log_file:
-                line_num = 0
-                for line in log_file:
-                    try:
-                        entry = self.__log_parser.parse(line)
-                        # Only include lines for which a user is logged in.
-                        if entry.remote_user is not None:
-                            pass
-                    except apachelogs.errors.InvalidEntryError:
-                        self.__logger.warn(
-                            'Skipping invalid entry: ' + log_file_path
-                            + ' line ' + line_num + ': ' + line
-                        )
-                    line_num += 1
+            response = requests.post(
+                self.__access_mms_server_url,
+                data=self.__parse_log_file(log_file_path),
+            )
             self.__conf_parser.set(
                 'runs',
                 'previous_entry',
                 self.__datetime_to_str(self.__last_timestamps[log_file_path]),
             )
+
+
+    def __parse_log_file(self, log_file_path):
+        with open(log_file_path, 'r') as log_file:
+            line_num = 0
+            for line in log_file:
+                try:
+                    entry = self.__log_parser.parse(line)
+                    # Only include lines for which a user is logged in.
+                    if entry.remote_user is not None:
+                        # TODO: reformat into default LogFormat if needed.
+                        yield line.encode()
+                except apachelogs.errors.InvalidEntryError:
+                    self.__logger.warn(
+                        'Skipping invalid entry: ' + log_file_path
+                        + ' line ' + line_num + ': ' + line
+                    )
+                line_num += 1
 
 
     def __write_conf(self):
