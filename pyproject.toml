@@ -13,8 +13,9 @@ authors = [
 maintainers = [
     {name = "XDMoD team", email = "ccr-xdmod-help@buffalo.edu"}
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 dependencies = [
+    "apachelogs",
     "requests"
 ]
 dynamic = ["version"]
