@@ -11,6 +11,7 @@ import configparser
 from datetime import datetime, timezone
 import glob
 import logging
+import operator
 import os
 import subprocess
 import sys
@@ -18,8 +19,7 @@ import time
 
 class LogPoster:
     def __init__(self):
-        # TODO: is datetime format needed?
-        self.__datetime_format = '%Y-%m-%d %H:%M:%S%Z'
+        self.__datetime_format = '%Y-%m-%d %H:%M:%S%z'
         self.__version = self.__read_version()
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
@@ -30,11 +30,9 @@ class LogPoster:
         self.__parse_conf()
         self.__log_parser = self.__init_log_parser()
         self.__log_file_paths = self.__find_log_files()
-        self.__before_time = self.__get_before_time()
-        (
-            self.__last_timestamps,
-            self.__sorted_log_file_paths
-        ) = self.__filter_and_sort_log_files()
+        self.__previous_entry = self.__get_previous_entry()
+        self.__last_timestamps = self.__filter_log_files()
+        self.__sorted_log_file_paths = self.__sort_log_files()
         try:
             self.__parse_and_post()
         finally:
@@ -120,7 +118,7 @@ class LogPoster:
     def __get_conf_property(self, section, key):
         self.__logger.debug(
             'Getting `' + key + '` property from the [' + section
-            + '] section of the configuration file.'
+            + '] section of the configuration file:'
         )
         try:
             value = self.__conf_parser.get(section, key)
@@ -143,23 +141,34 @@ class LogPoster:
         return log_file_paths
 
 
-    def __get_before_time(self):
-        before_time = self.__get_conf_property('runs', 'before_time')
-        if before_time == '':
-            before_time = datetime.fromtimestamp(0, tz=timezone.utc)
+    def __get_previous_entry(self):
+        previous_entry_str = self.__get_conf_property('runs', 'previous_entry')
+        if previous_entry_str == '':
+            previous_entry = self.__str_to_datetime('1970-01-01 00:00:00+0000')
             self.__logger.debug(
-                'before_time is empty, setting to ' + str(before_time)
+                'previous_entry is empty, setting to '
+                + self.__datetime_to_str(previous_entry)
             )
         else:
-            #TODO: test
-            #self.__before_time = datetime.strptime(
-            #    before_time, self.__datetime_format
-            #)
-            pass
-        return before_time
+            try:
+                previous_entry = self.__str_to_datetime(previous_entry_str)
+            except ValueError as e:
+                self.__logger.error(str(e))
+                sys.exit(1)
+        return previous_entry
 
 
-    def __filter_and_sort_log_files(self):
+    def __str_to_datetime(self, string):
+        dt = datetime.strptime(string, self.__datetime_format)
+        return dt
+
+
+    def __datetime_to_str(self, dt):
+        string = datetime.strftime(dt, self.__datetime_format)
+        return string
+
+
+    def __filter_log_files(self):
         self.__logger.debug(
             'Parsing last timestamps in files and excluding old files.'
         )
@@ -171,20 +180,17 @@ class LogPoster:
                 last_timestamps[log_file_path] = entry.request_time
                 self.__logger.debug(
                     'Last timestamp of ' + log_file_path + ' is '
-                    + str(last_timestamps[log_file_path])
+                    + self.__datetime_to_str(last_timestamps[log_file_path])
                 )
-                if last_timestamps[log_file_path] <= self.__before_time:
+                if last_timestamps[log_file_path] <= self.__previous_entry:
                     self.__logger.debug(
-                        'which is not after before_time,'
+                        'which is not after previous_entry,'
                         + ' so will not be parsing it.'
                     )
                     del last_timestamps[log_file_path]
             except apachelogs.errors.InvalidEntryError:
                 self.__logger.warn('Skipping invalid file: ' + log_file_path)
-        self.__logger.debug('Sorting list of log files:')
-        sorted_log_file_paths = sorted(last_timestamps)
-        self.__logger.debug(sorted_log_file_paths)
-        return (last_timestamps, sorted_log_file_paths)
+        return last_timestamps
 
 
     def __get_last_line_in_file(self, file_path):
@@ -210,10 +216,21 @@ class LogPoster:
         return last_line
 
 
+    def __sort_log_files(self):
+        self.__logger.debug('Sorting list of log files:')
+        sorted_last_timestamps = sorted(
+            self.__last_timestamps.items(),
+            key=operator.itemgetter(1),
+        )
+        sorted_log_file_paths = [i[0] for i in sorted_last_timestamps]
+        self.__logger.debug(sorted_log_file_paths)
+        return sorted_log_file_paths
+
+
     def __parse_and_post(self):
         self.__logger.info('Starting parsing and POSTing of log files.')
         for log_file_path in self.__sorted_log_file_paths:
-            self.__logger.debug('Parsing and posting ' + log_file_path)
+            self.__logger.info('Parsing and posting ' + log_file_path)
             with open(log_file_path, 'r') as log_file:
                 line_num = 0
                 for line in log_file:
@@ -222,7 +239,7 @@ class LogPoster:
                         # Only include lines for which a user is logged in.
                         if entry.remote_user is not None:
                             pass
-                    except InvalidEntryError:
+                    except apachelogs.errors.InvalidEntryError:
                         self.__logger.warn(
                             'Skipping invalid entry: ' + log_file_path
                             + ' line ' + line_num + ': ' + line
@@ -230,8 +247,8 @@ class LogPoster:
                     line_num += 1
             self.__conf_parser.set(
                 'runs',
-                'before_time',
-                str(self.__last_timestamps[log_file_path]),
+                'previous_entry',
+                self.__datetime_to_str(self.__last_timestamps[log_file_path]),
             )
 
 
