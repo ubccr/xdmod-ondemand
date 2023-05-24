@@ -10,12 +10,8 @@ import argparse
 import configparser
 import glob
 import logging
-import operator
-import os
 import requests
-import subprocess
 import sys
-import time
 
 class LogPoster:
     def __init__(self):
