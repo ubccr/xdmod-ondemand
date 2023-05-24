@@ -22,7 +22,6 @@ class LogPoster:
         self.__logger.info('Script starting.')
         sys.excepthook = self.__excepthook
         self.__logger.debug('Using arguments: ' + str(self.__args))
-        self.__logger = self.__init_logger()
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
         self.__log_parser = self.__init_log_parser()
