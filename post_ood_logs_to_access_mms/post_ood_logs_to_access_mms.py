@@ -10,18 +10,23 @@ import argparse
 import configparser
 import glob
 import logging
+import os
+import re
 import requests
 import sys
 
 class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
+        self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
         self.__version = self.__read_version()
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
+        # Override how exceptions are handled.
         sys.excepthook = self.__excepthook
         self.__logger.debug('Using arguments: ' + str(self.__args))
+        self.__api_token = self.__load_api_token()
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
         self.__log_parser = self.__init_log_parser()
@@ -36,7 +41,7 @@ class LogPoster:
 
     def __read_version(self):
         with open('VERSION', 'r') as version_file:
-            version = version_file.read()
+            version = version_file.read().strip()
         return version
 
 
@@ -88,6 +93,22 @@ class LogPoster:
         logger = logging.getLogger(__file__)
         logger.setLevel(self.__args.log_level)
         return logger
+
+
+    def __load_api_token(self):
+        self.__logger.debug('Loading the API token.')
+        file_stat = os.stat(self.__args.token_path)
+        if file_stat.st_mode != 33152:
+            self.__logger.warning(
+                'File permissions on '
+                + self.__args.token_path
+                + ' not set to 600!'
+            )
+        with open(self.__args.token_path, 'r') as token_file:
+            api_token = token_file.read().strip()
+        if not self.__api_token_pattern.match(api_token):
+            raise ValueError('API token is in the wrong format.')
+        return api_token
 
 
     def __init_conf_parser(self):
@@ -183,10 +204,23 @@ class LogPoster:
         self.__logger.debug('Starting parsing and POSTing of log files.')
         for log_file_path in self.__log_file_paths:
             self.__logger.info('Parsing and posting ' + log_file_path)
-            response = requests.post(
-                self.__access_mms_server_url,
-                data=self.__parse_log_file(log_file_path),
-            )
+            try:
+                response = requests.post(
+                    self.__access_mms_server_url,
+                    data=self.__parse_log_file(log_file_path),
+                    headers={
+                        'content-type': 'text/plain',
+                        'authorization': 'Bearer ' + self.__api_token
+                    },
+                )
+            except requests.exceptions.ConnectionError as e:
+                if '[Errno 32] Broken pipe' in str(e):
+                    raise requests.exceptions.ConnectionError(
+                        'Server closed connection.'
+                        + ' Please make sure API token is valid.'
+                    ) from e
+                else:
+                    raise e
             self.__logger.debug(response.text)
             if log_file_path != self.__log_file_paths[-1]:
                 self.__conf_parser.set('prev_run', 'file', log_file_path)
