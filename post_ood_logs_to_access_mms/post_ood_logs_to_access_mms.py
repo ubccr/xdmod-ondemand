@@ -8,8 +8,10 @@
 import apachelogs
 import argparse
 import configparser
+from datetime import datetime, timezone
 import glob
 import logging
+import operator
 import os
 import re
 import requests
@@ -30,8 +32,8 @@ class LogPoster:
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
         self.__log_parser = self.__init_log_parser()
+        (self.__last_line, self.__last_request_time) = self.__parse_last_line()
         self.__log_file_paths = self.__find_log_files()
-        (self.__prev_line, self.__prev_request_time) = self.__parse_prev_line()
         try:
             self.__parse_and_post()
         finally:
@@ -147,57 +149,101 @@ class LogPoster:
         return value
 
 
+    def __parse_last_line(self):
+        last_line = self.__get_conf_property('prev_run', 'last_line')
+        if last_line == '':
+            last_line = None
+            last_request_time = datetime.fromtimestamp(0, tz=timezone.utc)
+        else:
+            entry = self.__log_parser.parse(last_line)
+            last_request_time = entry.request_time
+        self.__logger.debug('Previous line: ' + str(last_line))
+        self.__logger.debug('Previous request time: ' + str(last_request_time))
+        return (last_line, last_request_time)
+
+
     def __find_log_files(self):
         self.__logger.debug('Finding, sorting, and filtering the log files.')
         log_file_paths = glob.glob(
             self.__get_conf_property('logs', 'dir')
             + '/'
-            + self.__get_conf_property('logs', 'filename_prefix')
-            + '*'
+            + self.__get_conf_property('logs', 'filename_pattern')
         )
-        log_file_paths = self.__sort_log_files(log_file_paths)
-        log_file_paths = self.__filter_log_files(log_file_paths)
+        last_request_times = self.__filter_log_files(log_file_paths)
+        log_file_paths = self.__sort_log_files(last_request_times)
         self.__logger.debug('Will process these log files:')
         self.__logger.debug(log_file_paths)
         return log_file_paths
 
 
-    def __sort_log_files(self, log_file_paths):
-        log_file_paths = sorted(log_file_paths)
-        # Move the first file in the list to the end, since it is assumed to be
-        # the file that has no suffix and is thus the newest file that has not
-        # been rotated yet.
-        log_file_paths.append(log_file_paths.pop(0))
-        return log_file_paths
-
-
     def __filter_log_files(self, log_file_paths):
-        # Of file paths that have suffixes (i.e., not the last file in the
-        # list, see __sort_log_files()), only include those that are greater
-        # than the configured previous file's path.
-        prev_file_path = self.__get_conf_property('prev_run', 'file')
-        newest_file = log_file_paths.pop()
-        log_file_paths = list(
-            filter(
-                lambda file_path: file_path > prev_file_path,
-                log_file_paths
-            )
+        self.__logger.debug(
+            'Parsing last request times in files and excluding old files.'
         )
-        log_file_paths.append(newest_file)
-        return log_file_paths
+        last_request_times = {}
+        for log_file_path in log_file_paths:
+            last_line = self.__get_last_line_in_file(log_file_path)
+            try:
+                if last_line.strip() == self.__last_line:
+                    self.__logger.debug(
+                        'Last line of '
+                        + log_file_path
+                        + ' is the configured last_line,'
+                        + ' so will not be parsing it.'
+                    )
+                    continue
+                entry = self.__log_parser.parse(last_line)
+                last_request_times[log_file_path] = entry.request_time
+                self.__logger.debug(
+                    'Last request time of ' + log_file_path + ' is:'
+                    + str(last_request_times[log_file_path])
+                )
+                if (
+                    last_request_times[log_file_path]
+                    < self.__last_request_time
+                ):
+                    self.__logger.debug(
+                        'which is before the request time of the last line of'
+                        + ' the previous run, so will not be parsing it.'
+                    )
+                    del last_request_times[log_file_path]
+            except apachelogs.errors.InvalidEntryError:
+                self.__logger.warn('Skipping invalid file: ' + log_file_path)
+        return last_request_times
 
 
-    def __parse_prev_line(self):
-        prev_line = self.__get_conf_property('prev_run', 'line')
-        if prev_line == '':
-            prev_line = None
-            prev_request_time = None
-        else:
-            entry = self.__log_parser.parse(prev_line)
-            prev_request_time = entry.request_time
-        self.__logger.debug('Previous line: ' + str(prev_line))
-        self.__logger.debug('Previous request time: ' + str(prev_request_time))
-        return (prev_line, prev_request_time)
+    def __get_last_line_in_file(self, file_path):
+        with open(file_path, 'rb') as file:
+            try:
+                # Move to the second-to-last character in the file.
+                file.seek(-2, os.SEEK_END)
+                # Read the character, which seeks forward one character.
+                char = file.read(1)
+                # Until the character is a newline,
+                while char != b'\n':
+                    # Seek back two characters.
+                    file.seek(-2, os.SEEK_CUR)
+                    # Read the character, which seeks forward one character.
+                    char = file.read(1)
+            # An error will occur if the file is fewer than two lines long, in
+            # which case,
+            except OSError:
+                # Seek to the beginning of the file.
+                file.seek(0)
+            # Read the current line.
+            last_line = file.readline().decode('utf-8')
+        return last_line
+
+
+    def __sort_log_files(self, last_request_times):
+        self.__logger.debug('Sorting list of log files:')
+        sorted_last_request_times = sorted(
+            last_request_times.items(),
+            key=operator.itemgetter(1),
+        )
+        sorted_log_file_paths = [i[0] for i in sorted_last_request_times]
+        self.__logger.debug(sorted_log_file_paths)
+        return sorted_log_file_paths
 
 
     def __parse_and_post(self):
@@ -222,35 +268,26 @@ class LogPoster:
                 else:
                     raise e
             self.__logger.debug(response.text)
-            if log_file_path != self.__log_file_paths[-1]:
-                self.__conf_parser.set('prev_run', 'file', log_file_path)
-            self.__conf_parser.set('prev_run', 'line', self.__new_prev_line)
+            self.__conf_parser.set('prev_run', 'line', self.__new_last_line)
 
 
     def __parse_log_file(self, log_file_path):
         with open(log_file_path, 'r') as log_file:
             line_num = 0
-            seen_prev_line = False
             for line in log_file:
                 try:
                     entry = self.__log_parser.parse(line)
-                    # Ignore lines that are before the configured previous
-                    # line.
-                    if self.__prev_request_time is not None:
-                        if entry.request_time < self.__prev_request_time:
-                            continue
-                        elif entry.request_time == self.__prev_request_time:
-                            if not seen_prev_line:
-                                if line.strip() == self.__prev_line:
-                                    seen_prev_line = True
-                                continue
-                    # Ignore lines that have the same request time and are
-                    # before the configured previous line.
-                    # Ignore lines for which a user is not logged in.
-                    if entry.remote_user is None:
+                    # Ignore lines that are before the configured last line.
+                    if entry.request_time < self.__last_request_time:
+                        continue
+                    # If we come across the configured last line, skip it.
+                    elif (
+                        entry.request_time == self.__last_request_time
+                        and line.strip() == self.__last_line
+                    ):
                         continue
                     # TODO: reformat into default LogFormat if needed.
-                    self.__new_prev_line = line.strip()
+                    self.__new_last_line = line.strip()
                     yield line.encode()
                 except apachelogs.errors.InvalidEntryError:
                     self.__logger.warn(
@@ -268,15 +305,15 @@ class LogPoster:
 # Set the values in the [logs] section to tell the script where to find logs
 # and how to parse them.
 #
-# The values in the [prev_run] section will be overwritten in-place in this
-# file by the script when it runs. Log files whose names contain a suffix
-# (e.g., access.log.1, access.log-20200315) will only be processed whose names
-# are lexicographically less than the value of the configured "file". For log
-# files that are being processed, lines will be ignored for which the value of
-# %t is less than the value of %t in the configured "line". For lines for which
-# the value of %t is equal to the value of %t in the configured "line", lines
-# will be ignored up to and including the line that matches the provided
-# "line".
+# The value of "time" in the [prev_run] section will be overwritten in-place in
+# this file by the script when it runs. The value of "last_line" will be set to
+# the last line in the last successfully-POSTed file. In subsequent runs, lines
+# will only be processed if their %t value is greater than or equal to the %t
+# value of "last_line" (but if a line identical to "last_line" is encountered,
+# it will be ignored). Thus, to control which lines are processed, you can set
+# the value of "last_line" to have a particular %t value that is before the %t
+# value of the first line you want processed (just make sure the value of
+# "last_line" is in the proper LogFormat).
 
 """
         with open(self.__args.conf_path, 'w') as conf_file:
