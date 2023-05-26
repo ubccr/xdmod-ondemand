@@ -8,12 +8,9 @@ description = "Python tool for parsing Open OnDemand logs and POSTing them to th
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Aaron Weeden", email = "aaronwee@buffalo.edu"}
+    {name = "ACCESS MMS team", email = "ccr-xdmod-help@buffalo.edu"}
 ]
-maintainers = [
-    {name = "XDMoD team", email = "ccr-xdmod-help@buffalo.edu"}
-]
-requires-python = ">=3.7"
+requires-python = ">=3.6"
 dependencies = [
     "apachelogs",
     "requests>=2.20.0"
