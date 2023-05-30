@@ -5,7 +5,7 @@
 # will ingest and aggregate the data to be included in ACCESS XDMoD.
 
 # Import required libraries.
-from __version__ import __version__
+from __version__ import __title__, __version__
 import apachelogs
 import argparse
 import configparser
@@ -52,7 +52,7 @@ class LogPoster:
         arg_parser.add_argument(
             '-c',
             '--conf-path',
-            default='conf.ini',
+            default=os.path.realpath(os.path.dirname(__file__)) + '/conf.ini',
             help='path to the configuration file that declares where to'
             + ' find log files and how to parse them',
         )
@@ -61,13 +61,6 @@ class LogPoster:
             '--log-level',
             choices=('DEBUG', 'INFO', 'WARNING', 'ERROR'),
             default='WARNING',
-        )
-        arg_parser.add_argument(
-            '-t',
-            '--token-path',
-            default='/root/.access_mms_ood_token',
-            help='path to the file containing the API token obtained from the'
-            + ' ACCESS MMS team',
         )
         arg_parser.add_argument(
             '--version',
@@ -87,24 +80,23 @@ class LogPoster:
 
     def __init_logger(self):
         logging.basicConfig()
-        logger = logging.getLogger(__file__)
+        logger = logging.getLogger(__title__)
         logger.setLevel(self.__args.log_level)
         return logger
 
 
     def __load_api_token(self):
         self.__logger.debug('Loading the API token.')
-        file_stat = os.stat(self.__args.token_path)
-        if file_stat.st_mode != 33152:
-            self.__logger.warning(
-                'File permissions on '
-                + self.__args.token_path
-                + ' not set to 600!'
+        try:
+            api_token = os.environ['ACCESS_OOD_TOKEN']
+        except KeyError:
+            raise KeyError(
+                'ACCESS_OOD_TOKEN environment variable is undefined.'
             )
-        with open(self.__args.token_path, 'r') as token_file:
-            api_token = token_file.read().strip()
         if not self.__api_token_pattern.match(api_token):
-            raise ValueError('API token is in the wrong format.')
+            raise ValueError(
+                'ACCESS_OOD_TOKEN environment variable is in the wrong format.'
+            )
         return api_token
 
 

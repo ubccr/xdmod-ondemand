@@ -1,5 +1,5 @@
 # post-ood-logs-to-access-mms
-Python script for parsing [Open OnDemand](https://openondemand.org/) access logs and sending them via chunk-encoded POST requests to an endpoint run by the [Advanced Cyberinfrastructure Coordination Ecosystem: Services & Support (ACCESS) Monitoring and Measurement (MMS)](https://metrics.access-ci.org/) team who will ingest and aggregate the data to be included in [ACCESS XDMoD](https://xdmod.access-ci.org/).
+Python script for parsing [Open OnDemand](https://openondemand.org/) access logs and sending them via chunk-encoded POST requests to an HTTPS endpoint run by the [Advanced Cyberinfrastructure Coordination Ecosystem: Services & Support (ACCESS) Monitoring and Measurement (MMS)](https://metrics.access-ci.org/) team who will ingest and aggregate the data to be included in [ACCESS XDMoD](https://xdmod.access-ci.org/).
 
 ## Installation
 The steps below should be run on the system with the Open OnDemand log files by a user that has read access to the log files.
