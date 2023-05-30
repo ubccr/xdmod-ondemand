@@ -5,6 +5,7 @@
 # will ingest and aggregate the data to be included in ACCESS XDMoD.
 
 # Import required libraries.
+from __version__ import __version__
 import apachelogs
 import argparse
 import configparser
@@ -21,7 +22,7 @@ class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
         self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
-        self.__version = self.__read_version()
+        self.__version = __version__
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
@@ -39,12 +40,6 @@ class LogPoster:
         finally:
             self.__write_conf()
         self.__logger.info('Script finished.')
-
-
-    def __read_version(self):
-        with open('VERSION', 'r') as version_file:
-            version = version_file.read().strip()
-        return version
 
 
     def __parse_args(self):
