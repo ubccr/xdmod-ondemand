@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-# Find Open OnDemand logs, parse them, and send them via POST request to the
-# endpoint run by the ACCESS Monitoring and Measurement (ACCESS MMS) team who
-# will ingest and aggregate the data to be included in ACCESS XDMoD.
-
-# Import required libraries.
 from __version__ import __title__, __version__
 import apachelogs
 import argparse
@@ -22,7 +17,6 @@ class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
         self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
-        self.__version = __version__
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
@@ -65,7 +59,7 @@ class LogPoster:
         arg_parser.add_argument(
             '--version',
             action='version',
-            version=self.__version,
+            version=__version__,
         )
         args = arg_parser.parse_args()
         return args
