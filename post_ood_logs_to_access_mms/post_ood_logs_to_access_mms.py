@@ -263,6 +263,9 @@ class LogPoster:
                         and line.strip() == self.__last_line
                     ):
                         continue
+                    # Ignore lines for which a user is not logged in.
+                    if entry.remote_user is None:
+                        continue
                     self.__new_last_line = line.strip()
                     if entry.format == apachelogs.COMBINED.replace(
                         'User-Agent',

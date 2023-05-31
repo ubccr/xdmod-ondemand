@@ -34,10 +34,17 @@ def update_conf_file(path, args):
                 file.write(line)
 
 
-def run(conf_path, args):
-    server_thread = threading.Thread(target=simple_web_server.run, args=args)
+def run(script_args, web_server_args):
+    server_thread = threading.Thread(
+        target=simple_web_server.run,
+        args=web_server_args,
+    )
     server_thread.start()
-    subprocess.run((SCRIPT_PATH, '-c', conf_path, '-l', 'DEBUG'))
+    subprocess_args = [SCRIPT_PATH]
+    for script_arg in script_args:
+        subprocess_args.append(script_arg)
+        subprocess_args.append(script_args[script_arg])
+    subprocess.run(subprocess_args)
     server_thread.join()
 
 
@@ -52,7 +59,7 @@ def validate_output(path_to_actual, path_to_expected):
             )
 
 
-def run_test(tmp_dir, name, conf_args):
+def run_test(tmp_dir, name, conf_args, additional_script_args={'-l': 'DEBUG'}):
     artifacts_dir = TESTS_DIR + '/artifacts/' + name
     inputs_dir = artifacts_dir + '/inputs'
     expected_output_file_path = artifacts_dir + '/outputs/access.log'
@@ -62,7 +69,11 @@ def run_test(tmp_dir, name, conf_args):
         conf_path,
         {**conf_args, **{'dir': inputs_dir}},
     )
-    run(conf_path, ((actual_output_file_path,), 1))
+    script_args = {'-c': conf_path}
+    for arg in additional_script_args:
+        script_args[arg] = additional_script_args[arg]
+    web_server_args = ((actual_output_file_path,), 1)
+    run(script_args, web_server_args)
     validate_output(actual_output_file_path, expected_output_file_path)
 
 
@@ -90,7 +101,7 @@ def run_test(tmp_dir, name, conf_args):
             'weird',
             '%>s "%{User-agent}i" %u %b %t "%{Referer}i" %h "%r" %l',
         )
-    ]
+    ],
 )
 def test_logformat(tmp_dir, nickname, logformat):
     run_test(tmp_dir, nickname + '_logformat', {'format': logformat})
@@ -98,3 +109,11 @@ def test_logformat(tmp_dir, nickname, logformat):
 
 def test_compressed(tmp_dir):
     run_test(tmp_dir, 'compressed', {'compressed': 'true'})
+
+
+@pytest.mark.parametrize(
+    'log_level',
+    ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+)
+def test_log_level(tmp_dir, log_level):
+    run_test(tmp_dir, 'default', {}, {'-l': log_level})
