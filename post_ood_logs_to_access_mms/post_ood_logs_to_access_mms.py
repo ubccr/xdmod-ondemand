@@ -43,7 +43,7 @@ class LogPoster:
     def __parse_args(self):
         arg_parser = argparse.ArgumentParser(
             description=__description__,
-            allow_abbrev=False,
+            # Add information about default arguments to the help message.
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         )
         arg_parser.add_argument(
@@ -67,17 +67,17 @@ class LogPoster:
         args = arg_parser.parse_args()
         return args
 
-    def __excepthook(self, exctype, value, traceback):
-        if self.__args.log_level == 'DEBUG':
-            sys.__excepthook__(exctype, value, traceback)
-        else:
-            self.__logger.error(value)
-
     def __init_logger(self):
         logging.basicConfig()
         logger = logging.getLogger(__title__)
         logger.setLevel(self.__args.log_level)
         return logger
+
+    def __excepthook(self, exctype, value, traceback):
+        if self.__args.log_level == 'DEBUG':
+            sys.__excepthook__(exctype, value, traceback)
+        else:
+            self.__logger.error(value)
 
     def __load_api_token(self):
         self.__logger.debug('Loading the API token.')
