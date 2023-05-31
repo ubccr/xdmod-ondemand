@@ -115,7 +115,7 @@ class LogPoster:
     def __init_log_parser(self):
         self.__logger.debug('Initializing the log parser.')
         log_parser = apachelogs.LogParser(
-            self.__get_conf_property('logs', 'format')
+            self.__get_conf_property('logs', 'format').replace('\\', '')
         )
         return log_parser
 
@@ -268,7 +268,15 @@ class LogPoster:
                     ):
                         continue
                     self.__new_last_line = line.strip()
-                    combined_line = self.__convert_to_combined_logformat(entry)
+                    if entry.format == apachelogs.COMBINED.replace(
+                        'User-Agent', 
+                        'User-agent'
+                    ):
+                        combined_line = line
+                    else:
+                        combined_line = self.__convert_to_combined_logformat(
+                            entry
+                        )
                     yield combined_line.encode()
                 except apachelogs.errors.InvalidEntryError:
                     self.__logger.warn(

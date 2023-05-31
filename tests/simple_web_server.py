@@ -1,7 +1,5 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-request_index = 0
-
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         authorization = self.headers.get('Authorization')
@@ -29,8 +27,9 @@ class Server(BaseHTTPRequestHandler):
         request_index += 1
 
 def run(paths, num_requests):
-    global file_paths
+    global file_paths, request_index
     file_paths = paths
+    request_index = 0
     server = HTTPServer(('localhost', 1234), Server)
     for _ in range(0, num_requests):
         server.handle_request()
