@@ -18,8 +18,8 @@ class Server(BaseHTTPRequestHandler):
                 length = self.rfile.readline().strip().decode('utf-8')
                 if length == '0':
                     break
-                bytes = self.rfile.readline().strip().decode('utf-8')
-                file.write(bytes)
+                bytes_ = self.rfile.readline().strip().decode('utf-8')
+                file.write(bytes_)
                 file.write('\n')
                 blank_line = self.rfile.readline().strip().decode('utf-8')
         self.send_response(200)

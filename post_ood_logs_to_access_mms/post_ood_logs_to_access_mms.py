@@ -267,15 +267,56 @@ class LogPoster:
                         and line.strip() == self.__last_line
                     ):
                         continue
-                    # TODO: reformat into default LogFormat if needed.
                     self.__new_last_line = line.strip()
-                    yield line.encode()
+                    combined_line = self.__convert_to_combined_logformat(entry)
+                    yield combined_line.encode()
                 except apachelogs.errors.InvalidEntryError:
                     self.__logger.warn(
                         'Skipping invalid entry: ' + log_file_path
                         + ' line ' + line_num + ': ' + line
                     )
                 line_num += 1
+
+
+    def __convert_to_combined_logformat(self, entry):
+        return (
+            self.__entry_value_to_str(entry.remote_host)
+            + ' ' + self.__entry_value_to_str(entry.remote_logname)
+            + ' ' + self.__entry_value_to_str(entry.remote_user)
+            + ' ' + self.__entry_time_field_to_str(
+                entry.request_time_fields,
+                'timestamp',
+            )
+            + ' "' + self.__entry_value_to_str(entry.request_line)
+            + '" ' + self.__entry_value_to_str(entry.final_status)
+            + ' ' + self.__entry_value_to_str(entry.bytes_sent)
+            + ' "' + self.__entry_headers_in_to_str(entry, 'Referer')
+            + '" "' + self.__entry_headers_in_to_str(entry, 'User-Agent')
+            + '"\n'
+        )
+
+
+    def __entry_value_to_str(self, value):
+        return '-' if value is None else str(value)
+
+
+    def __entry_time_field_to_str(self, time_fields, key):
+        return (
+            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]') \
+            if key in time_fields \
+                and time_fields[key] is not None \
+            else '-'
+        )
+
+
+    def __entry_headers_in_to_str(self, entry, key):
+        return (
+            entry.headers_in[key] \
+            if hasattr(entry, 'headers_in') \
+                and key in entry.headers_in \
+                and entry.headers_in[key] is not None \
+            else '-'
+        )
 
 
     def __write_conf(self):
