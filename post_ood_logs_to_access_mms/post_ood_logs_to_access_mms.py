@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from __version__ import __title__, __version__
+from __version__ import __title__, __version__, __description__
 import apachelogs
 import argparse
 import configparser
@@ -42,8 +42,7 @@ class LogPoster:
 
     def __parse_args(self):
         arg_parser = argparse.ArgumentParser(
-            description='Parse Open OnDemand logs and POST them to the ACCESS'
-            + ' MMS team for inclusion in XDMoD.',
+            description=__description__,
             allow_abbrev=False,
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         )
