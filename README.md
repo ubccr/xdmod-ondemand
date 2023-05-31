@@ -14,7 +14,7 @@ $ source ${ENV_DIR}/bin/activate
 ### Install the package from PyPI
 ```
 (env) $ python3 -m pip install post-ood-logs-to-access-mms
-Apache access (env) $ PACKAGE-DIR="${ENV-DIR}/lib/python3.6/site-packages/post_ood_logs_to_access_mms"
+(env) $ PACKAGE-DIR="${ENV-DIR}/lib/python3.6/site-packages/post_ood_logs_to_access_mms"
 ```
 
 ### Deactivate the virtual environment
