@@ -168,3 +168,11 @@ def test_conf_file_not_found(tmp_dir):
         match='Configuration file asdf not found.'
     ):
         run_test(tmp_dir, additional_script_args={'-c': 'asdf'})
+
+
+def test_invalid_logformat_directive(tmp_dir):
+    with pytest.raises(
+        RuntimeError,
+        match='Invalid log format directive at index 0 of \'%1\''
+    ):
+        run_test(tmp_dir, conf_args={'format': '%1'})

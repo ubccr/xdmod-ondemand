@@ -255,6 +255,7 @@ class LogPoster:
         open_function = gzip.open if self.__compressed else open
         with open_function(log_file_path, 'rt') as log_file:
             line_num = 0
+            num_invalid_entries = 0
             for line in log_file:
                 try:
                     entry = self.__log_parser.parse(line)
@@ -282,11 +283,16 @@ class LogPoster:
                         )
                     yield combined_line.encode()
                 except apachelogs.errors.InvalidEntryError:
-                    self.__logger.warn(
+                    num_invalid_entries += 1
+                    self.__logger.debug(
                         'Skipping invalid entry: ' + log_file_path
-                        + ' line ' + line_num + ': ' + line
+                        + ' line ' + line_num
                     )
-                line_num += 1
+            if num_invalid_entries > 0:
+                self.__logger.warn(
+                    'Skipped ' + num_invalid_entries + '  invalid entries in '
+                    + log_file_path
+                )
 
     def __convert_to_combined_logformat(self, entry):
         return (
