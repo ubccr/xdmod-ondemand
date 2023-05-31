@@ -162,6 +162,8 @@ class LogPoster:
             log_file_paths = self.__sort_log_files(last_request_times)
         self.__logger.debug('Will process these log files:')
         self.__logger.debug(log_file_paths)
+        if not log_file_paths:
+            self.__logger.info('No log files to process.')
         return log_file_paths
 
 
