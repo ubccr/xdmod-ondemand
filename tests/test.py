@@ -160,3 +160,11 @@ def test_malformed_api_token(tmp_dir):
         match=TOKEN_NAME + ' environment variable is in the wrong format.'
     ):
         run_test(tmp_dir, api_token='x')
+
+
+def test_conf_file_not_found(tmp_dir):
+    with pytest.raises(
+        RuntimeError,
+        match='Configuration file asdf not found.'
+    ):
+        run_test(tmp_dir, additional_script_args={'-c': 'asdf'})

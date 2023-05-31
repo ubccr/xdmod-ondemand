@@ -109,7 +109,9 @@ class LogPoster:
         self.__logger.debug("Parsing this script's configuration file.")
         parsed_filenames = self.__conf_parser.read(self.__args.conf_path)
         if not parsed_filenames:
-            raise FileNotFoundError(self.__args.conf_path + ' not found.')
+            raise FileNotFoundError(
+                'Configuration file ' + self.__args.conf_path + ' not found.'
+            )
 
     def __init_log_parser(self):
         self.__logger.debug('Initializing the log parser.')
