@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "post-ood-logs-to-access-mms"
-description = "Python tool for parsing Open OnDemand logs and POSTing them to the ACCESS MMS team for inclusion in XDMoD."
+description = "POST Open OnDemand logs to the ACCESS MMS team for inclusion in XDMoD."
 readme = "README.md"
-license = {file = "LICENSE"}
+license = {text = "LGPL-3.0"}
 authors = [
     {name = "ACCESS MMS team", email = "ccr-xdmod-help@buffalo.edu"}
 ]
