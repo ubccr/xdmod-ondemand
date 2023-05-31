@@ -77,6 +77,10 @@ def validate_output(path_to_actual, path_to_expected):
             'common',
             '%h %l %u %t \\"%r\\" %>s %b',
         ),
+        (
+            'weird',
+            '%>s "%{User-agent}i" %u %b %t "%{Referer}i" %h "%r" %l',
+        )
     ]
 )
 def test_logformat(tmp_dir, nickname, logformat):
