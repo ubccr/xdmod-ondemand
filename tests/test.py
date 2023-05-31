@@ -8,6 +8,7 @@ import tempfile
 import multiprocessing
 
 
+TOKEN_NAME = 'ACCESS_MMS_OOD_TOKEN'
 ROOT_DIR = '/root/post_ood_logs_to_access_mms'
 TESTS_DIR = ROOT_DIR + '/tests'
 PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
@@ -46,7 +47,10 @@ def run(script_args, web_server_args, api_token):
     for script_arg in script_args:
         script_cmd.append(script_arg)
         script_cmd.append(script_args[script_arg])
-    os.environ['ACCESS_MMS_OOD_TOKEN'] = api_token
+    if api_token is None:
+        del os.environ[TOKEN_NAME]
+    else:
+        os.environ[TOKEN_NAME] = api_token
     script_process = subprocess.Popen(
         script_cmd,
         stdout=subprocess.PIPE,
@@ -145,7 +149,14 @@ def test_log_level(tmp_dir, log_level):
 def test_no_api_token(tmp_dir):
     with pytest.raises(
         RuntimeError,
-        match='ACCESS_MMS_OOD_TOKEN environment variable'
-        + ' is in the wrong format'
+        match=TOKEN_NAME + ' environment variable is undefined.'
     ):
-        run_test(tmp_dir, api_token='')
+        run_test(tmp_dir, api_token=None)
+
+
+def test_malformed_api_token(tmp_dir):
+    with pytest.raises(
+        RuntimeError,
+        match=TOKEN_NAME + ' environment variable is in the wrong format.'
+    ):
+        run_test(tmp_dir, api_token='x')
