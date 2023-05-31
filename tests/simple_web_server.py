@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         authorization = self.headers.get('Authorization')
@@ -19,12 +20,13 @@ class Server(BaseHTTPRequestHandler):
                 bytes_ = self.rfile.readline().strip().decode('utf-8')
                 file.write(bytes_)
                 file.write('\n')
-                blank_line = self.rfile.readline().strip().decode('utf-8')
+                self.rfile.readline().strip().decode('utf-8')
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b'OK')
         request_index += 1
+
 
 def run(paths, num_requests):
     global file_paths, request_index

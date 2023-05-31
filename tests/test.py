@@ -1,16 +1,16 @@
 import filecmp
-import os
 import pytest
 import re
 import simple_web_server
-import shutil
 import subprocess
 import tempfile
 import threading
 
 
-TESTS_DIR = '/root/post_ood_logs_to_access_mms/tests'
-PACKAGE_DIR = '/root/post_ood_logs_to_access_mms/env/lib/python3.6/site-packages/post_ood_logs_to_access_mms'
+ROOT_DIR = '/root/post_ood_logs_to_access_mms'
+TESTS_DIR = ROOT_DIR + '/tests'
+PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
+PACKAGE_DIR = PACKAGES_DIR + '/post_ood_logs_to_access_mms'
 SCRIPT_PATH = PACKAGE_DIR + '/post_ood_logs_to_access_mms.sh'
 BASE_CONF_PATH = PACKAGE_DIR + '/conf.ini'
 
@@ -46,7 +46,7 @@ def validate_output(path_to_actual, path_to_expected):
         actual_file_contents = actual_file.read()
         with open(path_to_expected) as expected_file:
             expected_file_contents = expected_file.read()
-            assert filecmp.cmp(path_to_actual, path_to_expected), ( 
+            assert filecmp.cmp(path_to_actual, path_to_expected), (
                 'files differ:\nactual:\n' + actual_file_contents
                 + 'expected:\n' + expected_file_contents
             )
@@ -75,7 +75,8 @@ def run_test(tmp_dir, name, conf_args):
         ),
         (
             'combined',
-            '%h %l %u %t \\"%r\\" %>s %b \\"%{Referer}i\\" \\"%{User-agent}i\\"',
+            '%h %l %u %t \\"%r\\" %>s %b'
+            + ' \\"%{Referer}i\\" \\"%{User-agent}i\\"',
         ),
         (
             'common',

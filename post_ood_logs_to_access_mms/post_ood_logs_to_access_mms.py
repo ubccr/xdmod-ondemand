@@ -14,6 +14,7 @@ import re
 import requests
 import sys
 
+
 class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
@@ -38,7 +39,6 @@ class LogPoster:
         finally:
             self.__write_conf()
         self.__logger.info('Script finished.')
-
 
     def __parse_args(self):
         arg_parser = argparse.ArgumentParser(
@@ -68,20 +68,17 @@ class LogPoster:
         args = arg_parser.parse_args()
         return args
 
-
     def __excepthook(self, exctype, value, traceback):
         if self.__args.log_level == 'DEBUG':
             sys.__excepthook__(exctype, value, traceback)
         else:
             self.__logger.error(value)
 
-
     def __init_logger(self):
         logging.basicConfig()
         logger = logging.getLogger(__title__)
         logger.setLevel(self.__args.log_level)
         return logger
-
 
     def __load_api_token(self):
         self.__logger.debug('Loading the API token.')
@@ -97,7 +94,6 @@ class LogPoster:
             )
         return api_token
 
-
     def __init_conf_parser(self):
         self.__logger.debug('Initializing configuration file parser.')
         conf_parser = configparser.ConfigParser(
@@ -108,13 +104,11 @@ class LogPoster:
         )
         return conf_parser
 
-
     def __parse_conf(self):
         self.__logger.debug("Parsing this script's configuration file.")
         parsed_filenames = self.__conf_parser.read(self.__args.conf_path)
         if not parsed_filenames:
             raise FileNotFoundError(self.__args.conf_path + ' not found.')
-
 
     def __init_log_parser(self):
         self.__logger.debug('Initializing the log parser.')
@@ -122,7 +116,6 @@ class LogPoster:
             self.__get_conf_property('logs', 'format').replace('\\', '')
         )
         return log_parser
-
 
     def __get_conf_property(self, section, key):
         self.__logger.debug(
@@ -132,7 +125,6 @@ class LogPoster:
         value = self.__conf_parser.get(section, key)
         self.__logger.debug(value)
         return value
-
 
     def __parse_last_line(self):
         last_line = self.__get_conf_property('prev_run', 'last_line')
@@ -145,7 +137,6 @@ class LogPoster:
         self.__logger.debug('Previous line: ' + str(last_line))
         self.__logger.debug('Previous request time: ' + str(last_request_time))
         return (last_line, last_request_time)
-
 
     def __find_log_files(self):
         self.__logger.debug('Finding, sorting, and filtering the log files.')
@@ -165,7 +156,6 @@ class LogPoster:
         if not log_file_paths:
             self.__logger.info('No log files to process.')
         return log_file_paths
-
 
     def __filter_log_files(self, log_file_paths):
         self.__logger.debug(
@@ -202,7 +192,6 @@ class LogPoster:
                 self.__logger.warn('Skipping invalid file: ' + log_file_path)
         return last_request_times
 
-
     def __get_last_line_in_file(self, file_path):
         with open(file_path, 'rb') as file:
             try:
@@ -225,7 +214,6 @@ class LogPoster:
             last_line = file.readline().decode('utf-8')
         return last_line
 
-
     def __sort_log_files(self, last_request_times):
         self.__logger.debug('Sorting list of log files:')
         sorted_last_request_times = sorted(
@@ -235,7 +223,6 @@ class LogPoster:
         sorted_log_file_paths = [i[0] for i in sorted_last_request_times]
         self.__logger.debug(sorted_log_file_paths)
         return sorted_log_file_paths
-
 
     def __parse_and_post(self):
         self.__logger.debug('Starting parsing and POSTing of log files.')
@@ -261,7 +248,6 @@ class LogPoster:
             self.__logger.debug(response.text)
             self.__conf_parser.set('prev_run', 'line', self.__new_last_line)
 
-
     def __parse_log_file(self, log_file_path):
         open_function = gzip.open if self.__compressed else open
         with open_function(log_file_path, 'rt') as log_file:
@@ -280,8 +266,8 @@ class LogPoster:
                         continue
                     self.__new_last_line = line.strip()
                     if entry.format == apachelogs.COMBINED.replace(
-                        'User-Agent', 
-                        'User-agent'
+                        'User-Agent',
+                        'User-agent',
                     ):
                         combined_line = line
                     else:
@@ -295,7 +281,6 @@ class LogPoster:
                         + ' line ' + line_num + ': ' + line
                     )
                 line_num += 1
-
 
     def __convert_to_combined_logformat(self, entry):
         return (
@@ -314,29 +299,25 @@ class LogPoster:
             + '"\n'
         )
 
-
     def __entry_value_to_str(self, value):
         return '-' if value is None else str(value)
 
-
     def __entry_time_field_to_str(self, time_fields, key):
         return (
-            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]') \
-            if key in time_fields \
-                and time_fields[key] is not None \
+            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]')
+            if key in time_fields
+            and time_fields[key] is not None
             else '-'
         )
-
 
     def __entry_headers_in_to_str(self, entry, key):
         return (
-            entry.headers_in[key] \
-            if hasattr(entry, 'headers_in') \
-                and key in entry.headers_in \
-                and entry.headers_in[key] is not None \
+            entry.headers_in[key]
+            if hasattr(entry, 'headers_in')
+            and key in entry.headers_in
+            and entry.headers_in[key] is not None
             else '-'
         )
-
 
     def __write_conf(self):
         self.__logger.debug('Writing values back to configuration file.')
