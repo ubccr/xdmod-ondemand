@@ -29,7 +29,7 @@ Set file permissions on the script that contains the API token such that the scr
 ```
 $ chmod 700 ${PACKAGE_DIR}/post_ood_logs_to_access_mms.sh
 ```
-Edit the script at `${PACKAGE_DIR}/post_ood_logs_to_access_mms.sh` to set the value of the `ACCESS_OOD_TOKEN` environment variable to be the value of the token.
+Edit the script at `${PACKAGE_DIR}/post_ood_logs_to_access_mms.sh` to set the value of the `ACCESS_MMS_OOD_TOKEN` environment variable to be the value of the token.
 
 ### Possibly edit the configuration file
 The configuration file at `${PACKAGE_DIR}/conf.ini` will be read and written by the Python script as it runs.

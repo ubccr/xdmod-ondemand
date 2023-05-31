@@ -18,6 +18,7 @@ import sys
 class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
+        self.__api_token_name = 'ACCESS_MMS_OOD_TOKEN'
         self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
@@ -82,14 +83,15 @@ class LogPoster:
     def __load_api_token(self):
         self.__logger.debug('Loading the API token.')
         try:
-            api_token = os.environ['ACCESS_OOD_TOKEN']
+            api_token = os.environ[self.__api_token_name]
         except KeyError:
             raise KeyError(
-                'ACCESS_OOD_TOKEN environment variable is undefined.'
+                self.__api_token_name + ' environment variable is undefined.'
             )
         if not self.__api_token_pattern.match(api_token):
             raise ValueError(
-                'ACCESS_OOD_TOKEN environment variable is in the wrong format.'
+                self.__api_token_name
+                + ' environment variable is in the wrong format.'
             )
         return api_token
 

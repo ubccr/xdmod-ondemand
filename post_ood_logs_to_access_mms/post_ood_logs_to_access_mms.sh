@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -a
-ACCESS_OOD_TOKEN=
+ACCESS_MMS_OOD_TOKEN=
 set +a
 
 ENV_DIR="${HOME}/post_ood_logs_to_access_mms/env"
