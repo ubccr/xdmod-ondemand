@@ -21,23 +21,17 @@ def tmp_dir():
         yield d
 
 
-def update_conf_file(conf_path, dir_=None, format_=None):
-    with open(BASE_CONF_PATH, 'rt') as base_conf_file:
-        with open(conf_path, 'wt') as conf_file:
-            for line in base_conf_file:
-                if dir_ is not None:
+def update_conf_file(path, args):
+    with open(BASE_CONF_PATH, 'rt') as base_file:
+        with open(path, 'wt') as file:
+            for line in base_file:
+                for arg in args:
                     line = re.sub(
-                        r'^dir =.*',
-                        'dir = ' + dir_,
+                        r'^' + arg + r'\s*=.*',
+                        arg + ' = ' + args[arg],
                         line,
                     )
-                if format_ is not None:
-                    line = re.sub(
-                        r'^format =.*',
-                        'format = ' + format_,
-                        line,
-                    )
-                conf_file.write(line)
+                file.write(line)
 
 
 def run(conf_path, args):
@@ -56,6 +50,20 @@ def validate_output(path_to_actual, path_to_expected):
                 'files differ:\nactual:\n' + actual_file_contents
                 + 'expected:\n' + expected_file_contents
             )
+
+
+def run_test(tmp_dir, name, conf_args):
+    artifacts_dir = TESTS_DIR + '/artifacts/' + name
+    inputs_dir = artifacts_dir + '/inputs'
+    expected_output_file_path = artifacts_dir + '/outputs/access.log'
+    actual_output_file_path = tmp_dir + '/access.log'
+    conf_path = tmp_dir + '/conf.ini'
+    update_conf_file(
+        conf_path,
+        {**conf_args, **{'dir': inputs_dir}},
+    )
+    run(conf_path, ((actual_output_file_path,), 1))
+    validate_output(actual_output_file_path, expected_output_file_path)
 
 
 @pytest.mark.parametrize(
@@ -84,15 +92,8 @@ def validate_output(path_to_actual, path_to_expected):
     ]
 )
 def test_logformat(tmp_dir, nickname, logformat):
-    artifacts_dir = TESTS_DIR + '/artifacts/' + nickname + '_logformat'
-    inputs_dir = artifacts_dir + '/inputs'
-    expected_output_file_path = artifacts_dir + '/outputs/access.log'
-    actual_output_file_path = tmp_dir + '/access.log'
-    conf_path = tmp_dir + '/conf.ini'
-    update_conf_file(
-        conf_path,
-        dir_=inputs_dir,
-        format_=logformat,
-    )
-    run(conf_path, ((actual_output_file_path,), 1))
-    validate_output(actual_output_file_path, expected_output_file_path)
+    run_test(tmp_dir, nickname + '_logformat', {'format': logformat})
+
+
+def test_compressed(tmp_dir):
+    run_test(tmp_dir, 'compressed', {'compressed': 'true'})

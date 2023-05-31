@@ -6,6 +6,7 @@ import argparse
 import configparser
 from datetime import datetime, timezone
 import glob
+import gzip
 import logging
 import operator
 import os
@@ -28,6 +29,9 @@ class LogPoster:
         self.__parse_conf()
         self.__log_parser = self.__init_log_parser()
         (self.__last_line, self.__last_request_time) = self.__parse_last_line()
+        self.__compressed = configparser.ConfigParser.BOOLEAN_STATES[
+            self.__get_conf_property('logs', 'compressed')
+        ]
         self.__log_file_paths = self.__find_log_files()
         try:
             self.__parse_and_post()
@@ -150,8 +154,12 @@ class LogPoster:
             + '/'
             + self.__get_conf_property('logs', 'filename_pattern')
         )
-        last_request_times = self.__filter_log_files(log_file_paths)
-        log_file_paths = self.__sort_log_files(last_request_times)
+        # If the log files are compressed, we cannot efficiently parse just the
+        # last line without parsing the entire file anyway, in which case we go
+        # ahead and include all the files.
+        if not self.__compressed:
+            last_request_times = self.__filter_log_files(log_file_paths)
+            log_file_paths = self.__sort_log_files(last_request_times)
         self.__logger.debug('Will process these log files:')
         self.__logger.debug(log_file_paths)
         return log_file_paths
@@ -253,7 +261,8 @@ class LogPoster:
 
 
     def __parse_log_file(self, log_file_path):
-        with open(log_file_path, 'r') as log_file:
+        open_function = gzip.open if self.__compressed else open
+        with open_function(log_file_path, 'rt') as log_file:
             line_num = 0
             for line in log_file:
                 try:
