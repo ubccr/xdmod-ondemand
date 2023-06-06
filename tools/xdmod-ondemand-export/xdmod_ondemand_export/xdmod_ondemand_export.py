@@ -18,7 +18,7 @@ import sys
 class LogPoster:
     def __init__(self):
         self.__access_mms_server_url = 'http://localhost:1234'
-        self.__api_token_name = 'ACCESS_MMS_OOD_TOKEN'
+        self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
         self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
@@ -334,7 +334,7 @@ class LogPoster:
     def __write_conf(self):
         self.__logger.debug('Writing values back to configuration file.')
         comment_header = """\
-# This is a configuration file used by post_ood_logs_to_access_mms.py.
+# This is a configuration file used by xdmod_ondemand_export.py.
 #
 # Set the values in the [logs] section to tell the script where to find logs
 # and how to parse them.

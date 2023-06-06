@@ -8,12 +8,12 @@ import tempfile
 import multiprocessing
 
 
-TOKEN_NAME = 'ACCESS_MMS_OOD_TOKEN'
-ROOT_DIR = '/root/post_ood_logs_to_access_mms'
+TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
+ROOT_DIR = '/root/xdmod_ondemand_export'
 TESTS_DIR = ROOT_DIR + '/tests'
 PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
-PACKAGE_DIR = PACKAGES_DIR + '/post_ood_logs_to_access_mms'
-SCRIPT_PATH = PACKAGE_DIR + '/post_ood_logs_to_access_mms.py'
+PACKAGE_DIR = PACKAGES_DIR + '/xdmod_ondemand_export'
+SCRIPT_PATH = PACKAGE_DIR + '/xdmod_ondemand_export.py'
 BASE_CONF_PATH = PACKAGE_DIR + '/conf.ini'
 
 
