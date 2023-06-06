@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "post-ood-logs-to-access-mms"
+description = "POST Open OnDemand logs to the ACCESS MMS team for inclusion in XDMoD."
+readme = "README.md"
+license = {text = "LGPL-3.0"}
+authors = [
+    {name = "ACCESS MMS team", email = "ccr-xdmod-help@buffalo.edu"}
+]
+requires-python = ">=3.6"
+dependencies = [
+    "apachelogs",
+    "requests"
+]
+dynamic = ["version"]
+
+[project.urls]
+repository = "https://github.com/ubccr/post-ood-logs-to-access-mms.git"
+
+[tool.setuptools.dynamic]
+version = {attr = "post_ood_logs_to_access_mms.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+post_ood_logs_to_access_mms = ["conf.ini", "post_ood_logs_to_access_mms.sh"]
