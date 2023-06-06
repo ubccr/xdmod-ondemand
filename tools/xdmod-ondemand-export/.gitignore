@@ -1,5 +1,7 @@
 build/
 dist/
 *.egg-info/
+!*.gz
+!*.log
 *.pyc
 *.swp
