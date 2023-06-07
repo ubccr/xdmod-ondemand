@@ -3,6 +3,10 @@
 # Check https://circleci.com/docs/2.0/language-php/ for more details
 #
 version: 2.1
+executors:
+  rocky8: &rocky8-executor
+    docker:
+      - image: rockylinux:8-minimal
 jobs:
   build:
     parameters:
@@ -48,6 +52,13 @@ jobs:
           command: ./tests/scripts/bootstrap.sh
       - store_artifacts:
           path: /var/log/xdmod
+  test-xdmod-ondemand-export-tool:
+    parameters:
+      os:
+        type: executor
+    executor: << parameters.os >>
+    steps:
+      - checkout
 
 workflows:
   full-build:
@@ -56,3 +67,4 @@ workflows:
           matrix:
             parameters:
               install-type: ["fresh_install", "upgrade"]
+      - test-xdmod-ondemand-export-tool
