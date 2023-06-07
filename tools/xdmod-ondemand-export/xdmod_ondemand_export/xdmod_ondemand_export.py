@@ -17,7 +17,6 @@ import sys
 
 class LogPoster:
     def __init__(self):
-        self.__access_mms_server_url = 'http://localhost:1234'
         self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
         self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
         self.__args = self.__parse_args()
@@ -232,8 +231,9 @@ class LogPoster:
         for log_file_path in self.__log_file_paths:
             self.__logger.info('Parsing and posting ' + log_file_path)
             try:
+                url = self.__get_conf_property('destination', 'url')
                 response = requests.post(
-                    self.__access_mms_server_url,
+                    url,
                     data=self.__parse_log_file(log_file_path),
                     headers={
                         'content-type': 'text/plain',
@@ -335,6 +335,9 @@ class LogPoster:
         self.__logger.debug('Writing values back to configuration file.')
         comment_header = """\
 # This is a configuration file used by xdmod_ondemand_export.py.
+#
+# Set the value of "url" in the [destination] section to specify where the logs
+# will be POSTed.
 #
 # Set the values in the [logs] section to tell the script where to find logs
 # and how to parse them.

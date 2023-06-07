@@ -9,6 +9,7 @@ import multiprocessing
 
 
 TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
+DESTINATION_URL = 'http://localhost:1234'
 ROOT_DIR = '/root/xdmod_ondemand_export'
 TESTS_DIR = ROOT_DIR + '/tests'
 PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
@@ -94,7 +95,7 @@ def run_test(
     conf_path = tmp_dir + '/conf.ini'
     update_conf_file(
         conf_path,
-        {**conf_args, **{'dir': inputs_dir}},
+        {**conf_args, **{'url': DESTINATION_URL, 'dir': inputs_dir}},
     )
     script_args = {'-c': conf_path}
     for arg in additional_script_args:
