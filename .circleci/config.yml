@@ -59,12 +59,18 @@ jobs:
     executor: << parameters.os >>
     steps:
       - checkout
-      - dnf install 'dnf-command(config-manager)' -y
-      - dnf config-manager --set-enabled powertools
-      - dnf install epel-release -y
-      - dnf module enable ruby:3.0 nodejs:14 -y
-      - yum install https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm -y
-      - yum install ondemand -y
+      - run:
+          name: Install OnDemand dependencies
+          command: |
+            dnf install 'dnf-command(config-manager)' -y
+            dnf config-manager --set-enabled powertools
+            dnf install epel-release -y
+            dnf module enable ruby:3.0 nodejs:14 -y
+      - run:
+          name: Install OnDemand
+          command: |
+            yum install https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm -y
+            yum install ondemand -y
 
 workflows:
   full-build:
