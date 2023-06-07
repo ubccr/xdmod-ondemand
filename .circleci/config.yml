@@ -67,4 +67,7 @@ workflows:
           matrix:
             parameters:
               install-type: ["fresh_install", "upgrade"]
-      - test-xdmod-ondemand-export-tool
+      - test-xdmod-ondemand-export-tool:
+          matrix:
+            parameters:
+              os: [rocky8]
