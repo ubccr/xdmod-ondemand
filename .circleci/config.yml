@@ -96,7 +96,7 @@ jobs:
             python3 -m pip install --upgrade pip build setuptools pytest
             python3 -m build --wheel
             python3 -m pip install dist/xdmod_ondemand_export-*-py3-none-any.whl
-            timeout 1m python3 -m pytest -vs tests/test.py
+            timeout 1m python3 -m pytest -v tests/test.py
 
 workflows:
   full-build:

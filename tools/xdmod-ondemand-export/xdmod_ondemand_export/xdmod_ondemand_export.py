@@ -25,6 +25,7 @@ class LogPoster:
         # Override how exceptions are handled.
         sys.excepthook = self.__excepthook
         self.__logger.debug('Using arguments: ' + str(self.__args))
+        self.__validate_file_permissions()
         self.__api_token = self.__load_api_token()
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
@@ -35,10 +36,16 @@ class LogPoster:
             self.__get_conf_property('logs', 'compressed')
         ]
         self.__log_file_paths = self.__find_log_files()
-        try:
-            self.__parse_and_post()
-        finally:
-            self.__write_conf()
+        self.__url = self.__get_conf_property('destination', 'url')
+        if self.__args.check_config:
+            self.__logger.info(
+                'Finished checking config, not parsing or POSTing any files.'
+            )
+        else:
+            try:
+                self.__parse_and_post()
+            finally:
+                self.__write_conf()
         self.__logger.info('Script finished.')
 
     def __parse_args(self):
@@ -65,6 +72,18 @@ class LogPoster:
             action='version',
             version=__version__,
         )
+        arg_parser.add_argument(
+            '--bash-script',
+            help='path to the Bash script that is calling this Python script'
+            + ' (used to validate file permissions)',
+        )
+        arg_parser.add_argument(
+            '--check-config',
+            action='store_true',
+            help='if provided, will simply check file permissions,'
+            + ' make sure the API key is in the right format,'
+            + ' validate the configuration file, and exit',
+        )
         args = arg_parser.parse_args()
         return args
 
@@ -79,6 +98,28 @@ class LogPoster:
             sys.__excepthook__(exctype, value, traceback)
         else:
             self.__logger.error(value)
+
+    def __validate_file_permissions(self):
+        if self.__args.bash_script is not None:
+            bash_script_permissions = self.__get_file_permissions(
+                self.__args.bash_script
+            )
+            if bash_script_permissions != '700':
+                self.__logger.warning(
+                    'File permissions on Bash script not set to 700'
+                )
+        conf_file_permissions = self.__get_file_permissions(
+            self.__args.conf_path
+        )
+        if conf_file_permissions != '600':
+            self.__logger.warning(
+                'File permissions on configuration file not set to 600'
+            )
+
+    def __get_file_permissions(self, path):
+        mode = os.stat(path).st_mode
+        permissions = oct(mode)[-3:]
+        return permissions
 
     def __load_api_token(self):
         self.__logger.debug('Loading the API token.')
@@ -143,7 +184,6 @@ class LogPoster:
         else:
             entry = self.__log_parser.parse(last_line)
             last_request_time = entry.request_time
-        self.__logger.debug('Previous line: ' + str(last_line))
         self.__logger.debug('Previous request time: ' + str(last_request_time))
         return (last_line, last_request_time)
 
@@ -154,6 +194,8 @@ class LogPoster:
             + '/'
             + self.__get_conf_property('logs', 'filename_pattern')
         )
+        self.__logger.debug('Found list of log files:')
+        self.__logger.debug(log_file_paths)
         # If the log files are compressed, we cannot efficiently parse just the
         # last line without parsing the entire file anyway, in which case we go
         # ahead and include all the files.
@@ -238,9 +280,8 @@ class LogPoster:
         for log_file_path in self.__log_file_paths:
             self.__logger.info('Parsing and posting ' + log_file_path)
             try:
-                url = self.__get_conf_property('destination', 'url')
                 response = requests.post(
-                    url,
+                    self.__url,
                     data=self.__parse_log_file(log_file_path),
                     headers={
                         'content-type': 'text/plain',

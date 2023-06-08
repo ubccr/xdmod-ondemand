@@ -14,7 +14,7 @@ TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = '/root/xdmod-ondemand-export'
 PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
 PACKAGE_DIR = PACKAGES_DIR + '/xdmod_ondemand_export'
-SCRIPT_PATH = PACKAGE_DIR + '/xdmod_ondemand_export.py'
+BASH_SCRIPT_PATH = PACKAGE_DIR + '/xdmod-ondemand-export.sh'
 BASE_CONF_PATH = PACKAGE_DIR + '/conf.ini'
 
 
@@ -24,9 +24,25 @@ def tmp_dir():
         yield d
 
 
+def update_bash_script(path, token):
+    with open(BASH_SCRIPT_PATH, 'rt') as base_file:
+        old_umask = os.umask(0o077)
+        with open(path, 'wt') as file_:
+            for line in base_file:
+                line = re.sub(
+                    r'^' + TOKEN_NAME + r'=.*',
+                    '' if token is '' else (TOKEN_NAME + '=' + token),
+                    line,
+                )
+                file_.write(line)
+        os.umask(old_umask)
+    os.chmod(path, 0o0700)
+
+
 def update_conf_file(path, args):
     with open(BASE_CONF_PATH, 'rt') as base_file:
-        with open(path, 'wt') as file:
+        old_umask = os.umask(0o077)
+        with open(path, 'wt') as file_:
             for line in base_file:
                 for arg in args:
                     line = re.sub(
@@ -34,24 +50,24 @@ def update_conf_file(path, args):
                         arg + ' = ' + args[arg],
                         line,
                     )
-                file.write(line)
+                file_.write(line)
+        os.umask(old_umask)
 
 
-def run(script_args, web_server_args, api_token):
+def run(tmp_dir, script_args, web_server_args, api_token):
     web_server_process = multiprocessing.Process(
         target=simple_web_server.run,
         args=web_server_args,
     )
     web_server_process.daemon = True
     web_server_process.start()
-    script_cmd = ['python3', SCRIPT_PATH]
+    bash_script_path = tmp_dir + '/xdmod-ondemand-export.sh'
+    update_bash_script(bash_script_path, api_token)
+    script_cmd = [bash_script_path]
     for script_arg in script_args:
         script_cmd.append(script_arg)
-        script_cmd.append(script_args[script_arg])
-    if api_token is None:
-        del os.environ[TOKEN_NAME]
-    else:
-        os.environ[TOKEN_NAME] = api_token
+        if script_args[script_arg] is not None:
+            script_cmd.append(script_args[script_arg])
     script_process = subprocess.Popen(
         script_cmd,
         stdout=subprocess.PIPE,
@@ -83,18 +99,17 @@ def validate_output(path_to_actual, path_to_expected):
 
 def run_test(
     tmp_dir,
-    name='default',
+    artifact_dir='default',
     conf_args={},
-    additional_script_args={'-l': 'DEBUG'},
+    additional_script_args={},
     api_token=(
         '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
     ),
     num_files=1,
 ):
-    artifacts_dir = TESTS_DIR + '/artifacts/' + name
+    artifacts_dir = TESTS_DIR + '/artifacts/' + artifact_dir
     inputs_dir = artifacts_dir + '/inputs'
-    expected_output_file_path = artifacts_dir + '/outputs/access.log'
-    actual_output_file_path = tmp_dir + '/access.log'
+    expected_output_path_prefix = artifacts_dir + '/outputs/access.log.'
     conf_path = tmp_dir + '/conf.ini'
     update_conf_file(
         conf_path,
@@ -109,13 +124,19 @@ def run_test(
                 'dir': conf_args['dir'] if 'dir' in conf_args else inputs_dir,
             }},
     )
-    script_args = {'-c': conf_path}
+    script_args = {
+        '-c': conf_path,
+        '-l': 'DEBUG',
+    }
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
-    web_server_args = ((actual_output_file_path,), num_files)
-    run(script_args, web_server_args, api_token)
-    if num_files > 0:
-        validate_output(actual_output_file_path, expected_output_file_path)
+    web_server_args = (tmp_dir, num_files)
+    run(tmp_dir, script_args, web_server_args, api_token)
+    for i in range(0, num_files):
+        validate_output(
+            tmp_dir + '/access.log.' + str(i),
+            expected_output_path_prefix + str(i),
+        )
 
 
 @pytest.mark.parametrize(
@@ -170,15 +191,15 @@ def test_log_level(tmp_dir, log_level):
 def test_no_api_token(tmp_dir):
     with pytest.raises(
         RuntimeError,
-        match=TOKEN_NAME + ' environment variable is undefined.'
+        match=TOKEN_NAME + ' environment variable is undefined.',
     ):
-        run_test(tmp_dir, api_token=None)
+        run_test(tmp_dir, api_token='')
 
 
 def test_malformed_api_token(tmp_dir):
     with pytest.raises(
         RuntimeError,
-        match=TOKEN_NAME + ' environment variable is in the wrong format.'
+        match=TOKEN_NAME + ' environment variable is in the wrong format.',
     ):
         run_test(tmp_dir, api_token='x')
 
@@ -186,47 +207,60 @@ def test_malformed_api_token(tmp_dir):
 def test_conf_file_not_found(tmp_dir):
     with pytest.raises(
         RuntimeError,
-        match='Configuration file asdf not found.'
+        match="\\[Errno 2\\] No such file or directory: 'asdf'",
     ):
         run_test(tmp_dir, additional_script_args={'-c': 'asdf'})
 
 
 @pytest.mark.parametrize(
-    'conf_args, match',
+    'conf_args, artifact_dir, match',
     [
         (
             {'url': 'asdf'},
+            'default',
             "Invalid URL 'asdf':"
-            + ' No scheme supplied. Perhaps you meant http://asdf?'
+            + ' No scheme supplied. Perhaps you meant http://asdf?',
         ),
         (
             {'url': 'http://asdf'},
+            'default',
             'Failed to establish a new connection:'
-            + ' \\[Errno -2\\] Name or service not known'
+            + ' \\[Errno -2\\] Name or service not known',
         ),
         (
             {'dir': 'asdf'},
+            'default',
             "No such directory: 'asdf'",
         ),
         (
             {'filename_pattern': ''},
+            'default',
             'Is a directory',
         ),
         (
             {'format': '%1'},
+            'default',
             "Invalid log format directive at index 0 of '%1'",
         ),
         (
             {'compressed': 'asdf'},
+            'default',
             "KeyError: 'asdf'",
         ),
         (
             {'compressed': 'true'},
+            'default',
             'Not a gzipped file',
         ),
         (
+            {'compressed': 'false'},
+            'compressed',
+            "'utf-8' codec can't decode byte",
+        ),
+        (
             {'last_line': 'asdf'},
-            "Could not match log entry 'asdf' against log format"
+            'default',
+            "Could not match log entry 'asdf' against log format",
         ),
     ],
     ids=(
@@ -236,14 +270,41 @@ def test_conf_file_not_found(tmp_dir):
         'filename_pattern',
         'format',
         'compressed_invalid_value',
-        'compressed_wrong_value',
+        'compressed_wrong_value_true',
+        'compressed_wrong_value_false',
         'last_line',
     )
 )
-def test_invalid_conf_property(tmp_dir, conf_args, match):
+def test_invalid_conf_property(tmp_dir, conf_args, artifact_dir, match):
     with pytest.raises(RuntimeError, match=match):
-        run_test(tmp_dir, conf_args=conf_args)
+        run_test(tmp_dir, artifact_dir=artifact_dir, conf_args=conf_args)
 
 
 def test_no_files_to_process(tmp_dir):
     run_test(tmp_dir, conf_args={'filename_pattern': 'asdf'}, num_files=0)
+
+
+def test_some_old_some_new(tmp_dir):
+    run_test(
+        tmp_dir,
+        artifact_dir='some_old_some_new',
+        conf_args={
+            'last_line':
+            '127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500]'
+            + ' "GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys'
+            + ' HTTP/1.1" 401 381'
+            + ' "https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/'
+            + 'batch_connect/sessions" "Mozilla/5.0 (Windows NT 10.0; Win64;'
+            + ' x64) AppleWebKit/537.36 (KHTML, like Gecko)'
+            + ' Chrome/91.0.4472.77 Safari/537.36"'
+        },
+        num_files=2,
+    )
+
+
+def test_check_config(tmp_dir):
+    run_test(
+        tmp_dir,
+        additional_script_args={'--check-config': None},
+        num_files=0,
+    )

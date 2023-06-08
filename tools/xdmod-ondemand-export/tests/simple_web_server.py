@@ -12,8 +12,8 @@ class Server(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.wfile.write(b'Authentication failed.')
             return
-        global file_paths, request_index
-        file_path = file_paths[request_index]
+        global output_dir, request_index
+        file_path = output_dir + '/access.log.' + str(request_index)
         print('DEBUG:simple_web_server:Writing to ' + file_path)
         with open(file_path, 'w') as file:
             while True:
@@ -31,9 +31,9 @@ class Server(BaseHTTPRequestHandler):
         request_index += 1
 
 
-def run(paths, num_requests):
-    global file_paths, request_index
-    file_paths = paths
+def run(dir_, num_requests):
+    global output_dir, request_index
+    output_dir = dir_
     request_index = 0
     server = HTTPServer(('localhost', 1234), Server)
     for _ in range(0, num_requests):

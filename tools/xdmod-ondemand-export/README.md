@@ -22,13 +22,20 @@ $ source ${env_dir}/bin/activate
 (env) $ deactivate
 ```
 
-### Set the API token
-Obtain your API token from the admins of the web server. For ACCESS XDMoD, this is the [XDMoD team](mailto:ccr-xdmod-help@buffalo.edu).
-
-Set file permissions on the script that contains the API token such that the script is executable by you and such that others cannot read, write, or execute it:
+### Set file permissions
+The Python script is run from a Bash script; this Bash script sets your API token as an environment variable. Set the file permissions on the Bash script such that the script is executable by your user and such that others cannot read, write, or execute it:
 ```
 $ chmod 700 ${package_dir}/xdmod-ondemand-export.sh
 ```
+
+The Python script reads and writes to a configuration file as it runs. One of the values written is the last line of the last log file that was successfully POSTed. Because this line contains sensitive information (mapping of username to IP address), set the configuration file to be readable and writable only by your user.
+```
+$ chmod 600 ${package_dir}/conf.ini
+```
+
+### Set the API token
+Obtain your API token from the admins of the web server. For ACCESS XDMoD, this is the [XDMoD team](mailto:ccr-xdmod-help@buffalo.edu).
+
 Edit the script at `${package_dir}/xdmod-ondemand-export.sh` to set the value of the `XDMOD_ONDEMAND_EXPORT_TOKEN` environment variable to be the value of the token.
 
 ### Possibly edit the configuration file
@@ -40,7 +47,13 @@ If any of these values are different for your configuration of Open OnDemand, ch
 
 To control which files should be processed, set the values of `filename_pattern` and `last_line` accordingly. See the instructions in the file for how the value of `last_line` is used.
 
-### Create a cron job to run the Python script daily
+### Check the configuration
+Run the Bash script with `--check-config` to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
+```
+$ ${package_dir}/xdmod-ondemand-export.sh --check-config
+```
+
+### Create a cron job to run the script daily
 Open your user's crontab:
 ```
 $ crontab -e
