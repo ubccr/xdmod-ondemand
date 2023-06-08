@@ -86,7 +86,9 @@ def run_test(
     name='default',
     conf_args={},
     additional_script_args={'-l': 'DEBUG'},
-    api_token='1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae',
+    api_token=(
+        '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
+    ),
 ):
     artifacts_dir = TESTS_DIR + '/artifacts/' + name
     inputs_dir = artifacts_dir + '/inputs'
@@ -181,7 +183,6 @@ def test_conf_file_not_found(tmp_dir):
         match='Configuration file asdf not found.'
     ):
         run_test(tmp_dir, additional_script_args={'-c': 'asdf'})
-
 
 
 @pytest.mark.parametrize(

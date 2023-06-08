@@ -18,7 +18,7 @@ import sys
 class LogPoster:
     def __init__(self):
         self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
-        self.__api_token_pattern = re.compile('^[0-9]+\.[0-9a-f]{64}$')
+        self.__api_token_pattern = re.compile('^[0-9]+\\.[0-9a-f]{64}$')
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
