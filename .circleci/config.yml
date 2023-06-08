@@ -60,10 +60,15 @@ jobs:
     environment:
       VENV_DIR: /root/xdmod-ondemand-export/env
     steps:
+      - run:
+          # This step is needed to make sure the test artifacts are checked out.
+          name: Install Git
+          command: dnf install git -y
       - checkout
       - run:
           name: Install OnDemand dependencies
           command: |
+            # These steps come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
             dnf install 'dnf-command(config-manager)' -y
             dnf config-manager --set-enabled powertools
             dnf install epel-release -y
@@ -82,7 +87,7 @@ jobs:
             python3 -m pip install --upgrade pip build setuptools pytest
             python3 -m build --wheel
             python3 -m pip install dist/xdmod_ondemand_export-*-py3-none-any.whl
-            python3 -m pytest tests/test.py
+            timeout 1m python3 -m pytest tests/test.py
 
 workflows:
   full-build:
