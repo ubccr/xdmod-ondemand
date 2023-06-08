@@ -217,6 +217,14 @@ def test_conf_file_not_found(tmp_dir):
             "Invalid log format directive at index 0 of '%1'",
         ),
         (
+            {'compressed': 'asdf'},
+            "KeyError: 'asdf'",
+        ),
+        (
+            {'compressed': 'true'},
+            'Not a gzipped file',
+        ),
+        (
             {'last_line': 'asdf'},
             "Could not match log entry 'asdf' against log format"
         ),
@@ -227,6 +235,8 @@ def test_conf_file_not_found(tmp_dir):
         'dir',
         'filename_pattern',
         'format',
+        'compressed_invalid_value',
+        'compressed_wrong_value',
         'last_line',
     )
 )
