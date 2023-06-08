@@ -82,7 +82,7 @@ jobs:
             python3 -m pip install --upgrade pip build setuptools pytest
             python3 -m build --wheel
             python3 -m pip install dist/xdmod_ondemand_export-*-py3-none-any.whl
-            python3 -m pytest tools/xdmod-ondemand-export/tests/test.py
+            python3 -m pytest tests/test.py
 
 workflows:
   full-build:
