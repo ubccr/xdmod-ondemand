@@ -89,6 +89,7 @@ def run_test(
     api_token=(
         '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
     ),
+    num_files=1,
 ):
     artifacts_dir = TESTS_DIR + '/artifacts/' + name
     inputs_dir = artifacts_dir + '/inputs'
@@ -107,9 +108,10 @@ def run_test(
     script_args = {'-c': conf_path}
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
-    web_server_args = ((actual_output_file_path,), 1)
+    web_server_args = ((actual_output_file_path,), num_files)
     run(script_args, web_server_args, api_token)
-    validate_output(actual_output_file_path, expected_output_file_path)
+    if num_files > 0:
+        validate_output(actual_output_file_path, expected_output_file_path)
 
 
 @pytest.mark.parametrize(
@@ -189,6 +191,14 @@ def test_conf_file_not_found(tmp_dir):
     'conf_args, match',
     [
         (
+            {'dir': 'asdf'},
+            "No such directory: 'asdf'",
+        ),
+        (
+            {'filename_pattern': ''},
+            'Is a directory',
+        ),
+        (
             {'format': '%1'},
             "Invalid log format directive at index 0 of '%1'",
         ),
@@ -196,13 +206,13 @@ def test_conf_file_not_found(tmp_dir):
             {'last_line': 'asdf'},
             "Could not match log entry 'asdf' against log format"
         ),
-        (
-            {'dir': 'asdf'},
-            "No such directory: 'asdf'",
-        ),
     ],
-    ids=('format', 'last_line', 'dir')
+    ids=('dir', 'filename_pattern', 'format', 'last_line')
 )
 def test_invalid_conf_property(tmp_dir, conf_args, match):
     with pytest.raises(RuntimeError, match=match):
         run_test(tmp_dir, conf_args=conf_args)
+
+
+def test_no_files_to_process(tmp_dir):
+    run_test(tmp_dir, conf_args={'filename_pattern': 'asdf'}, num_files=0)
