@@ -247,7 +247,7 @@ class LogPoster:
                         'authorization': 'Bearer ' + self.__api_token
                     },
                 )
-            except requests.exceptions.ConnectionError as e:
+            except Exception as e:
                 if '[Errno 32] Broken pipe' in str(e):
                     raise requests.exceptions.ConnectionError(
                         'Server closed connection.'

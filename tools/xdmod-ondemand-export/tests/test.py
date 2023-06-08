@@ -101,7 +101,11 @@ def run_test(
         {
             **conf_args,
             **{
-                'url': DESTINATION_URL,
+                'url': (
+                    conf_args['url']
+                    if 'url' in conf_args
+                    else DESTINATION_URL
+                ),
                 'dir': conf_args['dir'] if 'dir' in conf_args else inputs_dir,
             }},
     )
@@ -191,6 +195,16 @@ def test_conf_file_not_found(tmp_dir):
     'conf_args, match',
     [
         (
+            {'url': 'asdf'},
+            "Invalid URL 'asdf':"
+            + ' No scheme supplied. Perhaps you meant http://asdf?'
+        ),
+        (
+            {'url': 'http://asdf'},
+            'Failed to establish a new connection:'
+            + ' \\[Errno -2\\] Name or service not known'
+        ),
+        (
             {'dir': 'asdf'},
             "No such directory: 'asdf'",
         ),
@@ -207,7 +221,14 @@ def test_conf_file_not_found(tmp_dir):
             "Could not match log entry 'asdf' against log format"
         ),
     ],
-    ids=('dir', 'filename_pattern', 'format', 'last_line')
+    ids=(
+        'url_no_scheme',
+        'url_unknown_service',
+        'dir',
+        'filename_pattern',
+        'format',
+        'last_line',
+    )
 )
 def test_invalid_conf_property(tmp_dir, conf_args, match):
     with pytest.raises(RuntimeError, match=match):
