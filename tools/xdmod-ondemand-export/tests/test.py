@@ -31,7 +31,7 @@ def update_bash_script(path, token):
             for line in base_file:
                 line = re.sub(
                     r'^' + TOKEN_NAME + r'=.*',
-                    '' if token is '' else (TOKEN_NAME + '=' + token),
+                    '' if token == '' else (TOKEN_NAME + '=' + token),
                     line,
                 )
                 file_.write(line)
