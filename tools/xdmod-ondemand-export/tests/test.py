@@ -86,7 +86,7 @@ def run_test(
     name='default',
     conf_args={},
     additional_script_args={'-l': 'DEBUG'},
-    api_token='abcd',
+    api_token='1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae',
 ):
     artifacts_dir = TESTS_DIR + '/artifacts/' + name
     inputs_dir = artifacts_dir + '/inputs'
@@ -95,7 +95,12 @@ def run_test(
     conf_path = tmp_dir + '/conf.ini'
     update_conf_file(
         conf_path,
-        {**conf_args, **{'url': DESTINATION_URL, 'dir': inputs_dir}},
+        {
+            **conf_args,
+            **{
+                'url': DESTINATION_URL,
+                'dir': conf_args['dir'] if 'dir' in conf_args else inputs_dir,
+            }},
     )
     script_args = {'-c': conf_path}
     for arg in additional_script_args:
@@ -178,9 +183,25 @@ def test_conf_file_not_found(tmp_dir):
         run_test(tmp_dir, additional_script_args={'-c': 'asdf'})
 
 
-def test_invalid_logformat_directive(tmp_dir):
-    with pytest.raises(
-        RuntimeError,
-        match='Invalid log format directive at index 0 of \'%1\''
-    ):
-        run_test(tmp_dir, conf_args={'format': '%1'})
+
+@pytest.mark.parametrize(
+    'conf_args, match',
+    [
+        (
+            {'format': '%1'},
+            "Invalid log format directive at index 0 of '%1'",
+        ),
+        (
+            {'last_line': 'asdf'},
+            "Could not match log entry 'asdf' against log format"
+        ),
+        (
+            {'dir': 'asdf'},
+            "No such directory: 'asdf'",
+        ),
+    ],
+    ids=('format', 'last_line', 'dir')
+)
+def test_invalid_conf_property(tmp_dir, conf_args, match):
+    with pytest.raises(RuntimeError, match=match):
+        run_test(tmp_dir, conf_args=conf_args)

@@ -4,7 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         authorization = self.headers.get('Authorization')
-        if authorization != 'Bearer abcd':
+        if authorization != 'Bearer 1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae':
             self.send_response(401)
             self.send_header('Content-type', 'text/html')
             self.wfile.write(b'Authentication failed.')

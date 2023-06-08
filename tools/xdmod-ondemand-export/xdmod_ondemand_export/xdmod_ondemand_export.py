@@ -18,7 +18,7 @@ import sys
 class LogPoster:
     def __init__(self):
         self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
-        self.__api_token_pattern = re.compile('^[0-9a-f]{4}$')
+        self.__api_token_pattern = re.compile('^[0-9]+\.[0-9a-f]{64}$')
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
@@ -28,6 +28,7 @@ class LogPoster:
         self.__api_token = self.__load_api_token()
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
+        self.__dir = self.__parse_dir()
         self.__log_parser = self.__init_log_parser()
         (self.__last_line, self.__last_request_time) = self.__parse_last_line()
         self.__compressed = configparser.ConfigParser.BOOLEAN_STATES[
@@ -119,6 +120,12 @@ class LogPoster:
         )
         return log_parser
 
+    def __parse_dir(self):
+        dir_ = self.__get_conf_property('logs', 'dir')
+        if not os.path.isdir(dir_):
+            raise FileNotFoundError("No such directory: '" + dir_ + "'")
+        return dir_
+
     def __get_conf_property(self, section, key):
         self.__logger.debug(
             'Getting `' + key + '` property from the [' + section
@@ -143,7 +150,7 @@ class LogPoster:
     def __find_log_files(self):
         self.__logger.debug('Finding, sorting, and filtering the log files.')
         log_file_paths = glob.glob(
-            self.__get_conf_property('logs', 'dir')
+            self.__dir
             + '/'
             + self.__get_conf_property('logs', 'filename_pattern')
         )
