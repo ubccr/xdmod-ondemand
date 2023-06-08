@@ -10,8 +10,8 @@ import multiprocessing
 
 TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
 DESTINATION_URL = 'http://localhost:1234'
-ROOT_DIR = '/root/xdmod_ondemand_export'
-TESTS_DIR = ROOT_DIR + '/tests'
+TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = '/root/xdmod-ondemand-export'
 PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
 PACKAGE_DIR = PACKAGES_DIR + '/xdmod_ondemand_export'
 SCRIPT_PATH = PACKAGE_DIR + '/xdmod_ondemand_export.py'
@@ -130,6 +130,13 @@ def run_test(
             '%>s "%{User-agent}i" %u %b %t "%{Referer}i" %h "%r" %l',
         )
     ],
+    ids=(
+        'combined_no_backslashes',
+        'combined_with_backslashes',
+        'common_no_backslashes',
+        'common_with_backslashes',
+        'weird',
+    ),
 )
 def test_logformat(tmp_dir, nickname, logformat):
     run_test(tmp_dir, nickname + '_logformat', {'format': logformat})
