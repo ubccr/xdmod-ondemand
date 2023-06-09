@@ -48,7 +48,7 @@ If any of these values are different for your configuration of Open OnDemand, ch
 To control which files should be processed, set the values of `filename_pattern` and `last_line` accordingly. See the instructions in the file for how the value of `last_line` is used.
 
 ### Check the configuration
-Run the Bash script with `--check-config` to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
+Run the Bash script in check-config mode to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
 ```
 $ ${package_dir}/xdmod-ondemand-export.sh --check-config -l INFO
 ```
