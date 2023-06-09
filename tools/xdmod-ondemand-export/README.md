@@ -50,7 +50,7 @@ To control which files should be processed, set the values of `filename_pattern`
 ### Check the configuration
 Run the Bash script with `--check-config` to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
 ```
-$ ${package_dir}/xdmod-ondemand-export.sh --check-config
+$ ${package_dir}/xdmod-ondemand-export.sh --check-config -l INFO
 ```
 
 ### Create a cron job to run the script daily
