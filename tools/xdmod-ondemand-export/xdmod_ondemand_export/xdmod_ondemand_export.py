@@ -319,7 +319,12 @@ class LogPoster:
                 else:
                     raise e
             self.__logger.debug(response.text)
-            self.__conf_parser.set('prev_run', 'line', self.__new_last_line)
+            if hasattr(self, '__new_last_line'):
+                self.__conf_parser.set(
+                    'prev_run',
+                    'last_line',
+                    self.__new_last_line,
+                )
 
     def __parse_log_file(self, log_file_path):
         open_function = gzip.open if self.__compressed else open
@@ -329,7 +334,6 @@ class LogPoster:
             for line in log_file:
                 try:
                     entry = self.__log_parser.parse(line)
-                    self.__new_last_line = line.strip()
                     # Ignore lines that are before the configured last line.
                     if entry.request_time < self.__last_request_time:
                         continue
@@ -342,6 +346,7 @@ class LogPoster:
                     # Ignore lines for which a user is not logged in.
                     if entry.remote_user is None:
                         continue
+                    self.__new_last_line = line.strip()
                     if entry.format == apachelogs.COMBINED.replace(
                         'User-Agent',
                         'User-agent',
