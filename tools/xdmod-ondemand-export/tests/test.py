@@ -333,3 +333,17 @@ def test_skip_file_matching_last_line(tmp_dir):
         },
         num_files=2
     )
+
+
+def test_two_runs(tmp_dir):
+    run_test(tmp_dir, artifact_dir='two_runs/first_run')
+    with open(tmp_dir + '/conf.ini') as conf_file:
+        for line in conf_file:
+            match = re.match(r'last_line = (.*)', line)
+            if match is not None:
+                last_line = match.group(1)
+    run_test(
+        tmp_dir,
+        artifact_dir='two_runs/second_run',
+        conf_args={'last_line': last_line}
+    )

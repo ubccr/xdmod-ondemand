@@ -42,6 +42,7 @@ class LogPoster:
                 'Finished checking config, not parsing or POSTing any files.'
             )
         else:
+            self.__new_last_line = None
             try:
                 self.__parse_and_post()
             finally:
@@ -318,13 +319,13 @@ class LogPoster:
                     ) from e
                 else:
                     raise e
+            self.__logger.debug('Got response:')
             self.__logger.debug(response.text)
-            if hasattr(self, '__new_last_line'):
-                self.__conf_parser.set(
-                    'prev_run',
-                    'last_line',
-                    self.__new_last_line,
-                )
+            self.__conf_parser.set(
+                'prev_run',
+                'last_line',
+                self.__new_last_line,
+            )
 
     def __parse_log_file(self, log_file_path):
         open_function = gzip.open if self.__compressed else open
