@@ -13,7 +13,7 @@ $ source ${env_dir}/bin/activate
 
 ### Install the package from PyPI
 ```
-(env) $ python3 -m pip install xdmod-ondemand-export
+(env) $ python3 -m pip install git+https://github.com/aaronweeden/xdmod-ondemand@xdmod-ondemand-export#subdirectory=tools/xdmod-ondemand-export
 (env) $ package_dir="${env_dir}/lib/python3.6/site-packages/xdmod_ondemand_export"
 ```
 
