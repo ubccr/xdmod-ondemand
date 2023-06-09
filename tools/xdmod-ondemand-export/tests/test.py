@@ -289,14 +289,12 @@ def test_some_old_some_new(tmp_dir):
         tmp_dir,
         artifact_dir='some_old_some_new',
         conf_args={
-            'last_line':
-            '127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500]'
-            + ' "GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys'
-            + ' HTTP/1.1" 401 381'
-            + ' "https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/'
-            + 'batch_connect/sessions" "Mozilla/5.0 (Windows NT 10.0; Win64;'
-            + ' x64) AppleWebKit/537.36 (KHTML, like Gecko)'
-            + ' Chrome/91.0.4472.77 Safari/537.36"'
+            'last_line': '127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500] '
+                + '"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/'
+                + 'sys HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/'
+                + 'pun/sys/dashboard/batch_connect/sessions" "Mozilla/5.0 '
+                + '(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
+                + 'like Gecko) Chrome/91.0.4472.77 Safari/537.36"'
         },
         num_files=2,
     )
@@ -307,4 +305,20 @@ def test_check_config(tmp_dir):
         tmp_dir,
         additional_script_args={'--check-config': None},
         num_files=0,
+    )
+
+
+def test_skip_file_matching_last_line(tmp_dir):
+    run_test(
+        tmp_dir,
+        artifact_dir='file_matching_last_line',
+        conf_args={
+            'last_line': '127.0.0.0 - testuser2 [30/Jun/2021:03:17:08 -0500] '
+            + '"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys '
+            + 'HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/pun/sys/'
+            + 'dashboard/batch_connect/sessions" "Mozilla/5.0 (Windows NT '
+            + '10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+            + 'Chrome/91.0.4472.77 Safari/537.36"'
+        },
+        num_files=2
     )
