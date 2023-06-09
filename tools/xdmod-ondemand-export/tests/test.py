@@ -284,19 +284,30 @@ def test_no_files_to_process(tmp_dir):
     run_test(tmp_dir, conf_args={'filename_pattern': 'asdf'}, num_files=0)
 
 
-def test_some_old_some_new(tmp_dir):
+@pytest.mark.parametrize(
+    'artifact_dir, conf_args, num_files',
+    [
+        ('some_old_some_new', {}, 2),
+        ('some_old_some_new_compressed', {'compressed': 'true'}, 4)
+    ],
+    ids=(
+        'uncompressed',
+        'compressed',
+    )
+)
+def test_some_old_some_new(tmp_dir, artifact_dir, conf_args, num_files):
     run_test(
         tmp_dir,
-        artifact_dir='some_old_some_new',
-        conf_args={
+        artifact_dir=artifact_dir,
+        conf_args={**{
             'last_line': '127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500] '
             + '"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/'
             + 'sys HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/'
             + 'pun/sys/dashboard/batch_connect/sessions" "Mozilla/5.0 '
             + '(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
             + 'like Gecko) Chrome/91.0.4472.77 Safari/537.36"'
-        },
-        num_files=2,
+        }, **conf_args},
+        num_files=num_files,
     )
 
 

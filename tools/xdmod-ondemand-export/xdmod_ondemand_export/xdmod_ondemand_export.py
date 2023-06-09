@@ -173,7 +173,12 @@ class LogPoster:
             + '] section of the configuration file:'
         )
         value = self.__conf_parser.get(section, key)
-        self.__logger.debug(value)
+        # Do not log the last_line value since it might contain sensitive
+        # information (e.g., IP address and username).
+        if section == 'prev_run' and key == 'last_line':
+            self.__logger.debug('[redacted]')
+        else:
+            self.__logger.debug(value)
         return value
 
     def __parse_last_line(self):
@@ -196,15 +201,34 @@ class LogPoster:
         )
         self.__logger.debug('Found list of log files:')
         self.__logger.debug(log_file_paths)
-        # If the log files are compressed, we cannot efficiently parse just the
-        # last line without parsing the entire file anyway, in which case we go
-        # ahead and include all the files.
-        if not self.__compressed:
-            last_request_times = self.__filter_log_files(log_file_paths)
-            log_file_paths = self.__sort_log_files(last_request_times)
+        # If the log files are uncompressed, we will read each file's last line
+        # to filter out certain files and determine the ordering of the rest.
+        # If the files are compressed, we cannot efficiently parse just the
+        # last line without parsing the entire file anyway, in which case we
+        # will include all the files and sort them by their first line.
+        if self.__compressed:
+            request_times = self.__parse_first_request_times(log_file_paths)
+        else:
+            request_times = self.__filter_log_files(log_file_paths)
+        log_file_paths = self.__sort_log_files(request_times)
         if not log_file_paths:
             self.__logger.info('No log files to process.')
         return log_file_paths
+
+    def __parse_first_request_times(self, log_file_paths):
+        self.__logger.debug('Parsing first request time in each log file.')
+        first_request_times = {}
+        for log_file_path in log_file_paths:
+            with gzip.open(log_file_path, 'rt') as log_file:
+                first_line = log_file.readline()
+                try:
+                    entry = self.__log_parser.parse(first_line)
+                    first_request_times[log_file_path] = entry.request_time
+                except apachelogs.errors.InvalidEntryError:
+                    self.__logger.debug(
+                        'Skipping invalid entry: ' + log_file_path + ' line 0'
+                    )
+        return first_request_times
 
     def __filter_log_files(self, log_file_paths):
         self.__logger.debug(
@@ -263,13 +287,13 @@ class LogPoster:
             last_line = file.readline().decode('utf-8')
         return last_line
 
-    def __sort_log_files(self, last_request_times):
+    def __sort_log_files(self, request_times):
         self.__logger.debug('Sorting list of log files:')
-        sorted_last_request_times = sorted(
-            last_request_times.items(),
+        sorted_request_times = sorted(
+            request_times.items(),
             key=operator.itemgetter(1),
         )
-        sorted_log_file_paths = [i[0] for i in sorted_last_request_times]
+        sorted_log_file_paths = [i[0] for i in sorted_request_times]
         self.__logger.debug(sorted_log_file_paths)
         return sorted_log_file_paths
 
@@ -305,6 +329,7 @@ class LogPoster:
             for line in log_file:
                 try:
                     entry = self.__log_parser.parse(line)
+                    self.__new_last_line = line.strip()
                     # Ignore lines that are before the configured last line.
                     if entry.request_time < self.__last_request_time:
                         continue
@@ -317,7 +342,6 @@ class LogPoster:
                     # Ignore lines for which a user is not logged in.
                     if entry.remote_user is None:
                         continue
-                    self.__new_last_line = line.strip()
                     if entry.format == apachelogs.COMBINED.replace(
                         'User-Agent',
                         'User-agent',
