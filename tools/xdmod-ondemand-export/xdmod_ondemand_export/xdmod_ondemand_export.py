@@ -300,7 +300,7 @@ class LogPoster:
     def __parse_and_post(self):
         self.__logger.debug('Starting parsing and POSTing of log files.')
         for log_file_path in self.__log_file_paths:
-            self.__logger.info('Parsing and POSTin ' + log_file_path)
+            self.__logger.info('Parsing and POSTing ' + log_file_path)
             try:
                 response = requests.post(
                     self.__url,
