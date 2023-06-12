@@ -369,8 +369,8 @@ class LogPoster:
                     self.__new_last_line = line.strip()
                     self.__new_last_request_time = (
                         self.__entry_time_field_to_str(
-                            entry.request_time_fields,                                      
-                            'timestamp', 
+                            entry.request_time_fields,
+                            'timestamp',
                         )
                     )
                     if entry.format == apachelogs.COMBINED.replace(
@@ -435,24 +435,24 @@ class LogPoster:
     def __write_conf(self):
         self.__logger.debug('Writing values back to configuration file.')
         comment_header = """\
-# This is a configuration file used by xdmod_ondemand_export.py.                
-#                                                                               
-# Set the value of "url" in the [destination] section to specify where the logs 
-# will be POSTed.                                                               
-#                                                                               
-# Set the values in the [logs] section to tell the script where to find logs    
-# and how to parse them.                                                        
-#                                                                               
-# The values in the [prev_run] section will be overwritten in-place in this     
-# file by the script when it runs. The value of "last_line" will be set to the  
-# last line in the last successfully-POSTed file. The value of                  
-# "last_request_time" will be set to the %t value of "last_line". In subsequent 
-# runs, lines will only be processed if their %t value is greater than or equal 
-# to "last_request_time" (but if a line identical to "last_line" is             
-# encountered, it will be ignored). Thus, to control which lines are processed, 
-# you can set the value of "last_request_time" to be before the %t value of the 
-# first line you want processed; just make sure the value of                    
-# "last_request_time" is in the format [%d/%b/%Y:%I:%M:%S %z], e.g.,            
+# This is a configuration file used by xdmod_ondemand_export.py.
+#
+# Set the value of "url" in the [destination] section to specify where the logs
+# will be POSTed.
+#
+# Set the values in the [logs] section to tell the script where to find logs
+# and how to parse them.
+#
+# The values in the [prev_run] section will be overwritten in-place in this
+# file by the script when it runs. The value of "last_line" will be set to the
+# last line in the last successfully-POSTed file. The value of
+# "last_request_time" will be set to the %t value of "last_line". In subsequent
+# runs, lines will only be processed if their %t value is greater than or equal
+# to "last_request_time" (but if a line identical to "last_line" is
+# encountered, it will be ignored). Thus, to control which lines are processed,
+# you can set the value of "last_request_time" to be before the %t value of the
+# first line you want processed; just make sure the value of
+# "last_request_time" is in the format [%d/%b/%Y:%I:%M:%S %z], e.g.,
 # [31/May/2023:23:59:59 -0500].
 
 """
