@@ -5,31 +5,31 @@ Python script for parsing [Open OnDemand](https://openondemand.org/) Apache acce
 The steps below should be run on the system with the Open OnDemand Apache access log files by a user that has read access to the log files.
 
 ### Create and activate a Python virtual environment
-```console
+```
 $ env_dir="${HOME}/xdmod-ondemand-export/env"
 $ python3 -m venv ${env_dir}
 $ source ${env_dir}/bin/activate
 ```
 
 ### Install the package from PyPI
-```console
+```
 (env) $ python3 -m pip install git+https://github.com/aaronweeden/xdmod-ondemand@xdmod-ondemand-export#subdirectory=tools/xdmod-ondemand-export
 (env) $ package_dir="${env_dir}/lib/python3.*/site-packages/xdmod_ondemand_export"
 ```
 
 ### Deactivate the virtual environment
-```console
+```
 (env) $ deactivate
 ```
 
 ### Set file permissions
 The Python script is run from a Bash script; this Bash script sets your API token as an environment variable. Set the file permissions on the Bash script such that the script is executable by your user and such that others cannot read, write, or execute it:
-```console
+```
 $ chmod 700 ${package_dir}/xdmod-ondemand-export.sh
 ```
 
 The Python script reads and writes to a configuration file as it runs. One of the values written is the last line of the last log file that was successfully POSTed. Because this line contains sensitive information (mapping of username to IP address), set the configuration file to be readable and writable only by your user.
-```console
+```
 $ chmod 600 ${package_dir}/conf.ini
 ```
 
@@ -49,13 +49,13 @@ To control which files should be processed, set the values of `filename_pattern`
 
 ### Check the configuration
 Run the Bash script in check-config mode to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
-```console
+```
 $ ${package_dir}/xdmod-ondemand-export.sh --check-config -l INFO
 ```
 
 ### Create a cron job to run the script daily
 Open your user's crontab:
-```console
+```
 $ crontab -e
 ```
 Add the following line, replacing `${package_dir}` with its expanded value (the result of running `$ echo ${package_dir}`. This will set up the script to run daily at 2:01am.
