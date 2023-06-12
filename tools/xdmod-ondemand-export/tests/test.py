@@ -384,3 +384,11 @@ def test_two_runs(tmp_dir, artifact_dir, compressed):
 
 def test_error_response(tmp_dir):
     run_test(tmp_dir, mode=500)
+
+
+def test_empty_file(tmp_dir):
+    run_test(tmp_dir, artifact_dir='empty_file', num_files=0)
+
+
+def test_empty_lines(tmp_dir):
+    run_test(tmp_dir, artifact_dir='empty_lines', num_files=1)

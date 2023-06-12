@@ -252,40 +252,86 @@ class LogPoster:
         )
         last_request_times = {}
         for log_file_path in log_file_paths:
-            last_line = self.__get_last_line_in_file(log_file_path)
-            try:
-                if last_line.strip() == self.__last_line:
-                    self.__logger.debug(
-                        'Last line of '
-                        + log_file_path
-                        + ' is the configured "last_line",'
-                        + ' so will not be parsing the file.'
-                    )
-                    continue
-                entry = self.__log_parser.parse(last_line)
-                last_request_times[log_file_path] = entry.request_time
-                self.__logger.debug(
-                    'Last request time of ' + log_file_path + ' is:'
-                    + str(last_request_times[log_file_path])
-                )
-                if (
-                    last_request_times[log_file_path]
-                    < self.__last_request_time
-                ):
-                    self.__logger.debug(
-                        'which is before the request time of the last line of'
-                        + ' the previous run, so will not be parsing it.'
-                    )
-                    del last_request_times[log_file_path]
-            except apachelogs.errors.InvalidEntryError:
-                self.__logger.warn('Skipping invalid file: ' + log_file_path)
+            last_request_time = self.__get_last_request_time(log_file_path)
+            # If the last request time can be parsed and is not older than the
+            # configured "last_request_time", include the file.
+            if last_request_time is not None:
+                last_request_times[log_file_path] = last_request_time
         return last_request_times
 
-    def __get_last_line_in_file(self, file_path):
-        with open(file_path, 'rb') as file:
+    def __get_last_request_time(self, log_file_path):
+        # Open the file in binary mode so we can seek backwards from the end
+        # of the file.
+        with open(log_file_path, 'rb') as file:
+            # Start on the last line of the file.
+            on_last_line = True
+            # Until we hit the top of the file,
+            hit_top = False
+            while not hit_top:
+                # Seek back one line.
+                (file, hit_top) = self.__seek_back_one_line(
+                    file,
+                    hit_top,
+                    on_last_line,
+                )
+                # Read the current line.
+                line = file.readline().decode('utf-8').strip()
+                # If the line is the configured value of "last_line", skip the
+                # file.
+                if line == self.__last_line:
+                    self.__logger.debug(
+                        'Last line of ' + log_file_path + ' is the configured'
+                        + '"last_line", so will not be parsing the file.'
+                    )
+                    return None
+                # Try parsing the line.
+                try:
+                    entry = self.__log_parser.parse(line)
+                    # If the line can be parsed, get the request time from it.
+                    last_request_time = entry.request_time
+                    self.__logger.debug(
+                        'Last request time of ' + log_file_path + ' is:'
+                        + str(last_request_time)
+                    )
+                    # If the request time is before the configured value of
+                    # "last_request_time", skip the file.
+                    if (last_request_time < self.__last_request_time):
+                        self.__logger.debug(
+                            'which is before the request time of the last line'
+                            ' of the previous run, so will not be parsing it.'
+                        )
+                        return None
+                    # Otherwise, return the last request time.
+                    return last_request_time
+                # If the line couldn't be parsed, log it and move on to the
+                # next one.
+                except apachelogs.errors.InvalidEntryError:
+                    self.__logger.debug(
+                        'Skipping invalid entry at end of ' + log_file_path
+                    )
+                # Flag that we are no longer on the last line.
+                on_last_line = False
+        # If we hit the top of the file without finding a valid line, the file
+        # is invalid.
+        self.__logger.warning(
+            'Skipping invalid file: ' + log_file_path
+        )
+        return None
+
+    def __seek_back_one_line(self, file, hit_top, on_last_line):
+        # If we're on the last line, we seek back to the previous newline in
+        # preparation for reading the line; otherwise, we need to seek back two
+        # newlines, because we previously read past a newline when trying to
+        # parse the line we just tried to parse.
+        for _ in range(0, 1 if on_last_line else 2):
             try:
-                # Move to the second-to-last character in the file.
-                file.seek(-2, os.SEEK_END)
+                # Move to the second-to-last character in the file if we are on
+                # the last line, otherwise two characters before the current
+                # character.
+                file.seek(
+                    -2,
+                    os.SEEK_END if on_last_line else os.SEEK_CUR,
+                )
                 # Read the character, which seeks forward one character.
                 char = file.read(1)
                 # Until the character is a newline,
@@ -294,14 +340,13 @@ class LogPoster:
                     file.seek(-2, os.SEEK_CUR)
                     # Read the character, which seeks forward one character.
                     char = file.read(1)
-            # An error will occur if the file is fewer than two lines long, in
-            # which case,
+            # If we seek past the top of the file,
             except OSError:
-                # Seek to the beginning of the file.
+                # Flag that we hit the top.
+                hit_top = True
+                # Seek to the top of the file.
                 file.seek(0)
-            # Read the current line.
-            last_line = file.readline().decode('utf-8')
-        return last_line
+        return (file, hit_top)
 
     def __sort_log_files(self, request_times):
         self.__logger.debug('Sorting list of log files:')
@@ -358,47 +403,55 @@ class LogPoster:
             num_invalid_entries = 0
             for line in log_file:
                 try:
-                    entry = self.__log_parser.parse(line)
-                    # Ignore lines that are before the configured last line.
-                    if entry.request_time < self.__last_request_time:
-                        continue
-                    # If we come across the configured last line, skip it.
-                    elif (
-                        entry.request_time == self.__last_request_time
-                        and line.strip() == self.__last_line
-                    ):
-                        continue
-                    # Ignore lines for which a user is not logged in.
-                    if entry.remote_user is None:
-                        continue
-                    self.__new_last_line = line.strip()
-                    self.__new_last_request_time = (
-                        self.__entry_time_field_to_str(
-                            entry.request_time_fields,
-                            'timestamp',
-                        )
-                    )
-                    if entry.format == apachelogs.COMBINED.replace(
-                        'User-Agent',
-                        'User-agent',
-                    ):
-                        combined_line = line
-                    else:
-                        combined_line = self.__convert_to_combined_logformat(
-                            entry
-                        )
-                    yield combined_line.encode()
+                    yield self.__parse_line(line, line_num)
                 except apachelogs.errors.InvalidEntryError:
-                    num_invalid_entries += 1
                     self.__logger.debug(
                         'Skipping invalid entry: ' + log_file_path
-                        + ' line ' + line_num
+                        + ' line ' + str(line_num)
                     )
+                line_num += 1
             if num_invalid_entries > 0:
-                self.__logger.warn(
-                    'Skipped ' + num_invalid_entries + '  invalid entries in '
-                    + log_file_path
+                self.__logger.warning(
+                    'Skipped ' + str(num_invalid_entries)
+                    + ' invalid entries in ' + log_file_path
                 )
+
+    def __parse_line(self, line, line_num):
+        entry = self.__log_parser.parse(line)
+        # Skip lines that are before the configured "last_request_time".
+        if entry.request_time < self.__last_request_time:
+            return
+        # If we come across the configured "last_line", skip it.
+        elif (
+            entry.request_time == self.__last_request_time
+            and line.strip() == self.__last_line
+        ):
+            return
+        # Skip lines for which a user is not logged in.
+        if entry.remote_user is None:
+            return
+        # Convert the line to combined log format if it isn't already.
+        if entry.format == apachelogs.COMBINED.replace(
+            'User-Agent',
+            'User-agent',
+        ):
+            combined_line = line
+        else:
+            combined_line = self.__convert_to_combined_logformat(
+                entry
+            )
+        # Encode the line.
+        encoded_line = combined_line.encode()
+        # Prepare to set the configured values for "last_line" and
+        # "last_request_time".
+        self.__new_last_line = line.strip()
+        self.__new_last_request_time = (
+            self.__entry_time_field_to_str(
+                entry.request_time_fields,
+                'timestamp',
+            )
+        )
+        return encoded_line
 
     def __entry_time_field_to_str(self, time_fields, key):
         return (
