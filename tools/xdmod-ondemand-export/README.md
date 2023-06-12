@@ -45,7 +45,7 @@ The default values assume that the logs will be POSTed to `https://data.ccr.xdmo
 
 If any of these values are different for your configuration of Open OnDemand, change them in the file `${package_dir}/conf.ini`.
 
-By default, all files matching the filename pattern will be processed. For finer control over which files should be processed, set the values of `filename_pattern` and `last_request_time` accordingly. See the instructions in the file for how the value of `last_request_time` is used.
+By default, all files matching the filename pattern will be processed. For finer control over which files should be processed, set the values of `filename_pattern` and `last_request_time` accordingly. See the instructions in `${package_dir}/conf.ini` for how the value of `last_request_time` is used.
 
 ### Check the configuration
 Run the Bash script in check-config mode to make sure there are no warnings or errors; this will check the file permissions and configuration script and make sure the API token is in the right format, but it will not attempt to parse or POST any log files.
