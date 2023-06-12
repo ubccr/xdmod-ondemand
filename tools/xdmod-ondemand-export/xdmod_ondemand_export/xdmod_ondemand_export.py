@@ -403,7 +403,9 @@ class LogPoster:
             num_invalid_entries = 0
             for line in log_file:
                 try:
-                    yield self.__parse_line(line, line_num)
+                    parsed_line = self.__parse_line(line, line_num)
+                    if parsed_line is not None:
+                        yield parsed_line
                 except apachelogs.errors.InvalidEntryError:
                     self.__logger.debug(
                         'Skipping invalid entry: ' + log_file_path
