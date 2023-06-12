@@ -19,6 +19,7 @@ class LogPoster:
     def __init__(self):
         self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
         self.__api_token_pattern = re.compile('^[0-9]+\\.[0-9a-f]{64}$')
+        self.__time_format = '[%d/%b/%Y:%H:%M:%S %z]'
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
         self.__logger.info('Script starting.')
@@ -198,7 +199,7 @@ class LogPoster:
         last_request_time = (
             datetime.fromtimestamp(0, tz=timezone.utc)
             if last_request_time == ''
-            else datetime.strptime(last_request_time, '[%d/%b/%Y:%I:%M:%S %z]')
+            else datetime.strptime(last_request_time, self.__time_format)
         )
         if last_request_time == '':
             last_request_time = datetime.fromtimestamp(0, tz=timezone.utc)
@@ -397,7 +398,7 @@ class LogPoster:
 
     def __entry_time_field_to_str(self, time_fields, key):
         return (
-            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]')
+            time_fields[key].strftime(self.__time_format)
             if key in time_fields
             and time_fields[key] is not None
             else '-'
@@ -452,10 +453,11 @@ class LogPoster:
 # encountered, it will be ignored). Thus, to control which lines are processed,
 # you can set the value of "last_request_time" to be before the %t value of the
 # first line you want processed; just make sure the value of
-# "last_request_time" is in the format [%d/%b/%Y:%I:%M:%S %z], e.g.,
+# "last_request_time" is in the format {0}, e.g.,
 # [31/May/2023:23:59:59 -0500].
 
 """
+        comment_header = comment_header.format(self.__time_format)
         with open(self.__args.conf_path, 'w') as conf_file:
             conf_file.write(comment_header)
             self.__conf_parser.write(conf_file)

@@ -260,7 +260,7 @@ def test_conf_file_not_found(tmp_dir):
             {'last_request_time': 'asdf'},
             'default',
             "time data 'asdf' does not match format "
-            + "'\\[%d/%b/%Y:%I:%M:%S %z\\]'"
+            + "'\\[%d/%b/%Y:%H:%M:%S %z\\]'"
         ),
     ],
     ids=(
