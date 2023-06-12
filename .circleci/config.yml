@@ -4,6 +4,9 @@
 #
 version: 2.1
 executors:
+  centos7: &centos7-executor
+    docker:
+      - image: centos:7
   rocky8: &rocky8-executor
     docker:
       - image: rockylinux:8
@@ -71,6 +74,14 @@ jobs:
       # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
       - when:
           condition:
+            equal: [ *centos7-executor, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand dependencies
+                command: |
+                  yum install centos-release-scl epel-release -y
+      - when:
+          condition:
             equal: [ *rocky8-executor, << parameters.os >> ]
           steps:
             - run:
@@ -125,4 +136,4 @@ workflows:
       - test-export-tool:
           matrix:
             parameters:
-              os: [rocky8, rocky9]
+              os: [centos7, rocky8, rocky9]
