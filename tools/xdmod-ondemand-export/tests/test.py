@@ -1,4 +1,5 @@
 import filecmp
+import glob
 import os
 import pytest
 import re
@@ -12,7 +13,7 @@ TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
 DESTINATION_URL = 'http://localhost:1234'
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = '/root/xdmod-ondemand-export'
-PACKAGES_DIR = ROOT_DIR + '/env/lib/python3.6/site-packages'
+PACKAGES_DIR = glob.glob(ROOT_DIR + '/env/lib/python3.*/site-packages')[0]
 PACKAGE_DIR = PACKAGES_DIR + '/xdmod_ondemand_export'
 BASH_SCRIPT_PATH = PACKAGE_DIR + '/xdmod-ondemand-export.sh'
 BASE_CONF_PATH = PACKAGE_DIR + '/conf.ini'
@@ -218,14 +219,12 @@ def test_conf_file_not_found(tmp_dir):
         (
             {'url': 'asdf'},
             'default',
-            "Invalid URL 'asdf':"
-            + ' No scheme supplied. Perhaps you meant http://asdf?',
+            "Invalid URL 'asdf': No scheme supplied."
         ),
         (
             {'url': 'http://asdf'},
             'default',
-            'Failed to establish a new connection:'
-            + ' \\[Errno -2\\] Name or service not known',
+            '\\[Errno -2\\] Name or service not known',
         ),
         (
             {'dir': 'asdf'},

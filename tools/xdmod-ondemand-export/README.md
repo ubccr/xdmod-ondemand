@@ -14,7 +14,7 @@ $ source ${env_dir}/bin/activate
 ### Install the package from PyPI
 ```
 (env) $ python3 -m pip install git+https://github.com/aaronweeden/xdmod-ondemand@xdmod-ondemand-export#subdirectory=tools/xdmod-ondemand-export
-(env) $ package_dir="${env_dir}/lib/python3.6/site-packages/xdmod_ondemand_export"
+(env) $ package_dir="${env_dir}/lib/python3.*/site-packages/xdmod_ondemand_export"
 ```
 
 ### Deactivate the virtual environment
@@ -58,7 +58,7 @@ Open your user's crontab:
 ```
 $ crontab -e
 ```
-Add the following line, replacing `${package_dir}` with its expanded value. This will set up the script to run daily at 2:01am.
+Add the following line, replacing `${package_dir}` with its expanded value (the result of running `$ echo ${package_dir}`. This will set up the script to run daily at 2:01am.
 ```
 1 2 * * * ${package_dir}/xdmod-ondemand-export.sh
 ```
