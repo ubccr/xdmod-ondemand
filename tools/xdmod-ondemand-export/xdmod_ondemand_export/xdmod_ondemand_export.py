@@ -31,7 +31,8 @@ class LogPoster:
         self.__parse_conf()
         self.__dir = self.__parse_dir()
         self.__log_parser = self.__init_log_parser()
-        (self.__last_line, self.__last_request_time) = self.__parse_last_line()
+        self.__last_line = self.__parse_last_line()
+        self.__last_request_time = self.__parse_last_request_time()
         self.__compressed = configparser.ConfigParser.BOOLEAN_STATES[
             self.__get_conf_property('logs', 'compressed')
         ]
@@ -43,6 +44,7 @@ class LogPoster:
             )
         else:
             self.__new_last_line = None
+            self.__new_last_request_time = None
             try:
                 self.__parse_and_post()
             finally:
@@ -174,7 +176,7 @@ class LogPoster:
             + '] section of the configuration file:'
         )
         value = self.__conf_parser.get(section, key)
-        # Do not log the last_line value since it might contain sensitive
+        # Do not log the "last_line" value since it might contain sensitive
         # information (e.g., IP address and username).
         if section == 'prev_run' and key == 'last_line':
             self.__logger.debug('[redacted]')
@@ -186,12 +188,24 @@ class LogPoster:
         last_line = self.__get_conf_property('prev_run', 'last_line')
         if last_line == '':
             last_line = None
+        return last_line
+
+    def __parse_last_request_time(self):
+        last_request_time = self.__get_conf_property(
+            'prev_run',
+            'last_request_time',
+        )
+        last_request_time = (
+            datetime.fromtimestamp(0, tz=timezone.utc)
+            if last_request_time == ''
+            else datetime.strptime(last_request_time, '[%d/%b/%Y:%I:%M:%S %z]')
+        )
+        if last_request_time == '':
             last_request_time = datetime.fromtimestamp(0, tz=timezone.utc)
         else:
-            entry = self.__log_parser.parse(last_line)
-            last_request_time = entry.request_time
-        self.__logger.debug('Previous request time: ' + str(last_request_time))
-        return (last_line, last_request_time)
+            last_request_time
+        self.__logger.debug('Last request time: ' + str(last_request_time))
+        return last_request_time
 
     def __find_log_files(self):
         self.__logger.debug('Finding, sorting, and filtering the log files.')
@@ -243,8 +257,8 @@ class LogPoster:
                     self.__logger.debug(
                         'Last line of '
                         + log_file_path
-                        + ' is the configured last_line,'
-                        + ' so will not be parsing it.'
+                        + ' is the configured "last_line",'
+                        + ' so will not be parsing the file.'
                     )
                     continue
                 entry = self.__log_parser.parse(last_line)
@@ -326,6 +340,11 @@ class LogPoster:
                 'last_line',
                 self.__new_last_line,
             )
+            self.__conf_parser.set(
+                'prev_run',
+                'last_request_time',
+                self.__new_last_request_time,
+            )
 
     def __parse_log_file(self, log_file_path):
         open_function = gzip.open if self.__compressed else open
@@ -348,6 +367,12 @@ class LogPoster:
                     if entry.remote_user is None:
                         continue
                     self.__new_last_line = line.strip()
+                    self.__new_last_request_time = (
+                        self.__entry_time_field_to_str(
+                            entry.request_time_fields,                                      
+                            'timestamp', 
+                        )
+                    )
                     if entry.format == apachelogs.COMBINED.replace(
                         'User-Agent',
                         'User-agent',
@@ -370,6 +395,14 @@ class LogPoster:
                     + log_file_path
                 )
 
+    def __entry_time_field_to_str(self, time_fields, key):
+        return (
+            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]')
+            if key in time_fields
+            and time_fields[key] is not None
+            else '-'
+        )
+
     def __convert_to_combined_logformat(self, entry):
         return (
             self.__entry_value_to_str(entry.remote_host)
@@ -390,14 +423,6 @@ class LogPoster:
     def __entry_value_to_str(self, value):
         return '-' if value is None else str(value)
 
-    def __entry_time_field_to_str(self, time_fields, key):
-        return (
-            time_fields[key].strftime('[%d/%b/%Y:%I:%M:%S %z]')
-            if key in time_fields
-            and time_fields[key] is not None
-            else '-'
-        )
-
     def __entry_headers_in_to_str(self, entry, key):
         return (
             entry.headers_in[key]
@@ -410,23 +435,25 @@ class LogPoster:
     def __write_conf(self):
         self.__logger.debug('Writing values back to configuration file.')
         comment_header = """\
-# This is a configuration file used by xdmod_ondemand_export.py.
-#
-# Set the value of "url" in the [destination] section to specify where the logs
-# will be POSTed.
-#
-# Set the values in the [logs] section to tell the script where to find logs
-# and how to parse them.
-#
-# The value of "last_line" in the [prev_run] section will be overwritten
-# in-place in this file by the script when it runs. The value of "last_line"
-# will be set to the last line in the last successfully-POSTed file. In
-# subsequent runs, lines will only be processed if their %t value is greater
-# than or equal to the %t value of "last_line" (but if a line identical to
-# "last_line" is encountered, it will be ignored). Thus, to control which lines
-# are processed, you can set the value of "last_line" to have a particular %t
-# value that is before the %t value of the first line you want processed (just
-# make sure the value of "last_line" is in the proper LogFormat).
+# This is a configuration file used by xdmod_ondemand_export.py.                
+#                                                                               
+# Set the value of "url" in the [destination] section to specify where the logs 
+# will be POSTed.                                                               
+#                                                                               
+# Set the values in the [logs] section to tell the script where to find logs    
+# and how to parse them.                                                        
+#                                                                               
+# The values in the [prev_run] section will be overwritten in-place in this     
+# file by the script when it runs. The value of "last_line" will be set to the  
+# last line in the last successfully-POSTed file. The value of                  
+# "last_request_time" will be set to the %t value of "last_line". In subsequent 
+# runs, lines will only be processed if their %t value is greater than or equal 
+# to "last_request_time" (but if a line identical to "last_line" is             
+# encountered, it will be ignored). Thus, to control which lines are processed, 
+# you can set the value of "last_request_time" to be before the %t value of the 
+# first line you want processed; just make sure the value of                    
+# "last_request_time" is in the format [%d/%b/%Y:%I:%M:%S %z], e.g.,            
+# [31/May/2023:23:59:59 -0500].
 
 """
         with open(self.__args.conf_path, 'w') as conf_file:

@@ -258,9 +258,10 @@ def test_conf_file_not_found(tmp_dir):
             "'utf-8' codec can't decode byte",
         ),
         (
-            {'last_line': 'asdf'},
+            {'last_request_time': 'asdf'},
             'default',
-            "Could not match log entry 'asdf' against log format",
+            "time data 'asdf' does not match format "
+            + "'\\[%d/%b/%Y:%I:%M:%S %z\\]'"
         ),
     ],
     ids=(
@@ -272,7 +273,7 @@ def test_conf_file_not_found(tmp_dir):
         'compressed_invalid_value',
         'compressed_wrong_value_true',
         'compressed_wrong_value_false',
-        'last_line',
+        'last_request_time',
     )
 )
 def test_invalid_conf_property(tmp_dir, conf_args, artifact_dir, match):
@@ -305,7 +306,8 @@ def test_some_old_some_new(tmp_dir, artifact_dir, conf_args, num_files):
             + 'sys HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/'
             + 'pun/sys/dashboard/batch_connect/sessions" "Mozilla/5.0 '
             + '(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
-            + 'like Gecko) Chrome/91.0.4472.77 Safari/537.36"'
+            + 'like Gecko) Chrome/91.0.4472.77 Safari/537.36"',
+            'last_request_time': '[01/Jul/2021:03:17:06 -0500]'
         }, **conf_args},
         num_files=num_files,
     )
@@ -329,7 +331,8 @@ def test_skip_file_matching_last_line(tmp_dir):
             + 'HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/pun/sys/'
             + 'dashboard/batch_connect/sessions" "Mozilla/5.0 (Windows NT '
             + '10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-            + 'Chrome/91.0.4472.77 Safari/537.36"'
+            + 'Chrome/91.0.4472.77 Safari/537.36"',
+            'last_request_time': '[30/Jun/2021:03:17:08 -0500]',
         },
         num_files=2
     )
@@ -358,11 +361,15 @@ def test_two_runs(tmp_dir, artifact_dir, compressed):
             match = re.match(r'last_line = (.*)', line)
             if match is not None:
                 last_line = match.group(1)
+            match = re.match(r'last_request_time = (.*)', line)
+            if match is not None:
+                last_request_time = match.group(1)
     run_test(
         tmp_dir,
         artifact_dir=artifact_dir + '/second_run',
         conf_args={
             'last_line': last_line,
+            'last_request_time': last_request_time,
             'compressed': compressed,
         },
         num_files=(3 if compressed == 'true' else 2),
