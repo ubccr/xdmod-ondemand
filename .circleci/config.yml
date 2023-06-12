@@ -7,6 +7,9 @@ executors:
   rocky8: &rocky8-executor
     docker:
       - image: rockylinux:8
+  rocky9: &rocky9-executor
+    docker:
+      - image: rockylinux:9
 jobs:
   build:
     parameters:
@@ -65,14 +68,28 @@ jobs:
           name: Install Git
           command: dnf install git -y
       - checkout
-      - run:
-          name: Install OnDemand dependencies
-          command: |
-            # These steps come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
-            dnf install 'dnf-command(config-manager)' -y
-            dnf config-manager --set-enabled powertools
-            dnf install epel-release -y
-            dnf module enable ruby:3.0 nodejs:14 -y
+      # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
+      - when:
+          condition:
+            equal: [ *rocky8-executor, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand dependencies
+                command: |
+                  dnf install 'dnf-command(config-manager)' -y
+                  dnf config-manager --set-enabled powertools
+                  dnf install epel-release -y
+                  dnf module enable ruby:3.0 nodejs:14 -y
+      - when:
+          condition:
+            equal: [ *rocky9-executor, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand dependencies
+                command: |
+                  dnf install 'dnf-command(config-manager)' -y
+                  dnf config-manager --set-enabled crb
+                  dnf install epel-release -y
       - run:
           name: Install OnDemand
           command: |
@@ -108,4 +125,4 @@ workflows:
       - test-export-tool:
           matrix:
             parameters:
-              os: [rocky8]
+              os: [rocky8, rocky9]
