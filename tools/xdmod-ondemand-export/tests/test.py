@@ -335,8 +335,24 @@ def test_skip_file_matching_last_line(tmp_dir):
     )
 
 
-def test_two_runs(tmp_dir):
-    run_test(tmp_dir, artifact_dir='two_runs/first_run')
+@pytest.mark.parametrize(
+    'artifact_dir, compressed',
+    [
+        ('two_runs', 'false'),
+        ('two_runs_compressed', 'true'),
+    ],
+    ids=(
+        'uncompressed',
+        'compressed',
+    )
+)
+def test_two_runs(tmp_dir, artifact_dir, compressed):
+    run_test(
+        tmp_dir,
+        artifact_dir=artifact_dir + '/first_run',
+        conf_args={'compressed': compressed},
+        num_files=2,
+    )
     with open(tmp_dir + '/conf.ini') as conf_file:
         for line in conf_file:
             match = re.match(r'last_line = (.*)', line)
@@ -344,6 +360,10 @@ def test_two_runs(tmp_dir):
                 last_line = match.group(1)
     run_test(
         tmp_dir,
-        artifact_dir='two_runs/second_run',
-        conf_args={'last_line': last_line}
+        artifact_dir=artifact_dir + '/second_run',
+        conf_args={
+            'last_line': last_line,
+            'compressed': compressed,
+        },
+        num_files=(3 if compressed == 'true' else 2),
     )
