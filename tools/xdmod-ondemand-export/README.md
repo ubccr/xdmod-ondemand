@@ -62,7 +62,7 @@ Add the following line, replacing `${package_dir}` with its expanded value (the 
 ```
 1 2 * * * ${package_dir}/xdmod-ondemand-export.sh
 ```
-An example of the expanded value for root is:
+An example of the expanded value for root in Python 3.6 is:
 ```
 1 2 * * * /root/xdmod-ondemand-export/env/lib/python3.6/site-packages/xdmod_ondemand_export/xdmod-ondemand-export.sh
 ```
