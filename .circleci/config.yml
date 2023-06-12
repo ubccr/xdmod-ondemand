@@ -66,10 +66,16 @@ jobs:
     environment:
       VENV_DIR: /root/xdmod-ondemand-export/env
     steps:
-      - run:
-          # This step is needed to make sure the test artifacts are checked out.
-          name: Install Git
-          command: dnf install git -y
+      - when:
+          condition:
+            or:
+              - equal: [ *rocky8-executor, << parameters.os >> ]
+              - equal: [ *rocky9-executor, << parameters.os >> ]
+          steps:
+            - run:
+                # This step is needed to make sure the test artifacts are checked out.
+                name: Install Git
+                command: dnf install git -y
       - checkout
       # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
       - when:
