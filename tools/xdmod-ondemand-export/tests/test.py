@@ -107,6 +107,7 @@ def run_test(
         '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
     ),
     num_files=1,
+    mode=200,
 ):
     artifacts_dir = TESTS_DIR + '/artifacts/' + artifact_dir
     inputs_dir = artifacts_dir + '/inputs'
@@ -131,8 +132,14 @@ def run_test(
     }
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
-    web_server_args = (tmp_dir, num_files)
-    run(tmp_dir, script_args, web_server_args, api_token)
+    web_server_args = (tmp_dir, num_files, mode)
+    try:
+        run(tmp_dir, script_args, web_server_args, api_token)
+    except RuntimeError as e:
+        if mode != 200:
+            assert str(e) == 'RuntimeError: Server returned ' + str(mode)
+        else:
+            raise e
     for i in range(0, num_files):
         validate_output(
             tmp_dir + '/access.log.' + str(i),
@@ -373,3 +380,7 @@ def test_two_runs(tmp_dir, artifact_dir, compressed):
         },
         num_files=(3 if compressed == 'true' else 2),
     )
+
+
+def test_error_response(tmp_dir):
+    run_test(tmp_dir, mode=500)

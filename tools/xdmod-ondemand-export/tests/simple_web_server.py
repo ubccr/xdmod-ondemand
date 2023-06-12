@@ -12,7 +12,7 @@ class Server(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.wfile.write(b'Authentication failed.')
             return
-        global output_dir, request_index
+        global output_dir, request_index, mode
         file_path = output_dir + '/access.log.' + str(request_index)
         print('DEBUG:simple_web_server:Writing to ' + file_path)
         with open(file_path, 'w') as file:
@@ -24,16 +24,17 @@ class Server(BaseHTTPRequestHandler):
                 file.write(bytes_)
                 file.write('\n')
                 self.rfile.readline().strip().decode('utf-8')
-        self.send_response(200)
+        self.send_response(mode)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b'OK')
         request_index += 1
 
 
-def run(dir_, num_requests):
-    global output_dir, request_index
+def run(dir_, num_requests, mode_=200):
+    global output_dir, request_index, mode
     output_dir = dir_
+    mode = mode_
     request_index = 0
     server = HTTPServer(('localhost', 1234), Server)
     for _ in range(0, num_requests):

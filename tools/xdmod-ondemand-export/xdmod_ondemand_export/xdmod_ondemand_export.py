@@ -336,6 +336,10 @@ class LogPoster:
                     raise e
             self.__logger.debug('Got response:')
             self.__logger.debug(response.text)
+            if response.status_code != 200:
+                raise RuntimeError(
+                    'Server returned ' + str(response.status_code)
+                )
             self.__conf_parser.set(
                 'prev_run',
                 'last_line',
