@@ -2,7 +2,14 @@
 Python script for parsing [Open OnDemand](https://openondemand.org/) Apache access logs and sending them via POST requests to an HTTPS endpoint on a web server for inclusion in [XDMoD](https://open.xdmod.org).
 
 ## Installation
-The steps below should be run on the system with the Open OnDemand Apache access log files by a user that has read access to the log files.
+The steps below should be run on the system with the Open OnDemand Apache access log files by a user that has read access to the log files. If you are on Ubuntu, the first two commands will also need to be run with sudo or as root.
+
+### If you are on Ubuntu
+If you are on Ubuntu, run the two commands below with sudo or as root to install the Python virtual environment package. If you are not on Ubuntu, these two commands can be skipped.
+```
+# python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
+# apt install python${python_version}-venv
+```
 
 ### Create and activate a Python virtual environment
 ```

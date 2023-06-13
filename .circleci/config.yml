@@ -163,6 +163,8 @@ jobs:
                   apt install /tmp/ondemand-release-web_3.0.0_all.deb
                   apt update
                   DEBIAN_FRONTEND=noninteractive TZ=US/Eastern apt install ondemand -y
+                  python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
+                  apt install python${python_version}-venv
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
