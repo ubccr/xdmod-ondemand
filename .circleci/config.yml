@@ -107,7 +107,9 @@ jobs:
             - run:
                 # This step is needed to make sure the test artifacts are checked out.
                 name: Install Git
-                command: apt install git -y
+                command: |
+                  apt update
+                  apt install git -y
       - checkout
       # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
       - when:
