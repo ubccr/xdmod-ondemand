@@ -207,9 +207,9 @@ def test_no_api_token(tmp_dir):
 def test_malformed_api_token(tmp_dir):
     with pytest.raises(
         RuntimeError,
-        match=TOKEN_NAME + ' environment variable is in the wrong format.',
+        match='Authentication failed'
     ):
-        run_test(tmp_dir, api_token='x')
+        run_test(tmp_dir, api_token='asdf')
 
 
 def test_conf_file_not_found(tmp_dir):

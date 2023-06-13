@@ -18,7 +18,6 @@ import sys
 class LogPoster:
     def __init__(self):
         self.__api_token_name = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
-        self.__api_token_pattern = re.compile('^[0-9]+\\.[0-9a-f]{64}$')
         self.__time_format = '[%d/%b/%Y:%H:%M:%S %z]'
         self.__args = self.__parse_args()
         self.__logger = self.__init_logger()
@@ -132,11 +131,6 @@ class LogPoster:
         except KeyError:
             raise KeyError(
                 self.__api_token_name + ' environment variable is undefined.'
-            )
-        if not self.__api_token_pattern.match(api_token):
-            raise ValueError(
-                self.__api_token_name
-                + ' environment variable is in the wrong format.'
             )
         return api_token
 
