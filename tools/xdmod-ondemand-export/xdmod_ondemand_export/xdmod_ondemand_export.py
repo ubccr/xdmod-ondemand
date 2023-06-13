@@ -10,7 +10,6 @@ import gzip
 import logging
 import operator
 import os
-import re
 import requests
 import sys
 
