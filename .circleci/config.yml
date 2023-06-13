@@ -19,10 +19,10 @@ executors:
   alma9: &alma9-executor
     docker:
       - image: almalinux:9
-  ubuntu20.04: &ubuntu20.04-executor
+  ubuntu20_04: &ubuntu20_04-executor
     docker:
       - image: ubuntu:20.04
-  ubuntu22.04: &ubuntu22.04-executor
+  ubuntu22_04: &ubuntu22_04-executor
     docker:
       - image: ubuntu:22.04
 jobs:
@@ -150,8 +150,8 @@ jobs:
       - when:
           condition:
             or:
-              - equal: [ *ubuntu20.04-executor, << parameters.os >> ]
-              - equal: [ *ubuntu22.04-executor, << parameters.os >> ]
+              - equal: [ *ubuntu20_04-executor, << parameters.os >> ]
+              - equal: [ *ubuntu22_04-executor, << parameters.os >> ]
           steps:
             - run:
                 name: Install OnDemand
@@ -198,5 +198,5 @@ workflows:
                 - alma8
                 - rocky9
                 - alma9
-                - ubuntu20.04
-                - ubuntu22.04
+                - ubuntu20_04
+                - ubuntu22_04
