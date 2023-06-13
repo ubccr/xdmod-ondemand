@@ -162,7 +162,7 @@ jobs:
                   wget -O /tmp/ondemand-release-web_3.0.0_all.deb https://apt.osc.edu/ondemand/3.0/ondemand-release-web_3.0.0_all.deb
                   apt install /tmp/ondemand-release-web_3.0.0_all.deb
                   apt update
-                  apt install ondemand -y
+                  DEBIAN_FRONTEND=noninteractive TZ=US/Eastern apt install ondemand -y
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
