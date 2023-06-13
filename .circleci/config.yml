@@ -19,6 +19,12 @@ executors:
   alma9: &alma9-executor
     docker:
       - image: almalinux:9
+  ubuntu20.04: &ubuntu20.04-executor
+    docker:
+      - image: ubuntu:20.04
+  ubuntu22.04: &ubuntu22.04-executor
+    docker:
+      - image: ubuntu:22.04
 jobs:
   build:
     parameters:
@@ -127,11 +133,35 @@ jobs:
                   dnf install 'dnf-command(config-manager)' -y
                   dnf config-manager --set-enabled crb
                   dnf install epel-release -y
-      - run:
-          name: Install OnDemand
-          command: |
-            yum install https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm -y
-            yum install ondemand -y
+      - when:
+          condition:
+            or:
+              - equal: [ *centos7-executor, << parameters.os >> ]
+              - equal: [ *rocky8-executor, << parameters.os >> ]
+              - equal: [ *alma8-executor, << parameters.os >> ]
+              - equal: [ *rocky9-executor, << parameters.os >> ]
+              - equal: [ *alma9-executor, << parameters.os >> ]
+          steps:
+              - run:
+                  name: Install OnDemand
+                  command: |
+                    yum install https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm -y
+                    yum install ondemand -y
+      - when:
+          condition:
+            or:
+              - equal: [ *ubuntu20.04-executor, << parameters.os >> ]
+              - equal: [ *ubuntu22.04-executor, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand
+                command: |
+                  apt update
+                  apt install apt-transport-https ca-certificates -y
+                  apt install wget -y
+                  wget -O /tmp/ondemand-release-web_3.0.0_all.deb https://apt.osc.edu/ondemand/3.0/ondemand-release-web_3.0.0_all.deb
+                  apt install /tmp/ondemand-release-web_3.0.0_all.deb
+                  apt install ondemand -y
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
@@ -162,4 +192,11 @@ workflows:
       - test-export-tool:
           matrix:
             parameters:
-              os: [centos7, rocky8, alma8, rocky9, alma9]
+              os:
+                - centos7
+                - rocky8
+                - alma8
+                - rocky9
+                - alma9
+                - ubuntu20.04
+                - ubuntu22.04
