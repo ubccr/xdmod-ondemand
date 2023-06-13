@@ -98,6 +98,16 @@ jobs:
                 # This step is needed to make sure the test artifacts are checked out.
                 name: Install Git
                 command: dnf install git -y
+      - when:
+          condition:
+            or:
+              - equal: [ *ubuntu20_04-executor, << parameters.os >> ]
+              - equal: [ *ubuntu22_04-executor, << parameters.os >> ]
+          steps:
+            - run:
+                # This step is needed to make sure the test artifacts are checked out.
+                name: Install Git
+                command: apt install git -y
       - checkout
       # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
       - when:
