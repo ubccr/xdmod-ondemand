@@ -168,7 +168,6 @@ jobs:
             - run:
                 name: Install OnDemand
                 command: |
-                  apt update
                   apt install apt-transport-https ca-certificates -y
                   apt install wget -y
                   wget -O /tmp/ondemand-release-web_3.0.0_all.deb https://apt.osc.edu/ondemand/3.0/ondemand-release-web_3.0.0_all.deb
