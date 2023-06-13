@@ -10,9 +10,15 @@ executors:
   rocky8: &rocky8-executor
     docker:
       - image: rockylinux:8
+  alma8: &alma8-executor
+    docker:
+      - image: almalinux:8
   rocky9: &rocky9-executor
     docker:
       - image: rockylinux:9
+  alma9: &alma9-executor
+    docker:
+      - image: almalinux:9
 jobs:
   build:
     parameters:
@@ -78,7 +84,9 @@ jobs:
           condition:
             or:
               - equal: [ *rocky8-executor, << parameters.os >> ]
+              - equal: [ *alma8-executor, << parameters.os >> ]
               - equal: [ *rocky9-executor, << parameters.os >> ]
+              - equal: [ *alma9-executor, << parameters.os >> ]
           steps:
             - run:
                 # This step is needed to make sure the test artifacts are checked out.
@@ -96,7 +104,9 @@ jobs:
                   yum install centos-release-scl epel-release -y
       - when:
           condition:
-            equal: [ *rocky8-executor, << parameters.os >> ]
+            or:
+              - equal: [ *rocky8-executor, << parameters.os >> ]
+              - equal: [ *alma8-executor, << parameters.os >> ]
           steps:
             - run:
                 name: Install OnDemand dependencies
@@ -107,7 +117,9 @@ jobs:
                   dnf module enable ruby:3.0 nodejs:14 -y
       - when:
           condition:
-            equal: [ *rocky9-executor, << parameters.os >> ]
+            or:
+              - equal: [ *rocky9-executor, << parameters.os >> ]
+              - equal: [ *alma9-executor, << parameters.os >> ]
           steps:
             - run:
                 name: Install OnDemand dependencies
@@ -150,4 +162,4 @@ workflows:
       - test-export-tool:
           matrix:
             parameters:
-              os: [centos7, rocky8, rocky9]
+              os: [centos7, rocky8, alma8, rocky9, alma9]
