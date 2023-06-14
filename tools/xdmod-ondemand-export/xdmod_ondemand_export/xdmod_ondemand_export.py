@@ -390,7 +390,7 @@ class LogPoster:
                     ),
                     headers={
                         'content-type': 'text/plain',
-                        'authorization': 'Bearer ' + self.__api_token
+                        'authorization': 'Bearer ' + self.__api_token,
                     },
                 )
             except Exception as e:
