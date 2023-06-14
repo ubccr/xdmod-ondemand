@@ -1,12 +1,12 @@
 import filecmp
 import glob
+import multiprocessing
 import os
 import pytest
 import re
 import simple_web_server
 import subprocess
 import tempfile
-import multiprocessing
 
 
 TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
