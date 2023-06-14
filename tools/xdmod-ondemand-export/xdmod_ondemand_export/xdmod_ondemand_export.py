@@ -342,8 +342,8 @@ class LogPoster:
         # preparation for reading the line; otherwise, we need to seek back two
         # newlines, because we previously read past a newline when trying to
         # parse the line we just tried to parse.
-        for _ in range(0, 1 if on_last_line else 2):
-            try:
+        try:
+            for _ in range(0, 1 if on_last_line else 2):
                 # Move to the second-to-last character in the file if we are on
                 # the last line, otherwise two characters before the current
                 # character.
@@ -359,12 +359,12 @@ class LogPoster:
                     file.seek(-2, os.SEEK_CUR)
                     # Read the character, which seeks forward one character.
                     char = file.read(1)
-            # If we seek past the top of the file,
-            except OSError:
-                # Flag that we hit the top.
-                hit_top = True
-                # Seek to the top of the file.
-                file.seek(0)
+        # If we seek past the top of the file,
+        except OSError:
+            # Flag that we hit the top.
+            hit_top = True
+            # Seek to the top of the file.
+            file.seek(0)
         return (file, hit_top)
 
     def __sort_log_files(self, request_times):
