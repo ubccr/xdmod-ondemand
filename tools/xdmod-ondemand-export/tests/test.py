@@ -25,7 +25,13 @@ def tmp_dir():
         yield d
 
 
-def update_file(source_path, destination_path, update_line, update_line_arg):
+def update_file(
+    source_path,
+    destination_path,
+    destination_permissions,
+    update_line,
+    update_line_arg,
+):
     with open(source_path, 'rt') as base_file:
         old_umask = os.umask(0o077)
         with open(destination_path, 'wt') as file_:
@@ -33,7 +39,7 @@ def update_file(source_path, destination_path, update_line, update_line_arg):
                 line = update_line(line, update_line_arg)
                 file_.write(line)
         os.umask(old_umask)
-    os.chmod(destination_path, 0o0700)
+    os.chmod(destination_path, destination_permissions)
 
 
 def update_bash_script_line(line, token):
@@ -56,11 +62,11 @@ def update_conf_file_line(line, args):
 
 
 def update_bash_script(path, token):
-    update_file(BASH_SCRIPT_PATH, path, update_bash_script_line, token)
+    update_file(BASH_SCRIPT_PATH, path, 0o0700, update_bash_script_line, token)
 
 
 def update_conf_file(path, args):
-    update_file(BASE_CONF_PATH, path, update_conf_file_line, args)
+    update_file(BASE_CONF_PATH, path, 0o0600, update_conf_file_line, args)
 
 
 def run(tmp_dir, script_args, web_server_args, api_token):
@@ -400,3 +406,21 @@ def test_empty_file(tmp_dir):
 
 def test_empty_lines(tmp_dir):
     run_test(tmp_dir, artifact_dir='empty_lines', num_files=1)
+
+
+def test_invalid_compressed_lines(tmp_dir):
+    run_test(
+        tmp_dir,
+        artifact_dir='invalid_compressed_lines',
+        conf_args={'compressed': 'true'},
+        num_files=1,
+    )
+
+
+def test_invalid_compressed_file(tmp_dir):
+    run_test(
+        tmp_dir,
+        artifact_dir='invalid_compressed_file',
+        conf_args={'compressed': 'true'},
+        num_files=1,
+    )

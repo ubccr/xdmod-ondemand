@@ -228,16 +228,47 @@ class LogPoster:
         self.__logger.debug('Parsing first request time in each log file.')
         first_request_times = {}
         for log_file_path in log_file_paths:
-            with gzip.open(log_file_path, 'rt') as log_file:
-                first_line = log_file.readline()
+            try:
+                first_request_times[log_file_path] = next(
+                    self.__parse_log_file(
+                        log_file_path,
+                        parse_line_method=self.__get_request_time,
+                    )
+                )
+            except StopIteration:
+                self.__logger.warning(
+                    'Skipping invalid file: ' + log_file_path
+                )
+        return first_request_times
+
+    def __parse_log_file(self, log_file_path, parse_line_method):
+        line_num = 0
+        num_invalid_entries = 0
+        open_function = gzip.open if self.__compressed else open
+        with open_function(log_file_path, 'rt') as log_file:
+            for line in log_file:
                 try:
-                    entry = self.__log_parser.parse(first_line)
-                    first_request_times[log_file_path] = entry.request_time
+                    parsed_line = parse_line_method(line, line_num)
+                    if parsed_line is not None:
+                        yield parsed_line
                 except apachelogs.errors.InvalidEntryError:
                     self.__logger.debug(
-                        'Skipping invalid entry: ' + log_file_path + ' line 0'
+                        'Skipping invalid entry: ' + log_file_path
+                        + ' line ' + str(line_num)
                     )
-        return first_request_times
+                    num_invalid_entries += 1
+                line_num += 1
+            if num_invalid_entries > 0:
+                self.__logger.warning(
+                    'Skipped ' + str(num_invalid_entries)
+                    + ' invalid entr' + (
+                        'y' if num_invalid_entries == 1 else 'ies'
+                    ) + ' in ' + log_file_path
+                )
+
+    def __get_request_time(self, line, line_num):
+        entry = self.__log_parser.parse(line)
+        return entry.request_time
 
     def __filter_log_files(self, log_file_paths):
         self.__logger.debug(
@@ -309,7 +340,6 @@ class LogPoster:
         self.__logger.warning(
             'Skipping invalid file: ' + log_file_path
         )
-        return None
 
     def __seek_back_one_line(self, file, hit_top, on_last_line):
         # If we're on the last line, we seek back to the previous newline in
@@ -358,7 +388,10 @@ class LogPoster:
             try:
                 response = requests.post(
                     self.__url,
-                    data=self.__parse_log_file(log_file_path),
+                    data=self.__parse_log_file(
+                        log_file_path,
+                        parse_line_method=self.__parse_line,
+                    ),
                     headers={
                         'content-type': 'text/plain',
                         'authorization': 'Bearer ' + self.__api_token
@@ -388,28 +421,6 @@ class LogPoster:
                 'last_request_time',
                 self.__new_last_request_time,
             )
-
-    def __parse_log_file(self, log_file_path):
-        open_function = gzip.open if self.__compressed else open
-        with open_function(log_file_path, 'rt') as log_file:
-            line_num = 0
-            num_invalid_entries = 0
-            for line in log_file:
-                try:
-                    parsed_line = self.__parse_line(line, line_num)
-                    if parsed_line is not None:
-                        yield parsed_line
-                except apachelogs.errors.InvalidEntryError:
-                    self.__logger.debug(
-                        'Skipping invalid entry: ' + log_file_path
-                        + ' line ' + str(line_num)
-                    )
-                line_num += 1
-            if num_invalid_entries > 0:
-                self.__logger.warning(
-                    'Skipped ' + str(num_invalid_entries)
-                    + ' invalid entries in ' + log_file_path
-                )
 
     def __parse_line(self, line, line_num):
         entry = self.__log_parser.parse(line)
