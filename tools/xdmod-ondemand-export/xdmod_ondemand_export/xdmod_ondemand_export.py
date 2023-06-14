@@ -194,10 +194,6 @@ class LogPoster:
             if last_request_time == ''
             else datetime.strptime(last_request_time, self.__time_format)
         )
-        if last_request_time == '':
-            last_request_time = datetime.fromtimestamp(0, tz=timezone.utc)
-        else:
-            last_request_time
         self.__logger.debug('Last request time: ' + str(last_request_time))
         return last_request_time
 
