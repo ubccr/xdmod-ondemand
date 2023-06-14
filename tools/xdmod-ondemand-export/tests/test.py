@@ -25,34 +25,42 @@ def tmp_dir():
         yield d
 
 
-def update_bash_script(path, token):
-    with open(BASH_SCRIPT_PATH, 'rt') as base_file:
+def update_file(source_path, destination_path, update_line, update_line_arg):
+    with open(source_path, 'rt') as base_file:
         old_umask = os.umask(0o077)
-        with open(path, 'wt') as file_:
+        with open(destination_path, 'wt') as file_:
             for line in base_file:
-                line = re.sub(
-                    r'^' + TOKEN_NAME + r'=.*',
-                    '' if token == '' else (TOKEN_NAME + '=' + token),
-                    line,
-                )
+                line = update_line(line, update_line_arg)
                 file_.write(line)
         os.umask(old_umask)
-    os.chmod(path, 0o0700)
+    os.chmod(destination_path, 0o0700)
+
+
+def update_bash_script_line(line, token):
+    line = re.sub(
+        r'^' + TOKEN_NAME + r'=.*',
+        '' if token == '' else (TOKEN_NAME + '=' + token),
+        line,
+    )
+    return line
+
+
+def update_conf_file_line(line, args):
+    for arg in args:
+        line = re.sub(
+            r'^' + arg + r'\s*=.*',
+            arg + ' = ' + args[arg],
+            line,
+        )
+    return line
+
+
+def update_bash_script(path, token):
+    update_file(BASH_SCRIPT_PATH, path, update_bash_script_line, token)
 
 
 def update_conf_file(path, args):
-    with open(BASE_CONF_PATH, 'rt') as base_file:
-        old_umask = os.umask(0o077)
-        with open(path, 'wt') as file_:
-            for line in base_file:
-                for arg in args:
-                    line = re.sub(
-                        r'^' + arg + r'\s*=.*',
-                        arg + ' = ' + args[arg],
-                        line,
-                    )
-                file_.write(line)
-        os.umask(old_umask)
+    update_file(BASE_CONF_PATH, path, update_conf_file_line, args)
 
 
 def run(tmp_dir, script_args, web_server_args, api_token):
