@@ -77,14 +77,14 @@ class LogPoster:
         arg_parser.add_argument(
             '--bash-script',
             help='path to the Bash script that is calling this Python script'
-            + ' (used to validate file permissions)',
+            + ' (this parameter is used to validate file permissions)',
         )
         arg_parser.add_argument(
             '--check-config',
             action='store_true',
             help='if provided, will simply check file permissions,'
-            + ' make sure the API key is in the right format,'
-            + ' validate the configuration file, and exit',
+            + ' make sure the API token exists, validate the configuration'
+            + ' file, and exit',
         )
         args = arg_parser.parse_args()
         return args
