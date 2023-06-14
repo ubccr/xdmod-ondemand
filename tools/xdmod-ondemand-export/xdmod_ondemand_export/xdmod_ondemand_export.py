@@ -61,7 +61,7 @@ class LogPoster:
             '--conf-path',
             default=os.path.realpath(os.path.dirname(__file__)) + '/conf.ini',
             help='path to the configuration file that declares where to'
-            + ' find log files and how to parse them',
+            + ' find log files, how to parse them, and where to POST them',
         )
         arg_parser.add_argument(
             '-l',
