@@ -20,7 +20,7 @@ $ source ${env_dir}/bin/activate
 
 ### Install the package
 ```
-(env) $ python3 -m pip install git+https://github.com/aaronweeden/xdmod-ondemand@xdmod-ondemand-export#subdirectory=tools/xdmod-ondemand-export
+(env) $ python3 -m pip install git+https://github.com/ubccr/xdmod-ondemand#subdirectory=tools/xdmod-ondemand-export
 (env) $ package_dir="${env_dir}/lib/python3.*/site-packages/xdmod_ondemand_export"
 ```
 
