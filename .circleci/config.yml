@@ -31,17 +31,17 @@ jobs:
       - when:
           condition:
             equal: [ *centos7-executor, << parameters.os >> ]
-            steps:
-              - run:
-                  name: Set up environment variables for CentOS7
-                  command: echo "export COMPOSER=composer-el7.json" >> $BASH_ENV
+          steps:
+            - run:
+                name: Set up environment variables for CentOS7
+                command: echo "export COMPOSER=composer-el7.json" >> $BASH_ENV
       - when:
           condition:
             equal: [ *rocky8-executor, << parameters.os >> ]
-            steps:
-              - run:
-                  name: Set up environment variables for Rocky8
-                  command: echo "export COMPOSER=composer-el8.json" >> $BASH_ENV
+          steps:
+            - run:
+                name: Set up environment variables for Rocky8
+                command: echo "export COMPOSER=composer-el8.json" >> $BASH_ENV
       - run:
           name: Checkout XDMoD
           command: |
