@@ -42,6 +42,11 @@ jobs:
             - run:
                 name: Set up environment variables for Rocky8
                 command: echo "export COMPOSER=composer-el8.json" >> $BASH_ENV
+            - run:
+                name: Update NodeJS version
+                command: |
+                  dnf module -y reset nodejs
+                  dnf module -y install nodejs:16
       - run:
           name: Checkout XDMoD
           command: |
