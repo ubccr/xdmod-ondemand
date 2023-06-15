@@ -5,6 +5,7 @@
 version: 2.1
 executors:
   centos7: &centos7-executor
+    docker:
         - image: tools-ext-01.ccr.xdmod.org/xdmod-10.0.0:centos7.9-0.6
   rocky8: &rocky8-executor
     docker:
