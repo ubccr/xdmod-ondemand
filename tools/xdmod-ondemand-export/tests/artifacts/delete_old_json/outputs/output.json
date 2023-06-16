@@ -1,0 +1,7 @@
+{
+    "${ARTIFACTS_DIR}/delete_old_json/inputs/access.log": {
+        "first_line": "asdf",
+        "st_size": 5,
+        "last_line": "asdf"
+    }
+}
