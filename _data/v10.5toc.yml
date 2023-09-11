@@ -1,0 +1,23 @@
+toc:
+  - title: About
+    subfolderitems:
+      - page: Overview
+        url: /10.5/overview.html
+  - title: Download
+    subfolderitems:
+      - page: Open OnDemand module
+        url: https://github.com/ubccr/xdmod-ondemand/releases/latest
+  - title: Installing
+    subfolderitems:
+      - page: Software Requirements
+        url: /10.5/requirements.html
+      - page: Installation Guide
+        url: /10.5/install.html
+      - page: Configuration Guide
+        url: /10.5/configuration.html
+      - page: Usage
+        url: /10.5/usage.html
+  - title: Help
+    subfolderitems:
+      - page: FAQ
+        url: /10.5/faq.html

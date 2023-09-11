@@ -1,3 +1,3 @@
----
-redirect_to: /10.0/usage.html
+
+redirect_to: /10.5/usage.html
 ---
