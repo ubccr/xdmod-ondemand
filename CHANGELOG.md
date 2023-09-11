@@ -1,9 +1,10 @@
 XDMoD Open OnDemand Module ChangeLog
 =====================
 
-## XXXX-XX-XX v10.5.0
+## 2023-09-11 v10.5.0
 
 - Add OnDemand usage chart to the dashboard for Center Directors and Center Staff.
+- Updates to support Open XDMoD 10.5
 
 ## 2022-03-10 v10.0.0
 
