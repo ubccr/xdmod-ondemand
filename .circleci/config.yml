@@ -145,6 +145,9 @@ jobs:
                 name: Install OnDemand dependencies
                 command: |
                   yum install centos-release-scl epel-release -y
+            - run:
+                name: Make logs directory in preparation for testing README instructions
+                command: mkdir -p /etc/httpd/logs
       - when:
           condition:
             or:
@@ -199,8 +202,14 @@ jobs:
                   apt install /tmp/ondemand-release-web_3.0.0_all.deb
                   apt update
                   DEBIAN_FRONTEND=noninteractive TZ=US/Eastern apt install ondemand -y
+            - run:
+                name: Install additional Ubuntu dependencies
+                command: |
                   python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
                   apt install python${python_version}-venv -y
+                  apt install acl cron
+                  mkdir /etc/httpd
+                  ln -s /var/log/apache2 /etc/httpd/logs
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
@@ -210,16 +219,35 @@ jobs:
             cd tools/xdmod-ondemand-export
             source ${VENV_DIR}/bin/activate
             python3 -m pip install flake8
-            flake8 xdmod_ondemand_export/xdmod_ondemand_export.py tests/
+            flake8 xdmod_ondemand_export/__init__.py tests/
       - run:
           name: Build wheel and run tests
           command: |
             cd tools/xdmod-ondemand-export
             source ${VENV_DIR}/bin/activate
-            python3 -m pip install --upgrade pip build setuptools pytest
+            python3 -m pip install --upgrade pip build setuptools pytest coverage
             python3 -m build --wheel
             python3 -m pip install dist/xdmod_ondemand_export-*-py3-none-any.whl
-            timeout 1m python3 -m pytest -v tests/test.py
+            timeout 1m coverage run --branch --omit=*simple_web_server.py -m pytest -vvs -o log_cli=true tests/test.py
+            coverage report -m --fail-under=100
+      - run:
+          name: Follow README installation instructions
+          command: |
+            useradd -m --shell /bin/false xdmod-ondemand-export
+            usermod -L xdmod-ondemand-export
+            su -c 'python3 -m venv /home/xdmod-ondemand-export/venv' -s /bin/bash xdmod-ondemand-export
+            cp /root/project/tools/xdmod-ondemand-export/dist/xdmod_ondemand_export-*-py3-none-any.whl /home/xdmod-ondemand-export
+            chown xdmod-ondemand-export:xdmod-ondemand-export /home/xdmod-ondemand-export/xdmod_ondemand_export-*-py3-none-any.whl
+            su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install /home/xdmod-ondemand-export/xdmod_ondemand_export-*-py3-none-any.whl' -s /bin/bash xdmod-ondemand-export
+            (umask 377 && cp /home/xdmod-ondemand-export/venv/lib/python3.*/site-packages/xdmod_ondemand_export/conf.ini /home/xdmod-ondemand-export/)
+            # All zeroes for a fake token
+            (umask 377 && echo '0.0000000000000000000000000000000000000000000000000000000000000000' > /home/xdmod-ondemand-export/.token)
+            (umask 177 && touch /home/xdmod-ondemand-export/last-run.json)
+            chown xdmod-ondemand-export:xdmod-ondemand-export /home/xdmod-ondemand-export/{conf.ini,.token,last-run.json}
+            setfacl -m u:xdmod-ondemand-export:r-x /etc/httpd/logs
+            setfacl -dm u:xdmod-ondemand-export:r-- /etc/httpd/logs
+            setfacl -m u:xdmod-ondemand-export:r-- /etc/httpd/logs
+            su -c '/home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export --check-config -l INFO' -s /bin/bash xdmod-ondemand-export
 
 workflows:
   full-build:

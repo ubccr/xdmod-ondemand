@@ -1,22 +1,33 @@
-import filecmp
+import apachelogs.errors
 import glob
+import http.client
 import multiprocessing
 import os
 import pytest
 import re
+import requests.exceptions
+import shutil
 import simple_web_server
-import subprocess
 import tempfile
+import urllib3.exceptions
+from xdmod_ondemand_export import LogPoster
 
 
-TOKEN_NAME = 'XDMOD_ONDEMAND_EXPORT_TOKEN'
 DESTINATION_URL = 'http://localhost:1234'
-TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = '/root/xdmod-ondemand-export'
+API_TOKEN_FOR_TEST_SERVER_ONLY = (
+    '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
+)
+ARTIFACTS_DIR = os.path.dirname(os.path.realpath(__file__)) + '/artifacts'
+ROOT_DIR = os.path.expanduser('~/xdmod-ondemand-export')
 PACKAGES_DIR = glob.glob(ROOT_DIR + '/env/lib/python3.*/site-packages')[0]
 PACKAGE_DIR = PACKAGES_DIR + '/xdmod_ondemand_export'
-BASH_SCRIPT_PATH = PACKAGE_DIR + '/xdmod-ondemand-export.sh'
 BASE_CONF_PATH = PACKAGE_DIR + '/conf.ini'
+SAMPLE_JSON_PATH = ARTIFACTS_DIR + '/sample.json'
+DEFAULT_FILE_PERMISSIONS = {
+    '-c': 0o0400,
+    '-j': 0o0600,
+    '-t': 0o0400,
+}
 
 
 @pytest.fixture()
@@ -25,30 +36,26 @@ def tmp_dir():
         yield d
 
 
-def update_file(
+def set_token(path, token, file_permissions):
+    with open(path, 'w') as f:
+        f.write(token)
+    os.chmod(path, file_permissions)
+
+
+def update_conf_file(
     source_path,
     destination_path,
+    args,
     destination_permissions,
-    update_line,
-    update_line_arg,
 ):
     with open(source_path, 'rt') as base_file:
         old_umask = os.umask(0o077)
         with open(destination_path, 'wt') as file_:
             for line in base_file:
-                line = update_line(line, update_line_arg)
+                line = update_conf_file_line(line, args)
                 file_.write(line)
         os.umask(old_umask)
     os.chmod(destination_path, destination_permissions)
-
-
-def update_bash_script_line(line, token):
-    line = re.sub(
-        r'^' + TOKEN_NAME + r'=.*',
-        '' if token == '' else (TOKEN_NAME + '=' + token),
-        line,
-    )
-    return line
 
 
 def update_conf_file_line(line, args):
@@ -61,14 +68,6 @@ def update_conf_file_line(line, args):
     return line
 
 
-def update_bash_script(path, token):
-    update_file(BASH_SCRIPT_PATH, path, 0o0700, update_bash_script_line, token)
-
-
-def update_conf_file(path, args):
-    update_file(BASE_CONF_PATH, path, 0o0600, update_conf_file_line, args)
-
-
 def run(tmp_dir, script_args, web_server_args, api_token):
     web_server_process = multiprocessing.Process(
         target=simple_web_server.run,
@@ -76,59 +75,66 @@ def run(tmp_dir, script_args, web_server_args, api_token):
     )
     web_server_process.daemon = True
     web_server_process.start()
-    bash_script_path = tmp_dir + '/xdmod-ondemand-export.sh'
-    update_bash_script(bash_script_path, api_token)
-    script_cmd = [bash_script_path]
-    for script_arg in script_args:
-        script_cmd.append(script_arg)
-        if script_args[script_arg] is not None:
-            script_cmd.append(script_args[script_arg])
-    script_process = subprocess.Popen(
-        script_cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-    )
-    last_line = ''
-    for output_line in iter(script_process.stdout.readline, ''):
-        last_line = output_line.replace('\n', '')
-        print(last_line)
-    script_process.stdout.close()
-    return_code = script_process.wait()
-    if return_code != 0:
+    try:
+        script_args_list = []
+        for script_arg in script_args:
+            script_args_list.append(script_arg)
+            if script_args[script_arg] is not None:
+                script_args_list.append(script_args[script_arg])
+        LogPoster(script_args_list)
+    except Exception as e:
         web_server_process.terminate()
-        raise RuntimeError(last_line)
-    web_server_process.join()
+        raise e
+    finally:
+        web_server_process.join()
 
 
 def validate_output(path_to_actual, path_to_expected):
     with open(path_to_actual) as actual_file:
-        actual_file_contents = actual_file.read()
+        actual_file_contents = read_and_substitute_vars(actual_file)
         with open(path_to_expected) as expected_file:
-            expected_file_contents = expected_file.read()
-            assert filecmp.cmp(path_to_actual, path_to_expected), (
-                'files differ:\nactual:\n' + actual_file_contents
-                + 'expected:\n' + expected_file_contents
-            )
+            expected_file_contents = read_and_substitute_vars(expected_file)
+            assert expected_file_contents == actual_file_contents
+
+
+def read_and_substitute_vars(file):
+    contents = file.read()
+    contents_with_vars_substituted = contents.replace(
+        '${ARTIFACTS_DIR}',
+        ARTIFACTS_DIR,
+    )
+    return contents_with_vars_substituted
 
 
 def run_test(
     tmp_dir,
     artifact_dir='default',
     conf_args={},
+    input_json_path=None,
+    output_json_path=None,
     additional_script_args={},
-    api_token=(
-        '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
-    ),
+    api_token=API_TOKEN_FOR_TEST_SERVER_ONLY,
     num_files=1,
     mode=200,
+    file_permissions=DEFAULT_FILE_PERMISSIONS,
 ):
-    artifacts_dir = TESTS_DIR + '/artifacts/' + artifact_dir
-    inputs_dir = artifacts_dir + '/inputs'
-    expected_output_path_prefix = artifacts_dir + '/outputs/access.log.'
-    conf_path = tmp_dir + '/conf.ini'
+    artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir
+    inputs_dir = artifact_dir_path + '/inputs'
+    expected_output_path_prefix = artifact_dir_path + '/outputs/access.log.'
+    destination_conf_path = tmp_dir + '/conf.ini'
+    if input_json_path is None:
+        input_json_path = tmp_dir + '/input.json'
+        with open(input_json_path, 'w') as json_file:
+            json_file.write('')
+    elif input_json_path != tmp_dir + '/input.json':
+        shutil.copy(
+            input_json_path,
+            tmp_dir + '/input.json',
+        )
+    os.chmod(tmp_dir + '/input.json', file_permissions['-j'])
     update_conf_file(
-        conf_path,
+        BASE_CONF_PATH,
+        destination_conf_path,
         {
             **conf_args,
             **{
@@ -138,27 +144,34 @@ def run_test(
                     else DESTINATION_URL
                 ),
                 'dir': conf_args['dir'] if 'dir' in conf_args else inputs_dir,
-            }},
+            },
+        },
+        file_permissions['-c'],
     )
     script_args = {
-        '-c': conf_path,
+        '-c': destination_conf_path,
+        '-j': tmp_dir + '/input.json',
+        '-t': tmp_dir + '/.token',
         '-l': 'DEBUG',
     }
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
     web_server_args = (tmp_dir, num_files, mode)
     try:
+        set_token(tmp_dir + '/.token', api_token, file_permissions['-t'])
         run(tmp_dir, script_args, web_server_args, api_token)
     except RuntimeError as e:
         if mode != 200:
-            assert str(e) == 'RuntimeError: Server returned ' + str(mode)
-        else:
+            assert str(e) == 'Server returned ' + str(mode)
+        else:  # pragma: no cover
             raise e
     for i in range(0, num_files):
         validate_output(
             tmp_dir + '/access.log.' + str(i),
             expected_output_path_prefix + str(i),
         )
+    if output_json_path is not None:
+        validate_output(tmp_dir + '/input.json', output_json_path)
 
 
 @pytest.mark.parametrize(
@@ -195,93 +208,108 @@ def run_test(
     ),
 )
 def test_logformat(tmp_dir, nickname, logformat):
-    run_test(tmp_dir, nickname + '_logformat', {'format': logformat})
+    run_test(
+        tmp_dir,
+        artifact_dir=nickname + '_logformat',
+        conf_args={'format': logformat},
+    )
 
 
 def test_compressed(tmp_dir):
-    run_test(tmp_dir, 'compressed', {'compressed': 'true'})
+    run_test(
+        tmp_dir,
+        artifact_dir='compressed',
+    )
 
 
 @pytest.mark.parametrize(
-    'log_level',
-    ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+    'log_level, in_caplog, not_in_caplog',
+    [
+        ('DEBUG', ('DEBUG', 'INFO'), ()),
+        ('INFO', ('INFO',), ('DEBUG',)),
+        ('WARNING', (), ('DEBUG', 'INFO')),
+        ('ERROR', (), ('DEBUG', 'INFO', 'WARNING')),
+    ],
+    ids=('DEBUG', 'INFO', 'WARNING', 'ERROR'),
 )
-def test_log_level(tmp_dir, log_level):
+def test_log_level(tmp_dir, caplog, log_level, in_caplog, not_in_caplog):
     run_test(tmp_dir, additional_script_args={'-l': log_level})
-
-
-def test_no_api_token(tmp_dir):
-    with pytest.raises(
-        RuntimeError,
-        match=TOKEN_NAME + ' environment variable is undefined.',
-    ):
-        run_test(tmp_dir, api_token='')
-
-
-def test_malformed_api_token(tmp_dir):
-    with pytest.raises(
-        RuntimeError,
-        match='Authentication failed'
-    ):
-        run_test(tmp_dir, api_token='asdf')
-
-
-def test_conf_file_not_found(tmp_dir):
-    with pytest.raises(
-        RuntimeError,
-        match="\\[Errno 2\\] No such file or directory: 'asdf'",
-    ):
-        run_test(tmp_dir, additional_script_args={'-c': 'asdf'})
+    for entry in in_caplog:
+        assert entry in caplog.text
+    for entry in not_in_caplog:
+        assert entry not in caplog.text
 
 
 @pytest.mark.parametrize(
-    'conf_args, artifact_dir, match',
+    'api_token',
+    [
+        '',
+        'asdf',
+        '1.12345678901234567890123456789',
+        '1.12345678901234567890123456789012345678901234567890123456789012345',
+    ],
+    ids=('empty', 'malformed', 'short', 'long'),
+)
+def test_malformed_api_token(tmp_dir, api_token):
+    with pytest.raises(
+        ValueError,
+        match='API token is malformed.',
+    ):
+        run_test(tmp_dir, api_token=api_token)
+
+
+def test_invalid_api_token(tmp_dir):
+    with pytest.raises(
+        (
+            http.client.BadStatusLine,
+            requests.exceptions.ConnectionError,
+        ),
+        match='Invalid credentials.',
+    ):
+        run_test(
+            tmp_dir,
+            api_token=(
+                '1.12345678901234567890123456789012345678901234567890'
+                + '12345678901234'
+            ),
+        )
+
+
+@pytest.mark.parametrize(
+    'conf_args, artifact_dir, exception_class, match',
     [
         (
             {'url': 'asdf'},
             'default',
+            requests.exceptions.MissingSchema,
             "Invalid URL 'asdf': No scheme supplied."
         ),
         (
             {'url': 'http://asdf'},
             'default',
+            (
+                requests.exceptions.ConnectionError,
+                urllib3.exceptions.NewConnectionError,
+            ),
             '\\[Errno -2\\] Name or service not known',
         ),
         (
             {'dir': 'asdf'},
             'default',
+            FileNotFoundError,
             "No such directory: 'asdf'",
         ),
         (
             {'filename_pattern': ''},
             'default',
+            IsADirectoryError,
             'Is a directory',
         ),
         (
             {'format': '%1'},
             'default',
+            apachelogs.errors.InvalidDirectiveError,
             "Invalid log format directive at index 0 of '%1'",
-        ),
-        (
-            {'compressed': 'asdf'},
-            'default',
-            "KeyError: 'asdf'",
-        ),
-        (
-            {'compressed': 'true'},
-            'default',
-            'Not a gzipped file',
-        ),
-        (
-            {'compressed': 'false'},
-            'compressed',
-            "'utf-8' codec can't decode byte",
-        ),
-        (
-            {'last_request_time': 'asdf'},
-            'default',
-            "time data 'asdf' does not match format "
-            + "'\\[%d/%b/%Y:%H:%M:%S %z\\]'"
         ),
     ],
     ids=(
@@ -290,109 +318,95 @@ def test_conf_file_not_found(tmp_dir):
         'dir',
         'filename_pattern',
         'format',
-        'compressed_invalid_value',
-        'compressed_wrong_value_true',
-        'compressed_wrong_value_false',
-        'last_request_time',
     )
 )
-def test_invalid_conf_property(tmp_dir, conf_args, artifact_dir, match):
-    with pytest.raises(RuntimeError, match=match):
-        run_test(tmp_dir, artifact_dir=artifact_dir, conf_args=conf_args)
+def test_invalid_conf_property(
+    tmp_dir,
+    conf_args,
+    artifact_dir,
+    exception_class,
+    match,
+):
+    with pytest.raises(exception_class, match=match):
+        run_test(
+            tmp_dir,
+            artifact_dir=artifact_dir,
+            conf_args=conf_args,
+            # Make sure the JSON is unchanged.
+            input_json_path=SAMPLE_JSON_PATH,
+            output_json_path=SAMPLE_JSON_PATH,
+        )
 
 
-def test_no_files_to_process(tmp_dir):
+def test_no_files_to_process(tmp_dir, caplog):
     run_test(tmp_dir, conf_args={'filename_pattern': 'asdf'}, num_files=0)
+    assert 'No log files to process.' in caplog.text
 
 
 @pytest.mark.parametrize(
-    'artifact_dir, conf_args, num_files',
+    'artifact_dir',
     [
-        ('some_old_some_new', {}, 2),
-        ('some_old_some_new_compressed', {'compressed': 'true'}, 4)
+        'some_old_some_new',
+        'some_old_some_new_compressed',
     ],
     ids=(
         'uncompressed',
         'compressed',
     )
 )
-def test_some_old_some_new(tmp_dir, artifact_dir, conf_args, num_files):
+def test_some_old_some_new(tmp_dir, artifact_dir):
+    artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir
     run_test(
         tmp_dir,
         artifact_dir=artifact_dir,
-        conf_args={**{
-            'last_line': '127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500] '
-            + '"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/'
-            + 'sys HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/'
-            + 'pun/sys/dashboard/batch_connect/sessions" "Mozilla/5.0 '
-            + '(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, '
-            + 'like Gecko) Chrome/91.0.4472.77 Safari/537.36"',
-            'last_request_time': '[01/Jul/2021:03:17:06 -0500]'
-        }, **conf_args},
-        num_files=num_files,
+        input_json_path=artifact_dir_path + '/inputs/input.json',
+        output_json_path=artifact_dir_path + '/outputs/output.json',
+        num_files=2,
     )
 
 
-def test_check_config(tmp_dir):
+def test_check_config(tmp_dir, caplog):
     run_test(
         tmp_dir,
         additional_script_args={'--check-config': None},
         num_files=0,
     )
-
-
-def test_skip_file_matching_last_line(tmp_dir):
-    run_test(
-        tmp_dir,
-        artifact_dir='file_matching_last_line',
-        conf_args={
-            'last_line': '127.0.0.0 - testuser2 [30/Jun/2021:03:17:08 -0500] '
-            + '"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys '
-            + 'HTTP/1.1" 401 381 "https://ondemand.ccr.buffalo.edu/pun/sys/'
-            + 'dashboard/batch_connect/sessions" "Mozilla/5.0 (Windows NT '
-            + '10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-            + 'Chrome/91.0.4472.77 Safari/537.36"',
-            'last_request_time': '[30/Jun/2021:03:17:08 -0500]',
-        },
-        num_files=2
-    )
+    assert (
+        'Finished checking config, not parsing or POSTing any files.'
+    ) in caplog.text
 
 
 @pytest.mark.parametrize(
-    'artifact_dir, compressed',
+    'artifact_dir, second_run_num_files',
     [
-        ('two_runs', 'false'),
-        ('two_runs_compressed', 'true'),
+        ('two_runs', 2),
+        ('two_runs_compressed', 2),
+        ('two_runs_first_all_unauthenticated', 2),
+        ('two_runs_file_size_changes', 3),
     ],
     ids=(
         'uncompressed',
         'compressed',
+        'first_all_unauthenticated',
+        'file_size_changes',
     )
 )
-def test_two_runs(tmp_dir, artifact_dir, compressed):
+def test_two_runs(tmp_dir, artifact_dir, second_run_num_files):
+    artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir + '/first_run'
     run_test(
         tmp_dir,
         artifact_dir=artifact_dir + '/first_run',
-        conf_args={'compressed': compressed},
+        output_json_path=artifact_dir_path + '/outputs/output.json',
         num_files=2,
     )
-    with open(tmp_dir + '/conf.ini') as conf_file:
-        for line in conf_file:
-            match = re.match(r'last_line = (.*)', line)
-            if match is not None:
-                last_line = match.group(1)
-            match = re.match(r'last_request_time = (.*)', line)
-            if match is not None:
-                last_request_time = match.group(1)
+    artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir + '/second_run'
     run_test(
         tmp_dir,
         artifact_dir=artifact_dir + '/second_run',
-        conf_args={
-            'last_line': last_line,
-            'last_request_time': last_request_time,
-            'compressed': compressed,
-        },
-        num_files=(3 if compressed == 'true' else 2),
+        # Make sure to use the same JSON file for both runs:
+        input_json_path=tmp_dir + '/input.json',
+        output_json_path=artifact_dir_path + '/outputs/output.json',
+        num_files=second_run_num_files,
     )
 
 
@@ -401,26 +415,79 @@ def test_error_response(tmp_dir):
 
 
 def test_empty_file(tmp_dir):
-    run_test(tmp_dir, artifact_dir='empty_file', num_files=0)
+    run_test(tmp_dir, artifact_dir='empty_file')
 
 
-def test_empty_lines(tmp_dir):
-    run_test(tmp_dir, artifact_dir='empty_lines', num_files=1)
+def test_empty_lines(tmp_dir, caplog):
+    run_test(tmp_dir, artifact_dir='empty_lines')
+    assert 'Skipped 3 invalid entries' in caplog.text
 
 
-def test_invalid_compressed_lines(tmp_dir):
+def test_invalid_compressed_lines(tmp_dir, caplog):
     run_test(
         tmp_dir,
         artifact_dir='invalid_compressed_lines',
-        conf_args={'compressed': 'true'},
-        num_files=1,
     )
+    assert 'Skipped 3 invalid entries' in caplog.text
 
 
-def test_invalid_compressed_file(tmp_dir):
+def test_invalid_compressed_file(tmp_dir, caplog):
     run_test(
         tmp_dir,
         artifact_dir='invalid_compressed_file',
-        conf_args={'compressed': 'true'},
+        num_files=2,
+    )
+    assert 'Skipped 1 invalid entry' in caplog.text
+    assert 'Skipped 2 invalid entries' in caplog.text
+
+
+def test_delete_old_json(tmp_dir):
+    artifact_dir = 'delete_old_json'
+    artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir
+    run_test(
+        tmp_dir,
+        artifact_dir=artifact_dir,
+        input_json_path=artifact_dir_path + '/inputs/input.json',
+        output_json_path=artifact_dir_path + '/outputs/output.json',
         num_files=1,
     )
+
+
+@pytest.mark.parametrize('script_arg', ['-c', '-j', '-t'])
+def test_file_not_found(tmp_dir, script_arg):
+    with pytest.raises(
+        FileNotFoundError,
+        match='\\[Errno 2\\] No such file or directory:'
+        + " 'asdf'",
+    ):
+        run_test(tmp_dir, additional_script_args={script_arg: 'asdf'})
+
+
+def test_invalid_script_args(tmp_dir):
+    with pytest.raises(SystemExit):
+        run_test(tmp_dir, additional_script_args={'asdf': None}, num_files=0)
+
+
+@pytest.mark.parametrize(
+    'script_arg, file_name, expected_file_permissions',
+    [
+        ('-c', 'conf.ini', '400'),
+        ('-t', '.token', '400'),
+        ('-j', 'input.json', '600'),
+    ],
+    ids=('conf', 'token', 'json'),
+)
+def test_file_permissions_warning(
+    tmp_dir,
+    caplog,
+    script_arg,
+    file_name,
+    expected_file_permissions,
+):
+    file_permissions = DEFAULT_FILE_PERMISSIONS.copy()
+    file_permissions[script_arg] = 0o777
+    run_test(tmp_dir, file_permissions=file_permissions)
+    assert (
+        'File permissions on ' + tmp_dir + '/' + file_name + ' not set to '
+        + expected_file_permissions + '.'
+    ) in caplog.text

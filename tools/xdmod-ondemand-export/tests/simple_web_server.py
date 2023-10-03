@@ -9,8 +9,8 @@ class Server(BaseHTTPRequestHandler):
             + '43c609c7eb42401bccfccc8ae'
         ):
             self.send_response(401)
-            self.send_header('Content-type', 'text/html')
-            self.wfile.write(b'Authentication failed.')
+            self.send_header('Content-type', 'application/json')
+            self.wfile.write(b'{"message":"Invalid credentials."}')
             return
         global output_dir, request_index, mode
         file_path = output_dir + '/access.log.' + str(request_index)
@@ -25,9 +25,9 @@ class Server(BaseHTTPRequestHandler):
                 file.write('\n')
                 self.rfile.readline().strip().decode('utf-8')
         self.send_response(mode)
-        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
-        self.wfile.write(b'OK')
+        self.wfile.write(b'{"message":"success"}')
         request_index += 1
 
 
