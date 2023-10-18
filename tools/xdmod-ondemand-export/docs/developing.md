@@ -22,9 +22,9 @@ After the Pull Request is approved, these steps should be run from the `tools/xd
     ```
     python3 -m build --wheel
     ```
-1. Upload the built distribution to PyPI, e.g., for version 1.0.0-beta2:
+1. Upload the built distribution to PyPI, e.g., for version 1.0.0:
     ```
-    version=1.0.0b2
+    version=1.0.0
     twine upload dist/xdmod_ondemand_export-${version}-py3-none-any.whl
     ```
     Enter your PyPI username and password.
