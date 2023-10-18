@@ -1,6 +1,11 @@
 # xdmod-ondemand-export
 Python script for parsing [Open OnDemand](https://openondemand.org/) Apache access logs and sending them via POST requests to an HTTPS endpoint on a web server for inclusion in [XDMoD](https://open.xdmod.org).
 
+## Obtain an API token
+Obtain an API token from the admins of the destination web server; for ACCESS XDMoD, this is done by [submitting a ticket](https://support.access-ci.org/open-a-ticket):
+- For the "Summary" and "Description" you can say "Requesting xdmod-ondemand-export API token for [resource name]."
+- For "ACCESS Support Issue," choose "XDMoD Question."
+
 ## Installation
 The steps below explain the recommended setup, to be run as root on the system with the Open OnDemand Apache access log files. These steps will create a new user called `xdmod-ondemand-export` with no shell or login access but which has read-only access to the logs (e.g., via Access Control List), install the Python package, and set up the files and permissions needed for the script to run.
 
@@ -38,15 +43,11 @@ Edit `/home/xdmod-ondemand-export/conf.ini` to change the default values to matc
 - The files to process match the filename pattern `*access*.log`.
 - The LogFormat of the files is the Combined Log Format, `%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"`.
 
-### Create the token file
-The token file will contain your API token (explained in the next step). Create an initially empty token file with read-only permissions:
+### Store the API token in the token file
+Create an initially empty token file with read-only permissions:
 ```
 (umask 377 && touch /home/xdmod-ondemand-export/.token)
 ```
-
-### Store the API token in the file
-Obtain your API token from the admins of the destination web server. For ACCESS XDMoD, this is the [XDMoD team](mailto:ccr-xdmod-help@buffalo.edu).
-
 Edit the token file (`/home/xdmod-ondemand-export/.token`) to add the token string to the file.
 
 ### Create the JSON file

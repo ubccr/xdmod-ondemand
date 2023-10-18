@@ -3,7 +3,7 @@
 1. Create a Pull Request for the new version.
 
 # Distributing the new version to PyPI
-After the Pull Request is approved, these steps should be run from the `tools/xdmod-ondemand-export` directory.
+After the Pull Request is merged, these steps should be run from the `tools/xdmod-ondemand-export` directory.
 1. Start up a virtual environment, e.g.:
     ```
     env_dir=~/xdmod-ondemand-export-build/env
