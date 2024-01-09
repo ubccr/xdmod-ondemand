@@ -368,16 +368,10 @@ class LogPoster:
         if entry.remote_user is None:
             return
         else:
-            # Convert the line to combined log format if it isn't already.
-            if entry.format == apachelogs.COMBINED.replace(
-                'User-Agent',
-                'User-agent',
-            ):
-                combined_line = line
-            else:
-                combined_line = self.__convert_to_combined_logformat(
-                    entry
-                )
+            # Don't send IP addresses.
+            entry.remote_host = '-'
+            # Convert the line to combined log format.
+            combined_line = self.__convert_to_combined_logformat(entry)
             # Encode the line.
             return combined_line.encode()
 
