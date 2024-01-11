@@ -1,8 +1,10 @@
 import apachelogs.errors
+from datetime import datetime
 import glob
-import http.client
+import json
 import multiprocessing
 import os
+import pathlib
 import pytest
 import re
 import requests.exceptions
@@ -115,8 +117,10 @@ def run_test(
     additional_script_args={},
     api_token=API_TOKEN_FOR_TEST_SERVER_ONLY,
     num_files=1,
+    num_requests=None,
     mode=200,
     file_permissions=DEFAULT_FILE_PERMISSIONS,
+    shared_apps=[],
 ):
     artifact_dir_path = ARTIFACTS_DIR + '/' + artifact_dir
     inputs_dir = artifact_dir_path + '/inputs'
@@ -156,13 +160,19 @@ def run_test(
     }
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
-    web_server_args = (tmp_dir, num_files, mode)
+    if num_requests is None:
+        num_requests = num_files
+        # If any log files are sent, there will be one extra request to send
+        # the list of applications.
+        if num_requests > 0:
+            num_requests += 1
+    web_server_args = (tmp_dir, num_requests, mode)
     try:
         set_token(tmp_dir + '/.token', api_token, file_permissions['-t'])
         run(tmp_dir, script_args, web_server_args, api_token)
     except RuntimeError as e:
         if mode != 200:
-            assert str(e) == 'Server returned ' + str(mode)
+            assert str(e) == 'Server returned ' + str(mode) + '.'
         else:  # pragma: no cover
             raise e
     for i in range(0, num_files):
@@ -172,6 +182,24 @@ def run_test(
         )
     if output_json_path is not None:
         validate_output(tmp_dir + '/input.json', output_json_path)
+    if num_requests > 0:
+        expected_app_list = {
+            'date': datetime.today().strftime('%Y-%m-%d'),
+            'version': '3.0.3',
+            'system_apps': [
+                'activejobs',
+                'bc_desktop',
+                'dashboard',
+                'file-editor',
+                'files',
+                'myjobs',
+                'shell',
+            ],
+            'shared_apps': shared_apps,
+        }
+        with open(tmp_dir + '/app-list.json') as app_list_file:
+            actual_app_list = json.load(app_list_file)
+        assert expected_app_list == actual_app_list
 
 
 @pytest.mark.parametrize(
@@ -261,10 +289,10 @@ def test_malformed_api_token(tmp_dir, api_token):
 def test_invalid_api_token(tmp_dir):
     with pytest.raises(
         (
-            http.client.BadStatusLine,
+            RuntimeError,
             requests.exceptions.ConnectionError,
         ),
-        match='Invalid credentials.',
+        match='(Server returned 401.|\\[Errno 32\\] Broken pipe)',
     ):
         run_test(
             tmp_dir,
@@ -272,6 +300,7 @@ def test_invalid_api_token(tmp_dir):
                 '1.12345678901234567890123456789012345678901234567890'
                 + '12345678901234'
             ),
+            num_requests=2,
         )
 
 
@@ -339,7 +368,12 @@ def test_invalid_conf_property(
 
 
 def test_no_files_to_process(tmp_dir, caplog):
-    run_test(tmp_dir, conf_args={'filename_pattern': 'asdf'}, num_files=0)
+    run_test(
+        tmp_dir,
+        conf_args={'filename_pattern': 'asdf'},
+        num_files=0,
+        num_requests=1,
+    )
     assert 'No log files to process.' in caplog.text
 
 
@@ -491,3 +525,24 @@ def test_file_permissions_warning(
         'File permissions on ' + tmp_dir + '/' + file_name + ' not set to '
         + expected_file_permissions + '.'
     ) in caplog.text
+
+
+def test_get_shared_apps(tmp_dir):
+    usr_dir = '/var/www/ood/apps/usr/'
+    usrs = ['tmp0', 'tmp1', 'tmp2']
+    i = 0
+    shared_apps = []
+    try:
+        # This directory should not cause an error even though it doesn't have
+        # a gateway subdirectory.
+        pathlib.Path(usr_dir + '/tmp3').mkdir(parents=True)
+        for usr in usrs:
+            for app_id in (i, i + 1):
+                path = usr_dir + '/' + usr + '/gateway/' + 'app' + str(app_id)
+                pathlib.Path(path).mkdir(parents=True)
+                shared_apps += ['app' + str(app_id)]
+            i += 2
+        run_test(tmp_dir, shared_apps=shared_apps)
+    finally:
+        for usr in usrs:
+            shutil.rmtree(usr_dir + '/' + usr)
