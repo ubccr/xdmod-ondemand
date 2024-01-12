@@ -86,6 +86,19 @@ Add the following line. This will set up the script to run daily at 2:01am.
 1 2 * * * /home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export
 ```
 
+## Upgrading the script
+The script can be upgraded to the latest version by running:
+```
+su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install --upgrade xdmod-ondemand-export' -s /bin/bash xdmod-ondemand-export
+```
+
+### If you are upgrading from version 1.0.0
+After you have upgraded from version 1.0.0, and before the next run of the script, make sure to create the IP address hash JSON file (more information about this file is above):
+```
+(umask 177 && touch /home/xdmod-ondemand-export/ip-hashes.json)
+chown xdmod-ondemand-export:xdmod-ondemand-export /home/xdmod-ondemand-export/ip-hashes.json
+```
+
 ## Troubleshooting
 The `xdmod-ondemand-export` command can be run manually:
 ```
