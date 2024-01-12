@@ -318,8 +318,9 @@ class LogPoster:
             self.__url,
             data=self.__parse_log_file(log_file_path, previous_line),
             headers={
-                'content-type': 'text/plain',
-                'authorization': 'Bearer ' + self.__api_token,
+                'Content-Type': 'text/plain',
+                'Authorization': 'Bearer ' + self.__api_token,
+                'User-Agent': __title__ + ' v' + __version__,
             },
         )
         self.__process_response(response)
