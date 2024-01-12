@@ -1,5 +1,5 @@
 # xdmod-ondemand-export
-Python script for parsing [Open OnDemand](https://openondemand.org/) Apache access logs and sending them via POST requests to an HTTPS endpoint on a web server for inclusion in [XDMoD](https://open.xdmod.org).
+Python script for parsing [Open OnDemand](https://openondemand.org/) Apache access logs and sending them via POST requests to an HTTPS endpoint on a web server for inclusion in [XDMoD](https://open.xdmod.org). It also sends lists of installed Open OnDemand apps for inventory by the Open OnDemand team.
 
 ## Obtain an API token
 Obtain an API token from the admins of the destination web server; for ACCESS XDMoD, this is done by [submitting a ticket](https://support.access-ci.org/open-a-ticket):
@@ -7,7 +7,7 @@ Obtain an API token from the admins of the destination web server; for ACCESS XD
 - For "ACCESS Support Issue," choose "XDMoD Question."
 
 ## Installation
-The steps below explain the recommended setup, to be run as root on the system with the Open OnDemand Apache access log files. These steps will create a new user called `xdmod-ondemand-export` with no shell or login access but which has read-only access to the logs (e.g., via Access Control List), install the Python package, and set up the files and permissions needed for the script to run.
+The steps below explain the recommended setup, to be run as root on the system that has the Open OnDemand Apache access log files and lists of Open OnDemand apps (the latter in `/var/www/ood/apps`). The steps will create a new user called `xdmod-ondemand-export` with no shell or login access but which has read-only access to the logs (e.g., via Access Control List), install the Python package, and set up the files and permissions needed for the script to run.
 
 ### Create the `xdmod-ondemand-export` user with no shell or login access
 ```
@@ -46,7 +46,7 @@ Edit `/home/xdmod-ondemand-export/conf.ini` to change the default values to matc
 ### Store the API token in the token file
 Create an initially empty token file with read and write permissions (in addition to storing the token, the file will be edited by the script to create a secret key used for hashing IP addresses):
 ```
-(umask 377 && touch /home/xdmod-ondemand-export/.token)
+(umask 177 && touch /home/xdmod-ondemand-export/.token)
 ```
 Edit the token file (`/home/xdmod-ondemand-export/.token`) to add the token string to the file.
 
