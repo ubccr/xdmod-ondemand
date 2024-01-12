@@ -364,8 +364,9 @@ class LogPoster:
 
     def __parse_line(self, line, line_num):
         entry = self.__log_parser.parse(line)
-        # Don't send lines for which a user is not logged in.
-        if entry.remote_user is None:
+        # Don't send lines for which a user is not logged in or is
+        # unauthenticated.
+        if entry.remote_user is None or entry.final_status == 401:
             return
         else:
             # Convert the line to combined log format if it isn't already.

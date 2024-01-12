@@ -546,3 +546,7 @@ def test_get_shared_apps(tmp_dir):
     finally:
         for usr in usrs:
             shutil.rmtree(usr_dir + '/' + usr)
+
+
+def test_401(tmp_dir):
+    run_test(tmp_dir, artifact_dir='401')

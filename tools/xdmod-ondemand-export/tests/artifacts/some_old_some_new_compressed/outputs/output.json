@@ -1,22 +1,22 @@
 {
     "${ARTIFACTS_DIR}/some_old_some_new_compressed/inputs/access.log.0.gz": {
-        "first_line": "127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
+        "first_line": "127.0.0.0 - testuser1 [01/Jul/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
         "st_size": 317,
-        "last_line": "127.0.0.0 - testuser2 [01/Jul/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
+        "last_line": "127.0.0.0 - testuser2 [01/Jul/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
     },
     "${ARTIFACTS_DIR}/some_old_some_new_compressed/inputs/access.log.1.gz": {
-        "first_line": "127.0.0.0 - testuser1 [30/Jun/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
+        "first_line": "127.0.0.0 - testuser1 [30/Jun/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
         "st_size": 316,
-        "last_line": "127.0.0.0 - testuser2 [30/Jun/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
+        "last_line": "127.0.0.0 - testuser2 [30/Jun/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
     },
     "${ARTIFACTS_DIR}/some_old_some_new_compressed/inputs/access.log.2.gz": {
-        "first_line": "127.0.0.0 - testuser1 [29/Jun/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
-        "st_size": 317,
-        "last_line": "127.0.0.0 - testuser2 [29/Jun/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
+        "first_line": "127.0.0.0 - testuser1 [29/Jun/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
+        "st_size": 316,
+        "last_line": "127.0.0.0 - testuser2 [29/Jun/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
     },
     "${ARTIFACTS_DIR}/some_old_some_new_compressed/inputs/access.log.gz": {
-        "first_line": "127.0.0.0 - testuser1 [02/Jul/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
+        "first_line": "127.0.0.0 - testuser1 [02/Jul/2021:03:17:06 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\"",
         "st_size": 315,
-        "last_line": "127.0.0.0 - testuser2 [02/Jul/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 401 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
+        "last_line": "127.0.0.0 - testuser2 [02/Jul/2021:03:17:08 -0500] \"GET /pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys HTTP/1.1\" 200 381 \"https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36\""
     }
 }
