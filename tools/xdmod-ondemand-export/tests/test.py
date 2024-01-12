@@ -548,5 +548,9 @@ def test_get_shared_apps(tmp_dir):
             shutil.rmtree(usr_dir + '/' + usr)
 
 
+def test_empty_user(tmp_dir):
+    run_test(tmp_dir, artifact_dir='empty_user')
+
+
 def test_401(tmp_dir):
     run_test(tmp_dir, artifact_dir='401')
