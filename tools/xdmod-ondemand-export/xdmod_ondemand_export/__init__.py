@@ -1,5 +1,5 @@
 __title__ = "xdmod-ondemand-export"
-__version__ = "1.0.0"
+__version__ = "1.1.0-beta"
 __description__ = (
     "POST Open OnDemand logs to a web server for inclusion in XDMoD."
 )
@@ -8,6 +8,7 @@ import apachelogs
 import argparse
 import configparser
 from contextlib import ExitStack
+from datetime import datetime
 import glob
 import gzip
 import json
@@ -47,10 +48,16 @@ class LogPoster:
         else:
             self.__new_json = {}
             try:
-                self.__process_log_files()
-                self.__mark_deleted_log_files()
+                app_lists = self.__get_app_lists()
+                self.__send_app_lists(app_lists)
+            # If sending the lists of applications fails, still try to send the
+            # logs.
             finally:
-                self.__write_json()
+                try:
+                    self.__process_log_files()
+                    self.__mark_deleted_log_files()
+                finally:
+                    self.__write_json()
         self.__logger.info('Script finished.')
 
     def __parse_args(self, args=None):
@@ -199,6 +206,58 @@ class LogPoster:
             self.__logger.info('No log files to process.')
         return log_file_paths
 
+    def __get_app_lists(self):
+        self.__logger.debug('Getting the application lists:')
+        date = datetime.today().strftime('%Y-%m-%d')
+        with open('/opt/ood/VERSION') as f:
+            version = f.read().strip()
+        system_apps = os.listdir('/var/www/ood/apps/sys')
+        system_apps.sort()
+        all_shared_apps = []
+        usr_dirs_path = '/var/www/ood/apps/usr'
+        usr_dirs = os.listdir(usr_dirs_path)
+        for usr_dir in usr_dirs:
+            try:
+                shared_apps = os.listdir(
+                    usr_dirs_path
+                    + '/'
+                    + usr_dir
+                    + '/gateway'
+                )
+                all_shared_apps += shared_apps
+            except FileNotFoundError:
+                pass
+        all_shared_apps.sort()
+        app_lists = {
+            'date': date,
+            'version': version,
+            'system_apps': system_apps,
+            'shared_apps': all_shared_apps,
+        }
+        self.__logger.debug(app_lists)
+        return app_lists
+
+    def __send_app_lists(self, app_lists):
+        self.__logger.debug('POSTing the application lists.')
+        response = requests.post(
+            self.__url,
+            params={'type': 'app-list'},
+            json=app_lists,
+            headers={
+                'content-type': 'application/json',
+                'authorization': 'Bearer ' + self.__api_token,
+            },
+        )
+        self.__process_response(response)
+
+    def __process_response(self, response):
+        self.__logger.debug('Got response:')
+        self.__logger.debug(response.text)
+        if response.status_code != 200:
+            raise RuntimeError(
+                'Server returned ' + str(response.status_code) + '.'
+            )
+
     def __process_log_files(self):
         self.__logger.debug('Starting processing of log files.')
         for log_file_path in self.__log_file_paths:
@@ -263,12 +322,7 @@ class LogPoster:
                 'authorization': 'Bearer ' + self.__api_token,
             },
         )
-        self.__logger.debug('Got response:')
-        self.__logger.debug(response.text)
-        if response.status_code != 200:
-            raise RuntimeError(
-                'Server returned ' + str(response.status_code)
-            )
+        self.__process_response(response)
 
     def __parse_log_file(self, log_file_path, previous_line):
         line_num = 0
