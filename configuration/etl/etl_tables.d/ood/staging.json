@@ -21,7 +21,7 @@
                 "nullable": false
             },
             {
-                "name": "header_referer",
+                "name": "request_path",
                 "type": "varchar(255)",
                 "nullable": false
             },

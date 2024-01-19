@@ -11,7 +11,6 @@ Re-run the `xdmod-ondemand-ingestor` command with the `--debug` flag to show det
 about what it is running. Things to double check:
 - The `webserver_format_str` setting matches the data format in the log files
 - The filenames of the log files end in `.log` or `.log.N` where `N` is a number
-- The url specified on the command line exactly matches the url in the webserver log files. This should include the protocol part (https://) and any port numbers but not the trailing forward slash character.
 
 ## The xdmod-ondemand-ingestor command fails with out of memory error
 

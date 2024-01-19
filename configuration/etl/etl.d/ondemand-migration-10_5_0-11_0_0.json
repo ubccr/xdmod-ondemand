@@ -1,7 +1,28 @@
 {
     "module": "ondemand",
     "defaults": {
+        "migration-10_5_0-11_0_0": {
+            "truncate_destination": false,
+            "namespace": "ETL\\Maintenance",
+            "class": "ManageTables",
+            "options_class": "MaintenanceOptions",
+            "endpoints": {
+                "destination": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "datawarehouse",
+                    "schema": "modw_ondemand"
+                }
+            }
+        }
     },
     "migration-10_5_0-11_0_0": [
+        {
+            "name": "alter-staging-table",
+            "description": "Remove header_referer and add request_path to staging table",
+            "definition_file_list": [
+                "ood/staging.json"
+            ]
+        }
     ]
 }

@@ -88,7 +88,7 @@
             "class": "RegexTransformIngestor",
             "truncate_destination": true,
             "regex_column": {
-                "referer_path": "app"
+                "request_path": "app"
             },
             "regex_config": {
                 "$include": "etl_data.d/ood/application_map.json"

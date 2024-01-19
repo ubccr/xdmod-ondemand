@@ -7,7 +7,7 @@
             "host": "host",
             "user": "user",
             "log_time_ts": "stamp",
-            "header_referer": "HeaderReferer",
+            "request_path": "request_path",
             "ua_family": "ua_family",
             "ua_os_family": "ua_os_family",
             "city": "geo_city_name",

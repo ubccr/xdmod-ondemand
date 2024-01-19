@@ -7,7 +7,7 @@
     "source_query": {
         "records": {
             "log_time_ts": "log_time_ts",
-            "referer_path": "SUBSTRING(s.header_referer, LENGTH('${OOD_HOSTNAME}/pun/'))",
+            "request_path": "s.request_path",
             "app": -1,
             "user": "s.user",
             "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
@@ -24,8 +24,7 @@
             }
         ],
         "where": [
-            "s.user != '-'",
-            "s.header_referer LIKE '${OOD_HOSTNAME}/pun/%'"
+            "s.user != '-'"
         ]
     },
     "destination_record_map": {

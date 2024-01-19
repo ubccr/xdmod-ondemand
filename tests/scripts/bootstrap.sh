@@ -23,4 +23,4 @@ sudo -u xdmod xdmod-ingestor
 mkdir $LOGPATH
 cp $BASEDIR/../artifacts/*.log $LOGPATH
 
-sudo -u xdmod xdmod-ondemand-ingestor -d $LOGPATH -u https://localhost:3443 -r styx --debug
+sudo -u xdmod xdmod-ondemand-ingestor -d $LOGPATH -r styx --debug
