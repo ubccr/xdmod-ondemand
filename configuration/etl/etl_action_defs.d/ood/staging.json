@@ -7,6 +7,7 @@
             "host": "host",
             "user": "user",
             "log_time_ts": "stamp",
+            "request_method": "request_method",
             "request_path": "request_path",
             "ua_family": "ua_family",
             "ua_os_family": "ua_os_family",

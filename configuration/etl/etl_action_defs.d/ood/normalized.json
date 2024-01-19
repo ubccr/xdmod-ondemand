@@ -7,6 +7,7 @@
     "source_query": {
         "records": {
             "log_time_ts": "log_time_ts",
+            "request_method": "s.request_method",
             "request_path": "s.request_path",
             "app": -1,
             "user": "s.user",
@@ -31,6 +32,7 @@
         "normalized": {
             "log_time_ts": "log_time_ts",
             "user": "user",
+            "request_method": "request_method",
             "app": "app",
             "city": "city",
             "state": "state",

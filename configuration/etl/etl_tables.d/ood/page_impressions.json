@@ -42,6 +42,11 @@
                 "nullable": false
             },
             {
+                "name": "request_method_id",
+                "type": "int(11)",
+                "nullable": true
+            },
+            {
                 "name": "app_id",
                 "type": "int(11)",
                 "nullable": false
@@ -82,6 +87,7 @@
                 "columns": [
                     "log_time_ts",
                     "user_id",
+                    "request_method_id",
                     "app_id"
                 ],
                 "is_unique": true

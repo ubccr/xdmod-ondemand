@@ -16,6 +16,11 @@
                 "nullable": false
             },
             {
+                "name": "request_method",
+                "type": "varchar(8)",
+                "nullable": false
+            },
+            {
                 "name": "app",
                 "type": "varchar(64)",
                 "nullable": false

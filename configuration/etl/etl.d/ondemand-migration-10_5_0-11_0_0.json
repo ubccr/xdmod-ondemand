@@ -18,10 +18,13 @@
     },
     "migration-10_5_0-11_0_0": [
         {
-            "name": "alter-staging-table",
-            "description": "Remove header_referer and add request_path to staging table",
+            "name": "alter-tables",
+            "description": "Alter tables: replace header referer with request path and request method",
             "definition_file_list": [
-                "ood/staging.json"
+                "ood/staging.json",
+                "ood/normalized.json",
+                "ood/request_method.json",
+                "ood/page_impressions.json"
             ]
         }
     ]
