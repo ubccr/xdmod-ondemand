@@ -544,5 +544,10 @@ def test_get_shared_apps(tmp_dir):
             i += 2
         run_test(tmp_dir, shared_apps=shared_apps)
     finally:
+        shutil.rmtree(usr_dir + '/tmp3')
         for usr in usrs:
             shutil.rmtree(usr_dir + '/' + usr)
+
+
+def test_no_user_at(tmp_dir):
+    run_test(tmp_dir, artifact_dir='no_user_at')
