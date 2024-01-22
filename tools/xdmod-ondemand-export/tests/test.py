@@ -15,10 +15,22 @@ import urllib3.exceptions
 from xdmod_ondemand_export import LogPoster
 
 
+GENERATE_ARTIFACTS = False
 DESTINATION_URL = 'http://localhost:1234'
 API_TOKEN_FOR_TEST_SERVER_ONLY = (
     '1.10fe91043025e974f798d8ddc320ac794eacefd43c609c7eb42401bccfccc8ae'
 )
+NUMERIC_API_TOKEN_FOR_TEST_SERVER_ONLY = (
+    '0.1234567890123456789012345678901234567890123456789012345678901234'
+)
+# Expected IP hashing for the secret key below
+# ------------------------------------
+# 127.0.0.0 -> pEi_gTFXoLz21gs809k96w
+# 127.0.0.2 -> _zMBINshA5XtOmrto9SC2g
+# 127.0.0.3 -> NLpA8DlcLHkUb3u33LB1xg
+# 127.0.0.5 -> ZbyllrOO3njjiqWF-lJ5hg
+# 127.0.0.6 -> nmpyiysa5wgHYAfKtEbFGw
+SECRET_KEY = 'Eo7Wr(j2+UDZO/>[1is)'
 ARTIFACTS_DIR = os.path.dirname(os.path.realpath(__file__)) + '/artifacts'
 ROOT_DIR = os.path.expanduser('~/xdmod-ondemand-export')
 PACKAGES_DIR = glob.glob(ROOT_DIR + '/env/lib/python3.*/site-packages')[0]
@@ -28,7 +40,7 @@ SAMPLE_JSON_PATH = ARTIFACTS_DIR + '/sample.json'
 DEFAULT_FILE_PERMISSIONS = {
     '-c': 0o0400,
     '-j': 0o0600,
-    '-t': 0o0400,
+    '-t': 0o0600,
 }
 
 
@@ -38,9 +50,9 @@ def tmp_dir():
         yield d
 
 
-def set_token(path, token, file_permissions):
+def write_file(path, token_file_contents, file_permissions):
     with open(path, 'w') as f:
-        f.write(token)
+        f.write(token_file_contents)
     os.chmod(path, file_permissions)
 
 
@@ -94,13 +106,22 @@ def run(tmp_dir, script_args, web_server_args, api_token):
 def validate_output(path_to_actual, path_to_expected):
     with open(path_to_actual) as actual_file:
         actual_file_contents = read_and_substitute_vars(actual_file)
-        with open(path_to_expected) as expected_file:
+        with open(path_to_expected, 'r+') as expected_file:
             expected_file_contents = read_and_substitute_vars(expected_file)
-            assert expected_file_contents == actual_file_contents
+            if GENERATE_ARTIFACTS:  # pragma: no cover
+                expected_file.seek(0)
+                expected_file.write(
+                    actual_file_contents.replace(
+                        ARTIFACTS_DIR,
+                        '${ARTIFACTS_DIR}',
+                    )
+                )
+                expected_file.truncate()
+        assert expected_file_contents == actual_file_contents
 
 
-def read_and_substitute_vars(file):
-    contents = file.read()
+def read_and_substitute_vars(file_):
+    contents = file_.read()
     contents_with_vars_substituted = contents.replace(
         '${ARTIFACTS_DIR}',
         ARTIFACTS_DIR,
@@ -116,6 +137,7 @@ def run_test(
     output_json_path=None,
     additional_script_args={},
     api_token=API_TOKEN_FOR_TEST_SERVER_ONLY,
+    token_file_contents=None,
     num_files=1,
     num_requests=None,
     mode=200,
@@ -160,6 +182,8 @@ def run_test(
     }
     for arg in additional_script_args:
         script_args[arg] = additional_script_args[arg]
+    if '--check-config' in script_args:
+        num_files = 0
     if num_requests is None:
         num_requests = num_files
         # If any log files are sent, there will be one extra request to send
@@ -167,8 +191,20 @@ def run_test(
         if num_requests > 0:
             num_requests += 1
     web_server_args = (tmp_dir, num_requests, mode)
+    if token_file_contents is None:
+        token_file_contents = json.dumps(
+            {
+                'api_token': api_token,
+                'secret_key': SECRET_KEY,
+            },
+            indent=4,
+        ) + '\n'
+    write_file(
+        tmp_dir + '/.token',
+        token_file_contents,
+        file_permissions['-t'],
+    )
     try:
-        set_token(tmp_dir + '/.token', api_token, file_permissions['-t'])
         run(tmp_dir, script_args, web_server_args, api_token)
     except RuntimeError as e:
         if mode != 200:
@@ -403,7 +439,6 @@ def test_check_config(tmp_dir, caplog):
     run_test(
         tmp_dir,
         additional_script_args={'--check-config': None},
-        num_files=0,
     )
     assert (
         'Finished checking config, not parsing or POSTing any files.'
@@ -413,9 +448,61 @@ def test_check_config(tmp_dir, caplog):
 @pytest.mark.parametrize(
     'artifact_dir, second_run_num_files',
     [
+        # Scenario for the two_runs test
+        # ------------------------------
+        # First run: client sends access.log,   server writes access.log.0
+        #            client sends access.log.0, server writes access.log.1
+        # Second run: client adds entry to access.log
+        #             client rotates access.log.0 to access.log.1
+        #             client rotates access.log   to access.log.0
+        #             client adds entries to access.log
+        #             client sends access.log,   server writes access.log.0
+        #             client sends last entry of access.log.0,
+        #                                        server writes access.log.1
+        #             client does not send access.log.1
         ('two_runs', 2),
+        # Scenario for the two_runs_compressed test
+        # ------------------------------
+        # First run: client sends access.log.0.gz, server writes access.log.0
+        #            client sends access.log.gz,   server writes access.log.1
+        # Second run: client adds entry to access.log.gz
+        #             client rotates access.log.0.gz to access.log.1.gz
+        #             client rotates access.log.gz   to access.log.0.gz
+        #             client adds entries to access.log.gz
+        #             client sends last entry of access.log.0.gz,
+        #                                        server writes access.log.0
+        #             client does not send access.log.1.gz
+        #             client sends last entry of access.log.gz,
+        #                                        server writes access.log.1
         ('two_runs_compressed', 2),
+        # Scenario for the two_runs_first_all_unauthenticated test
+        # ------------------------------
+        # First run: client sends no lines from access.log,
+        #                                       server writes access.log.0
+        #            client sends no lines from access.log.0,
+        #                                       server writes access.log.1
+        # Second run: client adds entry to access.log
+        #             client rotates access.log.0 to access.log.1
+        #             client rotates access.log   to access.log.0
+        #             client adds entries to access.log
+        #             client sends access.log,   server writes access.log.0
+        #             client sends last entry of access.log.0,
+        #                                        server writes access.log.1
+        #             client does not send access.log.1
         ('two_runs_first_all_unauthenticated', 2),
+        # Scenario for the two_runs_file_size_changes test
+        # ------------------------------
+        # First run: client sends access.log,   server writes access.log.0
+        #            client sends access.log.0, server writes access.log.1
+        # Second run: client adds entry to access.log
+        #             client rotates access.log.0 to access.log.1.gz
+        #             client rotates access.log   to access.log.0.gz
+        #             client adds entries to access.log
+        #             client sends access.log,   server writes access.log.0
+        #             client sends last entry of access.log.0.gz,
+        #                                        server writes access.log.1
+        #             client sends no lines from access.log.1.gz,
+        #                                        server writes access.log.2
         ('two_runs_file_size_changes', 3),
     ],
     ids=(
@@ -506,7 +593,7 @@ def test_invalid_script_args(tmp_dir):
     'script_arg, file_name, expected_file_permissions',
     [
         ('-c', 'conf.ini', '400'),
-        ('-t', '.token', '400'),
+        ('-t', '.token', '600'),
         ('-j', 'input.json', '600'),
     ],
     ids=('conf', 'token', 'json'),
@@ -544,6 +631,7 @@ def test_get_shared_apps(tmp_dir):
             i += 2
         run_test(tmp_dir, shared_apps=shared_apps)
     finally:
+        shutil.rmtree(usr_dir + '/tmp3')
         for usr in usrs:
             shutil.rmtree(usr_dir + '/' + usr)
 
@@ -554,3 +642,35 @@ def test_empty_user(tmp_dir):
 
 def test_401(tmp_dir):
     run_test(tmp_dir, artifact_dir='401')
+
+
+@pytest.mark.parametrize('key', ['api_token', 'secret_key'])
+def test_missing_token_file_key(tmp_dir, key):
+    token_json = {}
+    if key != 'api_token':
+        token_json['api_token'] = API_TOKEN_FOR_TEST_SERVER_ONLY
+    if key != 'secret_key':
+        token_json['secret_key'] = SECRET_KEY
+    token_file_contents = json.dumps(token_json, indent=4) + '\n'
+    with pytest.raises(
+        KeyError,
+        match='Token file is malformed. Missing key `' + key + '`.',
+    ):
+        run_test(tmp_dir, token_file_contents=token_file_contents)
+
+
+@pytest.mark.parametrize(
+    'api_token',
+    [
+        API_TOKEN_FOR_TEST_SERVER_ONLY,
+        NUMERIC_API_TOKEN_FOR_TEST_SERVER_ONLY,
+    ],
+    ids=('hex_token', 'numeric_token')
+)
+def test_token_file_with_only_token(tmp_dir, caplog, api_token):
+    run_test(
+        tmp_dir,
+        token_file_contents=api_token,
+        additional_script_args={'--check-config': None},
+    )
+    assert 'File is not valid JSON, checking for token only.' in caplog.text

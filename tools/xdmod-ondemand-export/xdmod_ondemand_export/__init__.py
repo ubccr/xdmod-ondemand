@@ -6,16 +6,19 @@ __description__ = (
 
 import apachelogs
 import argparse
+import base64
 import configparser
 from contextlib import ExitStack
 from datetime import datetime
 import glob
 import gzip
+import hmac
 import json
 import logging
 import os
 import re
 import requests
+import secrets
 import sys
 
 
@@ -31,9 +34,12 @@ class LogPoster:
         sys.excepthook = self.__excepthook
         self.__logger.debug('Using arguments: ' + str(self.__args))
         self.__validate_file_permissions(self.__args.conf_path, '400')
-        self.__validate_file_permissions(self.__args.token_path, '400')
+        self.__validate_file_permissions(self.__args.token_path, '600')
         self.__validate_file_permissions(self.__args.json_path, '600')
-        self.__api_token = self.__load_api_token()
+        (
+            self.__api_token,
+            self.__secret_key,
+        ) = self.__load_api_token_and_secret_key()
         self.__conf_parser = self.__init_conf_parser()
         self.__parse_conf()
         self.__dir = self.__parse_dir()
@@ -58,6 +64,7 @@ class LogPoster:
                     self.__mark_deleted_log_files()
                 finally:
                     self.__write_json()
+                    self.__write_api_token_and_secret_key()
         self.__logger.info('Script finished.')
 
     def __parse_args(self, args=None):
@@ -129,18 +136,34 @@ class LogPoster:
                 + expected_permissions + '.'
             )
 
-    def __load_api_token(self):
-        self.__logger.debug('Loading the API token.')
+    def __load_api_token_and_secret_key(self):
+        self.__logger.debug('Loading the API token and secret key.')
         try:
             with open(self.__args.token_path, 'r') as token_file:
-                api_token = token_file.read().replace('\n', '').strip()
+                contents = token_file.read()
         except FileNotFoundError:  # pragma: no cover
             raise FileNotFoundError(
                 "Token file '" + self.__args.token_path + "' not found."
+            ) from None
+        secret_key = None
+        try:
+            json_contents = json.loads(contents)
+            api_token = json_contents['api_token']
+            secret_key = base64.a85decode(json_contents['secret_key'])
+        except (json.decoder.JSONDecodeError, TypeError):
+            self.__logger.debug(
+                'File is not valid JSON, checking for token only.'
             )
+            api_token = contents.replace('\n', '').strip()
+        except KeyError as e:
+            raise KeyError(
+                'Token file is malformed. Missing key `' + e.args[0] + '`.'
+            ) from None
         if re.match(self.__api_token_pattern, api_token) is None:
             raise ValueError('API token is malformed.')
-        return api_token
+        if secret_key is None:
+            secret_key = secrets.token_bytes(16)
+        return (api_token, secret_key)
 
     def __init_conf_parser(self):
         self.__logger.debug('Initializing configuration file parser.')
@@ -374,16 +397,10 @@ class LogPoster:
         ):
             return
         else:
-            # Convert the line to combined log format if it isn't already.
-            if entry.format == apachelogs.COMBINED.replace(
-                'User-Agent',
-                'User-agent',
-            ):
-                combined_line = line
-            else:
-                combined_line = self.__convert_to_combined_logformat(
-                    entry
-                )
+            # Replace the IP address with a hashed value.
+            entry.remote_host = self.__get_ip_hash(entry.remote_host)
+            # Convert the line to combined log format.
+            combined_line = self.__convert_to_combined_logformat(entry)
             # Encode the line.
             return combined_line.encode()
 
@@ -394,6 +411,15 @@ class LogPoster:
             and time_fields[key] is not None
             else '-'
         )
+
+    def __get_ip_hash(self, ip):
+        ip_bytes = bytes(ip, 'utf-8')
+        digest = hmac.new(self.__secret_key, ip_bytes, 'md5').digest()
+        ip_hash = base64.b64encode(
+            digest,
+            altchars=b'-_',
+        ).decode('utf-8').replace('=', '')
+        return ip_hash
 
     def __convert_to_combined_logformat(self, entry):
         return (
@@ -445,18 +471,29 @@ class LogPoster:
                     'st_size': self.__json[stored_path]['st_size'],
                     'last_line': self.__json[stored_path]['last_line'],
                 }
+        self.__write_json_file(self.__args.json_path, self.__new_json)
+
+    def __write_json_file(self, path, json_content):
         # Write to a temporary file first so that, if the write fails, it
         # doesn't accidentally clobber the file.
-        tmp_path = self.__args.json_path + '.tmp'
+        tmp_path = path + '.tmp'
         descriptor = os.open(
             tmp_path,
             flags=os.O_CREAT | os.O_WRONLY,
             mode=0o600,
         )
         with open(descriptor, 'w') as json_file:
-            json.dump(self.__new_json, json_file, indent=4)
+            json.dump(json_content, json_file, indent=4)
             json_file.write('\n')
-        os.rename(tmp_path, self.__args.json_path)
+        os.rename(tmp_path, path)
+
+    def __write_api_token_and_secret_key(self):
+        self.__logger.debug('Writing API token and secret key to token file.')
+        json_content = {
+            'api_token': self.__api_token,
+            'secret_key': base64.a85encode(self.__secret_key).decode('utf-8'),
+        }
+        self.__write_json_file(self.__args.token_path, json_content)
 
 
 def main():  # pragma: no cover
