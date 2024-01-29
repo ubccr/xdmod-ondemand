@@ -1,0 +1,13 @@
+title
+"Number of Apps: Active: by OnDemand Application"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"OnDemand Application","Number of Apps: Active"
+"sys/bc_desktop/hpc (sys/ihpc)",1
+sys/dashboard,1
+"sys/jupyter (sys/ihpc)",1
+sys/myjobs,1
+---------

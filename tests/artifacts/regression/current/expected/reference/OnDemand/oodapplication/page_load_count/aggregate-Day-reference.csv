@@ -1,0 +1,13 @@
+title
+"Number of Page Loads: by OnDemand Application"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"OnDemand Application","Number of Page Loads"
+sys/dashboard,1109
+sys/myjobs,17
+"sys/jupyter (sys/ihpc)",6
+"sys/bc_desktop/hpc (sys/ihpc)",2
+---------

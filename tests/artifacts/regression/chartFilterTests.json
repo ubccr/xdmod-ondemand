@@ -1,0 +1,110 @@
+[
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "browser",
+            "filter_values": [
+                "Chrome",
+                "Firefox"
+            ]
+        },
+        "expected": {
+            "subtitle": "Browser = ( Chrome,  Firefox )",
+            "yvalue": 3
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "location",
+            "filter_values": [
+                "Unknown"
+            ]
+        },
+        "expected": {
+            "subtitle": "Location =  Unknown",
+            "yvalue": 3
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "oodapplication",
+            "filter_values": [
+                "sys/bc_desktop/hpc (sys/ihpc)",
+                "sys/dashboard"
+            ]
+        },
+        "expected": {
+            "subtitle": "OnDemand Application = ( sys/bc_desktop/hpc (sys/ihpc),  sys/dashboard )",
+            "yvalue": 1.5
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "ooduser",
+            "filter_values": [
+                "hpcadmin",
+                "sfoster"
+            ]
+        },
+        "expected": {
+            "subtitle": "OnDemand Username = ( hpcadmin,  sfoster )",
+            "yvalue": 3
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "operatingsys",
+            "filter_values": [
+                "Mac OS X"
+            ]
+        },
+        "expected": {
+            "subtitle": "Operating System =  Mac OS X",
+            "yvalue": 3
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "resource",
+            "filter_values": [
+                "styx"
+            ]
+        },
+        "expected": {
+            "subtitle": "Resource =  styx",
+            "yvalue": 3
+        }
+    },
+    {
+        "settings": {
+            "realm": "OnDemand",
+            "metric": "sessions_per_user",
+            "date": "2021-01-12",
+            "filter_dimension": "person",
+            "filter_values": [
+                "Unknown"
+            ]
+        },
+        "expected": {
+            "subtitle": "User =  Unknown",
+            "yvalue": 3
+        }
+    }
+]

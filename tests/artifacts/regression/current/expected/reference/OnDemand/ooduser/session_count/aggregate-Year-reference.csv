@@ -1,0 +1,11 @@
+title
+"Number of Sessions: by OnDemand Username"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"OnDemand Username","Number of Sessions"
+hpcadmin,4
+sfoster,2
+---------

@@ -1,0 +1,10 @@
+title
+"Number of Sessions: Per User: by Resource"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Day,"[styx] Number of Sessions: Per User"
+2021-01-12,3.0000
+---------

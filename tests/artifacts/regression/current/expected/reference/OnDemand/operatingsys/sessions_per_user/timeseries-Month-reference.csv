@@ -1,0 +1,10 @@
+title
+"Number of Sessions: Per User: by Operating System"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Month,"[Mac OS X] Number of Sessions: Per User"
+2021-01,3.0000
+---------

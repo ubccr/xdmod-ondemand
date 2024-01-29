@@ -1,0 +1,10 @@
+title
+"Number of Users: Active: by OnDemand Application"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Quarter,"[sys/dashboard] Number of Users: Active","[sys/jupyter (sys/ihpc)] Number of Users: Active","[sys/bc_desktop/hpc (sys/ihpc)] Number of Users: Active","[sys/myjobs] Number of Users: Active"
+"2021 Q1",2,2,1,1
+---------

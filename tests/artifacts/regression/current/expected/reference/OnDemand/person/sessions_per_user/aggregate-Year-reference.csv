@@ -1,0 +1,10 @@
+title
+"Number of Sessions: Per User: by User"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+User,"Number of Sessions: Per User"
+Unknown,3.0000
+---------
