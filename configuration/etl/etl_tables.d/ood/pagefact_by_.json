@@ -1,7 +1,7 @@
 {
     "table_definition": {
         "name": "pagefact_by_",
-        "comment": "OnDemand Page Impression facts aggregated by ${AGGREGATION_UNIT}.",
+        "comment": "Open OnDemand page impression facts aggregated by ${AGGREGATION_UNIT}.",
         "engine": "MyISAM",
         "columns": [
             {
@@ -14,7 +14,7 @@
                 "name": "year",
                 "type": "smallint(5) unsigned",
                 "nullable": false,
-                "comment": "DIMENSION: The year of the ${AGGREGATION_UNIT}"
+                "comment": "DIMENSION: The year of the ${AGGREGATION_UNIT}."
             },
             {
                 "name": "${AGGREGATION_UNIT}",
@@ -26,60 +26,60 @@
                 "name": "record_resource_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The resource on which the request was made"
+                "comment": "DIMENSION: The resource running Open OnDemand."
             },
             {
                 "name": "resource_organization_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The organization of the resource that the jobs ran on."
+                "comment": "DIMENSION: The organization of the resource running Open OnDemand."
             },
             {
                 "name": "person_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The id of the person that was logged in to OnDemand"
+                "comment": "DIMENSION: The person who was logged in to Open OnDemand."
             },
             {
                 "name": "user_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The id of the resource system account (local username) under which the job ran. References modw_ondemand.user.id"
+                "comment": "DIMENSION: The system account (local username) of the person who was logged in to Open OnDemand."
             },
             {
                 "name": "app_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The OnDemand app that was accessed. Inferred from the referer path"
+                "comment": "DIMENSION: The Open OnDemand app that was accessed. Inferred from the referer path."
             },
             {
                 "name": "location_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The location of the web client that accessed OnDemand. Inferred from the IP address."
+                "comment": "DIMENSION: The location of the web client that accessed Open OnDemand. Inferred from the IP address."
             },
             {
                 "name": "ua_family_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The user agent that accessed OnDemand. Inferred from the UA string"
+                "comment": "DIMENSION: The user agent that accessed Open OnDemand. Inferred from the UA string."
             },
             {
                 "name": "ua_os_family_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: The operating system that accessed OnDemand. Inferred from the UA string"
+                "comment": "DIMENSION: The operating system that accessed Open OnDemand. Inferred from the UA string."
             },
             {
                 "name": "impression_count",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "FACT: The total number of page impressions in this bin"
+                "comment": "FACT: The total number of page impressions in which a person accessed an Open OnDemand app."
             },
             {
                 "name": "session_count",
                 "type": "int(11)",
-                "comment": "FACT: The total number of sessions.",
+                "comment": "FACT: The total number of sessions, where a session is a unique grouping of page impressions by person, app, day, resource, operating system, and browser.",
                 "nullable": false
             }
         ],
