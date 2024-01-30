@@ -13,9 +13,11 @@ selectMenuOption 4
 selectMenuOption 1
 provideInput {Resource Name:} styx
 provideInput {Formal Name:} {Open OnDemand Instance}
-provideInput {Resource Type*} Gateway
-provideInput {How many nodes does this resource have?} 0
-provideInput {How many total processors (cpu cores) does this resource have?} 0
+provideInput {Resource Type*} gateway
+provideInput {Resource Allocation Type*} cpu
+provideInput {Resource Start Date, in YYYY-mm-dd format} 2021-01-12
+provideInput {How many CPU nodes does this resource have?} 0
+provideInput {How many total CPU processors (cpu cores) does this resource have?} 0
 
 selectMenuOption s
 confirmFileWrite yes
