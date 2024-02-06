@@ -44,7 +44,7 @@ Edit `/home/xdmod-ondemand-export/conf.ini` to change the default values to matc
 - The LogFormat of the files is the Combined Log Format, `%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"`.
 
 ### Store the API token in the token file
-Create an initially empty token file with read-only permissions:
+Create an initially empty token file with read and write permissions (in addition to storing the token, the file will be edited by the script to create a secret key used for hashing IP addresses):
 ```
 (umask 377 && touch /home/xdmod-ondemand-export/.token)
 ```
@@ -84,6 +84,18 @@ su -c 'crontab -e' -s /bin/bash xdmod-ondemand-export
 Add the following line. This will set up the script to run daily at 2:01am.
 ```
 1 2 * * * /home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export
+```
+
+## Upgrading the script
+The script can be upgraded to the latest version by running:
+```
+su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install --upgrade xdmod-ondemand-export' -s /bin/bash xdmod-ondemand-export
+```
+
+### If you are upgrading from version 1.0.0
+If you are upgrading from version 1.0.0, before the next run of the script, add write permission to the token file so it can be edited by the script to create a secret key used for hashing IP addresses:
+```
+chmod 600 /home/xdmod-ondemand-export/.token
 ```
 
 ## Troubleshooting
