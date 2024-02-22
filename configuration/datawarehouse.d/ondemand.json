@@ -50,7 +50,7 @@
                     }
                 },
                 "category": "Administrative",
-                "description_html": "The web browser that was used to access On Demand. This value is obtained from the user-agent string supplied by the browser",
+                "description_html": "The web browser that was used to access Open OnDemand. This value is obtained from the user-agent string supplied by the browser.",
                 "name": "Browser"
             },
             "oodapplication": {
@@ -104,7 +104,7 @@
                     }
                 },
                 "category": "Administrative",
-                "description_html": "The OnDemand username.",
+                "description_html": "The username of the person who accessed Open OnDemand.",
                 "name": "OnDemand Username"
             },
             "operatingsys": {
@@ -131,7 +131,7 @@
                     }
                 },
                 "category": "Administrative",
-                "description_html": "The operating system that was used to access On Demand. This value is obtained from the user-agent string supplied by the browser",
+                "description_html": "The operating system that was used to access Open OnDemand. This value is obtained from the user-agent string supplied by the browser.",
                 "name": "Operating System"
             },
             "location": {
@@ -158,7 +158,7 @@
                     }
                 },
                 "category": "Administrative",
-                "description_html": "The location of the broweser that was used to access On Demand. This value is inferred from the IP address in the server logs.",
+                "description_html": "The location of the browser that was used to access Open OnDemand. This value is inferred from the IP address in the server logs.",
                 "name": "Location"
             }
         },
@@ -168,14 +168,14 @@
         "statistics": {
             "page_load_count": {
                 "formula": "SUM(impression_count)",
-                "description_html": "The total number of page loads.",
+                "description_html": "The total number of page impressions in which a person accessed an Open OnDemand app.",
                 "name": "Number of Page Loads",
                 "precision": 0,
                 "unit": "Number of Page Loads"
             },
             "session_count": {
                 "formula": "SUM(session_count)",
-                "description_html": "The total number of sessions. Where a session is defined as one user visit to an app from a distinct IP address per day.",
+                "description_html": "The total number of sessions, where a session is a unique grouping of page impressions by person, app, day, resource, operating system, and browser.",
                 "name": "Number of Sessions",
                 "precision": 0,
                 "unit": "Number of Sessions"
@@ -189,14 +189,14 @@
             },
             "app_count": {
                 "formula": "COUNT(DISTINCT app_id)",
-                "description_html": "The total number of apps used.",
+                "description_html": "The total number of Open OnDemand apps accessed.",
                 "precision": 0,
                 "name": "Number of Apps: Active",
                 "unit": "Number of Apps"
             },
             "sessions_per_user": {
                 "formula": "SUM(session_count) / COUNT(DISTINCT user_id)",
-                "description_html": "The total number of sessions per user. Where a session is defined as one user visit to an app from a distinct IP address per day.",
+                "description_html": "The average number of sessions per user, where a session is a unique grouping of page impressions by person, app, day, resource, operating system, and browser.",
                 "name": "Number of Sessions: Per User",
                 "precision": 2,
                 "unit": "Number of Sessions"
