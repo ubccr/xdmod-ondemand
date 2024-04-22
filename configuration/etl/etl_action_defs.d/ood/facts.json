@@ -12,6 +12,10 @@
             "resource_organization_id": "r.organization_id",
             "person_id": -1,
             "user_id": "u.id",
+            "request_path_id": "rp.id",
+            "request_method_id": "rm.id",
+            "reverse_proxy_host_id": "rph.id",
+            "reverse_proxy_port_id": "rpp.id",
             "app_id": "a.id",
             "location_id": "l.id",
             "ua_family_id": "ua.id",
@@ -28,6 +32,30 @@
                 "schema": "${UTILITY_SCHEMA}",
                 "alias": "r",
                 "on": "r.code = '${OOD_RESOURCE_CODE}'"
+            },
+            {
+                "name": "request_path",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rp",
+                "on": "rp.path = n.request_path"
+            },
+            {
+                "name": "request_method",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rm",
+                "on": "rm.method = n.request_method"
+            },
+            {
+                "name": "reverse_proxy_host",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rph",
+                "on": "rph.name = n.reverse_proxy_host"
+            },
+            {
+                "name": "reverse_proxy_port",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rpp",
+                "on": "rpp.port = n.reverse_proxy_port"
             },
             {
                 "name": "app",
@@ -69,6 +97,10 @@
             "resource_id": "resource_id",
             "resource_organization_id": "resource_organization_id",
             "user_id": "user_id",
+            "request_path_id": "request_path_id",
+            "request_method_id": "request_method_id",
+            "reverse_proxy_host_id": "reverse_proxy_host_id",
+            "reverse_proxy_port_id": "reverse_proxy_port_id",
             "app_id": "app_id",
             "location_id": "location_id",
             "ua_family_id": "ua_family_id",

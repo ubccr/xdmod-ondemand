@@ -7,7 +7,7 @@
         "columns": [
             {
                 "name": "id",
-                "type": "int(11)",
+                "type": "bigint(20) unsigned",
                 "nullable": false,
                 "extra": "auto_increment"
             },
@@ -40,6 +40,26 @@
                 "name": "user_id",
                 "type": "int(11)",
                 "nullable": false
+            },
+            {
+                "name": "request_path_id",
+                "type": "int(11)",
+                "nullable": true
+            },
+            {
+                "name": "request_method_id",
+                "type": "tinyint",
+                "nullable": true
+            },
+            {
+                "name": "reverse_proxy_host_id",
+                "type": "int(11)",
+                "nullable": true
+            },
+            {
+                "name": "reverse_proxy_port_id",
+                "type": "smallint unsigned",
+                "nullable": true
             },
             {
                 "name": "app_id",
@@ -81,8 +101,16 @@
                 "name": "uniq",
                 "columns": [
                     "log_time_ts",
+                    "resource_id",
                     "user_id",
-                    "app_id"
+                    "request_path_id",
+                    "request_method_id",
+                    "reverse_proxy_host_id",
+                    "reverse_proxy_port_id",
+                    "app_id",
+                    "location_id",
+                    "ua_family_id",
+                    "ua_os_family_id"
                 ],
                 "is_unique": true
             },
@@ -95,7 +123,21 @@
             {
                 "name": "person_lookup",
                 "columns": [
-                    "person_id"
+                    "person_id",
+                    "last_modified"
+                ]
+            },
+            {
+                "name": "request_path",
+                "columns": [
+                    "request_path_id"
+                ]
+            },
+            {
+                "name": "app_resource",
+                "columns": [
+                    "app_id",
+                    "resource_id"
                 ]
             }
         ]

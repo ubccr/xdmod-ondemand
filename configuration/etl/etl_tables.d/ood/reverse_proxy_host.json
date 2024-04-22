@@ -1,0 +1,36 @@
+{
+    "table_definition": {
+        "name": "reverse_proxy_host",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "extra": "auto_increment",
+                "nullable": false
+            },
+            {
+                "name": "name",
+                "type": "varchar(64)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ]
+            },
+            {
+                "name": "UNIQ",
+                "columns": [
+                    "name"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}
