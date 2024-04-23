@@ -1,0 +1,11 @@
+title
+"Number of Page Loads: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Browser,"Number of Page Loads"
+Chrome,592
+Firefox,542
+---------

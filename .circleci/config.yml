@@ -38,7 +38,7 @@ jobs:
     executor: << parameters.os >>
     environment:
       COMPOSER_ALLOW_SUPERUSER: 1
-      XDMOD_REALMS: 'jobs,storage,cloud'
+      XDMOD_REALMS: 'jobs,storage,cloud,ondemand'
       XDMOD_IS_CORE: 'yes'
       XDMOD_INSTALL_DIR: /xdmod
       XDMOD_TEST_MODE: << parameters.install-type >>
@@ -76,8 +76,22 @@ jobs:
       - run:
           name: Install / Upgrade XDMoD from RPM
           command: ./tests/scripts/bootstrap.sh
+      - run:
+          name: Install PHPUnit
+          command: composer install -d $XDMOD_SRC_DIR --no-progress
+      - run:
+          name: Run Regression Tests
+          command: $XDMOD_SRC_DIR/tests/regression/runtests.sh --junit-output-dir ~/phpunit
+      - run:
+          name: Ensure that no PHP command-line errors were generated
+          command: >
+              if [ -e /var/log/php_errors.log ]; then
+                  test `fgrep -v 'vendor/phpunit/phpunit/src' /var/log/php_errors.log | wc -l` = 0;
+              fi
       - store_artifacts:
           path: /var/log/xdmod
+      - store_artifacts:
+          path: /var/log/php_errors.log
   test-export-tool:
     parameters:
       os:

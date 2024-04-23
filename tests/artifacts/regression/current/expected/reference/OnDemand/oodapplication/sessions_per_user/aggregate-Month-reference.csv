@@ -1,0 +1,13 @@
+title
+"Number of Sessions: Per User: by OnDemand Application"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"OnDemand Application","Number of Sessions: Per User"
+"sys/bc_desktop/hpc (sys/ihpc)",1.0000
+sys/dashboard,1.0000
+"sys/jupyter (sys/ihpc)",1.0000
+sys/myjobs,1.0000
+---------

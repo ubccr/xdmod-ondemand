@@ -1,0 +1,10 @@
+title
+"Number of Apps: Active: by User"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+User,"Number of Apps: Active"
+Unknown,4
+---------

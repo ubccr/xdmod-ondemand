@@ -1,0 +1,10 @@
+title
+"Number of Apps: Active: by Operating System"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"Operating System","Number of Apps: Active"
+"Mac OS X",4
+---------
