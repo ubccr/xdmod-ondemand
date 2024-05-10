@@ -19,8 +19,8 @@ toc:
     subfolderitems:
       - page: Ingestion and Aggregation
         url: /11.0/ingestion-aggregation.html
-      - page: Reclassifying Applications
-        url: /11.0/reclassifying-applications.html
+      - page: Recategorizing Applications
+        url: /11.0/recategorizing-applications.html
   - title: Help
     subfolderitems:
       - page: FAQ
