@@ -115,16 +115,11 @@
                 "is_unique": true
             },
             {
-                "name": "index_last_modified",
+                "name": "agg_and_person_lookup",
                 "columns": [
-                    "last_modified"
-                ]
-            },
-            {
-                "name": "person_lookup",
-                "columns": [
+                    "last_modified",
                     "person_id",
-                    "last_modified"
+                    "resource_id"
                 ]
             },
             {
