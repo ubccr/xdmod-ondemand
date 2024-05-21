@@ -10,4 +10,13 @@ WHERE
     p.person_id = -1
 AND
     p.last_modified >= ${LAST_MODIFIED}
+AND
+    p.resource_id = (
+        SELECT
+            rf.id
+        FROM
+            ${UTILITY_SCHEMA}.resourcefact AS rf
+        WHERE
+            rf.code = '${OOD_RESOURCE_CODE}'
+    )
 //
