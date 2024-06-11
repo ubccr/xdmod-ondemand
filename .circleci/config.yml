@@ -46,6 +46,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update php module
+          command: dnf module -y reset php && dnf module -y enable php:7.4
+      - run:
+          name: Install PHP 7.4 and PHP module pre-reqs & an updated version of PHP Pear
+          command: dnf install -y php libzip-devel php-pear php-devel
+      - run:
+          name: Install MongoDB Pear module
+          command: yes '' | pecl install mongodb || true
+      - run:
           name: Update NodeJS version
           command: |
             dnf module -y reset nodejs
