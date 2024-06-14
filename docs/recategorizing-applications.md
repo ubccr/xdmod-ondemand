@@ -80,6 +80,17 @@ SET @request_path_filter = '^/rnode/[^/]+/[^/]+(/data/plugin/images/images\\?).+
 SET @general_request_path = '/rnode/[host]/[port]/data/plugin/images/images?[params]';
 ```
 
+Set locks for the tables you will be modifying, so that the automatic ingestion
+pipeline does not try to modify the tables at the same time you are:
+
+```sql
+LOCK TABLES
+modw_ondemand.page_impressions WRITE,
+modw_ondemand.page_impressions AS p WRITE,
+modw_ondemand.request_path WRITE,
+modw_ondemand.request_path AS rp READ;
+```
+
 Insert the new request path into `modw_ondemand.request_path` table and get its
 ID:
 
@@ -114,49 +125,43 @@ of page impressions whose request path should be set to the general form:
 SELECT * FROM modw_ondemand.tmp_request_path_updates;
 ```
 
-Next, create a temporary table containing all rows that would become duplicate
-rows once the `page_impressions` table is updated:
-
-```sql
-CREATE TEMPORARY TABLE modw_ondemand.tmp_request_path_duplicates AS SELECT t2.id
-FROM modw_ondemand.tmp_request_path_updates AS t1
-JOIN modw_ondemand.tmp_request_path_updates AS t2
-ON t2.log_time_ts = t1.log_time_ts
-AND t2.resource_id = t1.resource_id
-AND t2.user_id = t1.user_id
-AND t2.request_method_id = t1.request_method_id
-AND t2.reverse_proxy_host_id = t1.reverse_proxy_host_id
-AND t2.reverse_proxy_port_id = t1.reverse_proxy_port_id
-AND t2.app_id = t1.app_id
-AND t2.location_id = t1.location_id
-AND t2.ua_family_id = t1.ua_family_id
-AND t2.ua_os_family_id = t1.ua_os_family_id
-AND t1.id < t2.id;
-```
-
-Then, delete those rows from the temporary table and the `page_impressions`
-table and drop the temporary table containing the duplicates:
-
-```sql
-DELETE t
-FROM modw_ondemand.tmp_request_path_duplicates AS d
-JOIN modw_ondemand.tmp_request_path_updates AS t ON t.id = d.id;
-
-DELETE p
-FROM modw_ondemand.tmp_request_path_duplicates AS d
-JOIN modw_ondemand.page_impressions AS p ON p.id = d.id;
-
-DROP TABLE modw_ondemand.tmp_request_path_duplicates;
-```
-
-Then, for the remaining rows in the `tmp_request_path_updates` table, set the
-corresponding new `request_path_id` in the `page_impressions` table, ignoring
-any additional duplicates:
+Then, set the corresponding new `request_path_id` in the `page_impressions`
+table, ignoring any rows that are now duplicates:
 
 ```sql
 UPDATE IGNORE modw_ondemand.tmp_request_path_updates AS t
 JOIN modw_ondemand.page_impressions AS p ON p.id = t.id
 SET p.request_path_id = @request_path_id;
+```
+
+Confirm it worked, noting that some rows may not have been updated because they
+are now duplicates of other rows:
+
+```sql
+SELECT p.*, rp.path
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+WHERE rp.path REGEXP @request_path_filter;
+```
+
+Select any rows that are duplicates:
+
+```sql
+SELECT p.*, rp.path
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+WHERE rp.path REGEXP @request_path_filter
+AND rp.path != @general_request_path;
+```
+
+And delete those:
+
+```sql
+DELETE p
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+WHERE rp.path REGEXP @request_path_filter
+AND rp.path != @general_request_path;
 ```
 
 Confirm it worked:
@@ -201,6 +206,12 @@ DELETE
 FROM request_path
 WHERE path REGEXP @request_path_filter
 AND id != @request_path_id;
+```
+
+Finally, unlock the tables:
+
+```sql
+UNLOCK TABLES;
 ```
 
 ## Recategorizing future applications
@@ -273,6 +284,15 @@ WHERE p.app_id = @old_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
+Set locks for the tables you will be modifying, so that the automatic ingestion
+pipeline does not try to modify the tables at the same time you are:
+
+```sql
+LOCK TABLES
+modw_ondemand.page_impressions AS p WRITE,
+modw_ondemand.request_path AS rp READ;
+```
+
 If the list is correct, change the app ID from old to new:
 
 ```sql
@@ -281,6 +301,12 @@ JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
 SET p.app_id = @new_app_id
 WHERE p.app_id = @old_app_id
 AND rp.path REGEXP @request_path_filter;
+```
+
+And unlock the tables:
+
+```sql
+UNLOCK TABLES;
 ```
 
 ## Reaggregating

@@ -39,6 +39,7 @@
     ";(?#                                           )^/rnode/[^/]+/[^/]+(/p/)[^/]+(/session/)[^/]+(/upload/)[^?]+(\\?).+;": "/rnode/[host]/[port]$1[id]$2[id]$3[id]$4[params]",
     ";(?#                                           )^/node/[^/]+/[^/]+(/git/).+;": "/node/[host]/[port]$1[path]",
     ";(?#                                           )^/(r?node)/[^/]+/[^/]+/proxy/[^/]+(/$)?;": "/$1/[host]/[port]/proxy/[id]",
+    ";(?#                                           )^/rnode/[^/]+/[^/]+(/auth-sign-in\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize reverse proxy hosts and ports  )^/(r?node)/[^/]+/[^/]+(/$)?;": "/$1/[host]/[port]",
     ";(?# Generalize session IDs                    )[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12};": "[id]",
     ";(?# Generalize PBS IDs                        )(pbsid=)\\d+(&|$);": "$1[id]$2",
