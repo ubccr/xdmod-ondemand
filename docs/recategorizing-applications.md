@@ -53,6 +53,11 @@ To apply a new filter to page impressions that have already been ingested,
 follow the instructions below to run some SQL statements in the XDMoD data
 warehouse.
 
+First you will want to back up the `modw_ondemand.page_impressions` and
+`modw_ondemand.request_path` tables (e.g., using `mysqldump`) so that you can
+restore the backups if something goes wrong that cannot be undone during these
+steps.
+
 Get the current timestamp prior to running any statements. Save this timestamp
 somewhere. Later, you will use it when you re-aggregate all page impressions
 modified after it.
@@ -223,6 +228,11 @@ override the values in the main `application-map.json`.
 To recategorize applications for page impressions that have already been
 ingested, follow the instructions below to run some SQL statements in the XDMoD
 data warehouse.
+
+First you will want to back up the `modw_ondemand.page_impressions` and
+`modw_ondemand.app` tables (e.g., using `mysqldump`) so that you can
+restore the backups if something goes wrong that cannot be undone during these
+steps.
 
 Get the current timestamp prior to running any statements (if you already did
 this above when recategorizing request paths, keep that one instead). Save this
