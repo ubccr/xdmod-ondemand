@@ -376,6 +376,6 @@ after the value for `CURRENT_TIMESTAMP()` that you obtained above (replace
 `'2024-05-09 14:10:33'` in the example below):
 
 ```sh
-xdmod-ondemand-ingestor -a -m '2024-05-09 14:10:33'
+$ xdmod-ondemand-ingestor -a -m '2024-05-09 14:10:33'
 ```
 
