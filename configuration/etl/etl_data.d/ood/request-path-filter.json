@@ -6,6 +6,7 @@
     ";(?# Generalize files app paths           )^(/pun/sys/(?:dashboard/)?files/(?:(?:api/[^/]+/)?fs/)?).*;": "$1[path]",
     ";(?# Generalize active jobs params        )^(/pun/sys/(?:dashboard/)?activejobs(?:/|/delete_job|/json)?\\?).*;": "$1[params]",
     ";(?# Generalize job composer workflow IDs )^(/pun/sys/myjobs/workflows/)\\d+(/?.*);": "$1[id]$2",
+    ";(?# Generalize job composer paths        )^(/pun/sys/myjobs/templates/(new|delete)\\?path=).+;": "$1[path]",
     ";(?# Generalize Jupyter login params      )^/node/[^/]+/[^/]+(/login\\?).*;": "/node/[host]/[port]$1[params]",
     ";(?# Generalize Jupyter settings          )^/node/[^/]+/[^/]+(/lab/api/settings/@jupyter(?:-notebook|lab)/).+;": "/node/[host]/[port]$1[setting]",
     ";(?# Generalize Jupyter contents paths    )^/node/[^/]+/[^/]+(/api/contents)(/|\\?).*;": "/node/[host]/[port]$1[/path][?params]",
