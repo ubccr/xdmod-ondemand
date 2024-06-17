@@ -36,7 +36,7 @@
             "s.request_path != '/pun/sys/'",
             "s.request_path REGEXP '^/(pun|r?node)/.+'",
             "s.request_path NOT LIKE '/pun/sys/dashboard/apps/icon/%'",
-            "(s.request_path NOT REGEXP '\\\\.(aff|css|dic|gif|ico|jpeg|jpg|js|json|map|mp3|oga|ogg|otf|png|rstheme|svg|ttf|wasm|woff|woff2)(\\\\?.*)?$' OR s.request_path REGEXP '^/pun/sys/dashboard/files/(api/[^/]+/)?(edit|fs)/.+' OR s.request_path LIKE '/pun/sys/files/fs/%' OR s.request_path LIKE '/pun/sys/file-editor/edit/%')"
+            "(s.request_path NOT REGEXP '\\\\.(aff|css|dic|eot|gif|ico|jpeg|jpg|js|json|map|mp3|oga|ogg|otf|png|rstheme|svg|ttf|wasm|woff|woff2)(\\\\?.*)?$' OR s.request_path REGEXP '^/pun/sys/dashboard/files/(api/[^/]+/)?(edit|fs)/.+' OR s.request_path LIKE '/pun/sys/files/fs/%' OR s.request_path LIKE '/pun/sys/file-editor/edit/%')"
         ]
     },
     "destination_record_map": {
