@@ -258,8 +258,7 @@ Get the list of all apps so you can get the IDs of the app whose ID you want
 to change and the ID of the app to which you want to change it.
 
 ```sql
-SELECT *
-FROM modw_ondemand.app;
+SELECT * FROM modw_ondemand.app;
 ```
 
 Set some variables that will be used in subsequent statements. Set
