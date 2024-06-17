@@ -295,10 +295,10 @@ modw_ondemand.request_path AS rp READ,
 modw_ondemand.app AS a READ;
 ```
 
-Change the app ID from old to new:
+Change the app ID from old to new, ignoring any rows that are now duplicates:
 
 ```sql
-UPDATE modw_ondemand.page_impressions AS p
+UPDATE IGNORE modw_ondemand.page_impressions AS p
 JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
 SET p.app_id = @new_app_id
 WHERE p.app_id = @old_app_id
@@ -313,6 +313,39 @@ FROM modw_ondemand.page_impressions AS p
 JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
 JOIN modw_ondemand.app AS a ON a.id = p.app_id
 WHERE p.app_id = @new_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Select any rows that are duplicates:
+
+```sql
+SELECT *
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+And delete those:
+
+```sql
+DELETE p
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Confirm there is now an empty set of duplicates:
+
+```sql
+SELECT *
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
