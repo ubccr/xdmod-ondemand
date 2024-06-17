@@ -27,6 +27,7 @@
     ";(?# Generalize VS Code login/logout params    )^/rnode/[^/]+/[^/]+(/log(?:in|out)\\?).*;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize TensorBoard image params       )^/rnode/[^/]+/[^/]+(/proxy/)[^/]+(/data/plugin/(?:images/images|images/individualImage|timeseries/imageData)\\?).+;": "/rnode/[host]/[port]$1[id]$2[params]",
     ";(?# Generalize TensorBoard image params       )^/rnode/[^/]+/[^/]+(/data/plugin/(?:images/images|images/individualImage|timeseries/imageData)\\?).+;": "/rnode/[host]/[port]$1[params]",
+    ";(?# Generalize TensorBoard pinned cards       )^/rnode/[^/]+/[^/]+(/\\?pinnedCards=).+;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize VNC Desktop params             )^/rnode/[^/]+/[^/]+(/vnc.html\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?#                                           )^/rnode/[^/]+/[^/]+(/file_show\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?#                                           )^/rnode/[^/]+/[^/]+(/graphics/plot_zoom(?:_png)?\\?).+;": "/rnode/[host]/[port]$1[params]",
