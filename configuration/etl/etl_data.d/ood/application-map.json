@@ -1,5 +1,5 @@
 {
-    ";^/node/[^/]+/[^/]+/(api|doc|edit|files|ipyparallel|nbconvert|notebooks|lab|login|logout|lsp|metrics|panel-preview|terminals|tree)(/|\\?|$).*;": "jupyter (reverse proxy server)",
+    ";^/node/[^/]+/[^/]+/(api|doc|edit|files|ipyparallel|nbconvert|notebooks|lab|login|logout|lsp|metrics|panel-preview|server-proxy/servers-info|terminals|tree)(/|\\?|$).*;": "jupyter (reverse proxy server)",
     ";^/pun/sys/dashb%E2%80%A6;": "sys/dashboard",
     ";^/pun/sys/dashboard/activejobs/?.*;": "sys/activejobs",
     ";^/pun/sys/dashboard/batch_connect/sys/bc_osc_abaqus_v2;": "sys/abaqus_cae",
