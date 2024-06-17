@@ -285,8 +285,9 @@ WHERE p.app_id = @old_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
-Set locks for the tables you will be modifying, so that the automatic ingestion
-pipeline does not try to modify the tables at the same time you are:
+If the list is correct, set locks for the tables you will be modifying, so that
+the automatic ingestion pipeline does not try to modify the tables at the same
+time you are:
 
 ```sql
 LOCK TABLES
@@ -295,7 +296,7 @@ modw_ondemand.request_path AS rp READ,
 modw_ondemand.app AS a READ;
 ```
 
-If the list is correct, change the app ID from old to new:
+Change the app ID from old to new:
 
 ```sql
 UPDATE modw_ondemand.page_impressions AS p
