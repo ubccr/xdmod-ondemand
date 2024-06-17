@@ -180,7 +180,8 @@ DROP TABLE modw_ondemand.tmp_request_path_updates;
 ```
 
 Mark all the page impressions that have the general form as being modified
-so they can be reaggregated later:
+so they can be reaggregated later, since some may not have been modified
+because they were duplicates of ones that were deleted:
 
 ```sql
 UPDATE modw_ondemand.page_impressions
@@ -346,6 +347,17 @@ FROM modw_ondemand.page_impressions AS p
 JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
 JOIN modw_ondemand.app AS a ON a.id = p.app_id
 WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Mark all the page impressions whose request path has the general form as being
+modified so they can be reaggregated later, since some may not have been
+modified because they were duplicates of ones that were deleted:
+
+```sql
+UPDATE modw_ondemand.page_impressions
+SET last_modified = CURRENT_TIMESTAMP()
+WHERE p.app_id = @new_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
