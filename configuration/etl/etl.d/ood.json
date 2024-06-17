@@ -84,14 +84,34 @@
         },
         {
             "name": "normalize-staging",
-            "description": "Filter and normalized staged data",
+            "description": "Filter and normalize staged data",
             "class": "RegexTransformIngestor",
             "truncate_destination": true,
             "regex_column": {
-                "referer_path": "app"
+                "app": "request_path",
+                "request_path": "request_path",
+                "reverse_proxy_host": "request_path",
+                "reverse_proxy_port": "request_path"
             },
             "regex_config": {
-                "$include": "etl_data.d/ood/application_map.json"
+                "app": {
+                    "$ref-with-fallback": [
+                        "etl_data.d/ood/application-map.d/${OOD_RESOURCE_CODE}.json",
+                        "etl_data.d/ood/application-map.json"
+                    ]
+                },
+                "request_path": {
+                    "$ref-with-fallback": [
+                        "etl_data.d/ood/request-path-filter.d/${OOD_RESOURCE_CODE}.json",
+                        "etl_data.d/ood/request-path-filter.json"
+                    ]
+                },
+                "reverse_proxy_host": {
+                    ";^/r?node/([^/]+)/.*;": "$1"
+                },
+                "reverse_proxy_port": {
+                    ";^/r?node/[^/]+/([^/]+)/.*;": "$1"
+                }
             },
             "definition_file": "ood/normalized.json",
             "hide_sql_warning_codes": [

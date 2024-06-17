@@ -4,20 +4,27 @@
 3. The OnDemand resource has been [added](configuration.md#resource-setup)
 4. The `portal_settings.d/ondemand.ini` configuration file [edited as needed](configuration.md#configuration-file)
 
-## Shred, Ingest, Aggregate
+## Ingest and Aggregate
 
-The OnDemand weblog ingestion pipeline requires three parameters:
+The OnDemand weblog ingestion pipeline requires two parameters:
 
 | Parameter Name | Description
 | -------------- | -----------
 | `-r` or `--resource` | Must be set to the name of the resource when it was added to XDMoD in the `xdmod-setup` command. |
-| `-u` or `--url` | Must be set to the hostname of the ondemand instance exactly as it appears in the server logs. This includes the `https://` parts and any port numbers but do not include the trailing forward slash. |
 | `-d` or `--dir` | Set to the path to a directory containing webserver log files from the Open OnDemand server. The ingestor will process all files in this directory that have the suffix `.log` or `.log.X` where X is a number |
 
 
 The pipeline should be run as the `xdmod` user as follows:
 
-    xdmod-ondemand-ingestor -d /path/to/ood_server_logs -r [resource] -u [ondemand hostname]
+    xdmod-ondemand-ingestor -d /path/to/ood_server_logs -r [resource]
+
+The ingestion and aggregation pipelines can also be run independently of each other. To run only the ingestion pipeline, include the `-i` or `--ingest` parameter, e.g.:
+
+    xdmod-ondemand-ingestor -d /path/to/ood_server_logs -r [resource] -i
+
+The run only the aggregation pipeline, include the `-a` or `--aggregate` parameter along with the `-m` or `--last-modified-start-date` parameter. In this case the `-d` and `-r` parameters will be ignored. E.g.:
+
+    xdmod-ondemand-ingestor -a -m '2024-01-01 00:00:00'
 
 ### Hints
 

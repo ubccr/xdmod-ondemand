@@ -7,8 +7,11 @@
     "source_query": {
         "records": {
             "log_time_ts": "log_time_ts",
-            "referer_path": "SUBSTRING(s.header_referer, LENGTH('${OOD_HOSTNAME}/pun/'))",
-            "app": -1,
+            "request_path": "s.request_path",
+            "request_method": "s.request_method",
+            "reverse_proxy_host": -1,
+            "reverse_proxy_port": -1,
+            "app": "'Unknown'",
             "user": "s.user",
             "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
             "state": "CASE WHEN s.state = '' THEN 'NA' ELSE s.state END",
@@ -23,15 +26,27 @@
                 "alias": "s"
             }
         ],
+        "#": "Only include lines that are from authenticated users and",
+        "#": "are requests for interactive apps or reverse proxy servers,",
+        "#": "and exclude requests for app icons, images, stylesheets,",
+        "#": "scripts, datafiles, etc., unless they are being loaded from the",
+        "#": "Files or File Editor apps.",
         "where": [
             "s.user != '-'",
-            "s.header_referer LIKE '${OOD_HOSTNAME}/pun/%'"
+            "s.request_path != '/pun/sys/'",
+            "s.request_path REGEXP '^/(pun|r?node)/.+'",
+            "s.request_path NOT LIKE '/pun/sys/dashboard/apps/icon/%'",
+            "(s.request_path NOT REGEXP '\\\\.(aff|css|dic|gif|ico|jpg|js|json|map|mp3|oga|ogg|otf|png|rstheme|svg|ttf|wasm|woff|woff2)(\\\\?.*)?$' OR s.request_path REGEXP '^/pun/sys/dashboard/files/(api/[^/]+/)?(edit|fs)/.+' OR s.request_path LIKE '/pun/sys/files/fs/%' OR s.request_path LIKE '/pun/sys/file-editor/edit/%')"
         ]
     },
     "destination_record_map": {
         "normalized": {
             "log_time_ts": "log_time_ts",
             "user": "user",
+            "request_path": "request_path",
+            "request_method": "request_method",
+            "reverse_proxy_host": "reverse_proxy_host",
+            "reverse_proxy_port": "reverse_proxy_port",
             "app": "app",
             "city": "city",
             "state": "state",

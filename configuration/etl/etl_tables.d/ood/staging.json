@@ -21,8 +21,13 @@
                 "nullable": false
             },
             {
-                "name": "header_referer",
-                "type": "varchar(255)",
+                "name": "request_method",
+                "type": "varchar(8)",
+                "nullable": false
+            },
+            {
+                "name": "request_path",
+                "type": "varchar(511)",
                 "nullable": false
             },
             {

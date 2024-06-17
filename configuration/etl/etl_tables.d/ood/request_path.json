@@ -1,0 +1,36 @@
+{
+    "table_definition": {
+        "name": "request_path",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "extra": "auto_increment",
+                "nullable": false
+            },
+            {
+                "name": "path",
+                "type": "varchar(255)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ]
+            },
+            {
+                "name": "UNIQ",
+                "columns": [
+                    "path"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}

@@ -1,6 +1,18 @@
 {
     "table_definition": [
         {
+            "$ref": "${table_definition_dir}/ood/request_path.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/request_method.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/reverse_proxy_host.json#/table_definition"
+        },
+        {
+            "$ref": "${table_definition_dir}/ood/reverse_proxy_port.json#/table_definition"
+        },
+        {
             "$ref": "${table_definition_dir}/ood/app.json#/table_definition"
         },
         {
@@ -18,12 +30,16 @@
     ],
     "source_query": {
         "records": {
+            "request_path": "n.request_path",
+            "request_method": "n.request_method",
+            "reverse_proxy_host": "n.reverse_proxy_host",
+            "reverse_proxy_port": "n.reverse_proxy_port",
             "app": "n.app",
             "user": "n.user",
             "city": "n.city",
             "state": "n.state",
             "country": "n.country",
-            "location_name": "CASE WHEN n.country = 'unknown' AND n.state = 'unknown' AND n.country = 'unknown' THEN 'Unknown' ELSE CONCAT_WS(', ', n.city, n.state, n.country) END",
+            "location_name": "CASE WHEN n.city = 'NA' AND n.state = 'NA' AND n.country = 'NA' THEN 'Unknown' ELSE CONCAT_WS(', ', n.city, n.state, n.country) END",
             "location_order_id": "-1",
             "ua_family": "n.ua_family",
             "ua_os_family": "n.ua_os_family"
@@ -37,6 +53,18 @@
         ]
     },
     "destination_record_map": {
+        "request_path": {
+            "path": "request_path"
+        },
+        "request_method": {
+            "method": "request_method"
+        },
+        "reverse_proxy_host": {
+            "name": "reverse_proxy_host"
+        },
+        "reverse_proxy_port": {
+            "port": "reverse_proxy_port"
+        },
         "app": {
             "app_path": "app"
         },
