@@ -30,7 +30,7 @@
     ";(?# Generalize TensorBoard pinned cards       )^/rnode/[^/]+/[^/]+(/\\?pinnedCards=).+;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize VNC Desktop params             )^/rnode/[^/]+/[^/]+(/vnc.html\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize RStudio                        )^/rnode/[^/]+/[^/]+(/file_show\\?).+;": "/rnode/[host]/[port]$1[params]",
-    ";(?#                                           )^/rnode/[^/]+/[^/]+(/graphics/plot_zoom(?:_png)?\\?).+;": "/rnode/[host]/[port]$1[params]",
+    ";(?# Generalize RStudio                        )^/rnode/[^/]+/[^/]+(/graphics/plot_zoom(?:_png)?\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?# Generalize RStudio                        )^/rnode/[^/]+/[^/]+(/grid_resource/gridviewer.html\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?#                                           )^/rnode/[^/]+/[^/]+(/vscode-remote-resource\\?).+;": "/rnode/[host]/[port]$1[params]",
     ";(?#                                           )^/rnode/[^/]+/[^/]+(/webview/index.html\\?).+;": "/rnode/[host]/[port]$1[params]",

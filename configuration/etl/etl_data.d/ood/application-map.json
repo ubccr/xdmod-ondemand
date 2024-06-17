@@ -53,7 +53,7 @@
     ";^/pun/sys/vncsim/usr/([^/]+)/([^/]+).*;": "usr/$1/$2",
     ";^/pun/sys/([^/^?]+).*$;": "sys/$1",
     ";^/pun/usr/([^/]+)/([^/]+).*;": "usr/$1/$2",
-    ";^/rnode/[^/]+/[^/]+/(auth-do-sign-in|auth-sign-in|auth-sign-out|auth-update-credentials|events|file_show|grid_data|grid_resource/gridviewer.html|help|log/log_exception|meta|p/[^/]+/terminal|rpc|session/viewhtml[^/]+/index.html)(/|\\?|$).*;": "RStudio (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/(auth-do-sign-in|auth-sign-in|auth-sign-out|auth-update-credentials|events|file_show|graphics/plot_zoom(?:_png)?|grid_data|grid_resource/gridviewer.html|help|log/log_exception|meta|p/[^/]+/terminal|rpc|session/viewhtml[^/]+/index.html)(/|\\?|$).*;": "RStudio (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/(\\?ew=true|\\?(folder|workspace)=|login\\?(folder|to)=|mint-key|stable-|update/check).*;": "VS Code (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/proxy/[^/]+/\\?vscodeBrowserReqId=.+;": "VS Code (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/(proxy/[^/]+/)?(data|experiment)/.*;": "TensorBoard (reverse proxy server)",
