@@ -55,8 +55,8 @@
     ";^/pun/usr/([^/]+)/([^/]+).*;": "usr/$1/$2",
     ";^/rnode/[^/]+/[^/]+/(auth-do-sign-in|auth-sign-in|auth-sign-out|auth-update-credentials|events|help|meta|p/[^/]+/terminal|rpc)(/|\\?|$).*;": "RStudio (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/(\\?(folder|workspace)=|login\\?(folder|to)=|mint-key|stable-|update/check).*;": "code-server (reverse proxy server)",
-    ";^/rnode/[^/]+/[^/]+/(proxy/[^/]+/)?(data|experiment)/.*;": "tensorboard (reverse proxy server)",
-    ";^/rnode/[^/]+/[^/]+/\\?pinnedCards=.+;": "tensorboard (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/(proxy/[^/]+/)?(data|experiment)/.*;": "TensorBoard (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/\\?pinnedCards=.+;": "TensorBoard (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/vnc.html\\?.*;": "Desktop (reverse proxy server)",
     ";^/r?node/.*;": "Unknown"
 }
