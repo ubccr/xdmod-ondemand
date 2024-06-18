@@ -1,5 +1,5 @@
 {
-    ";^/node/[^/]+/[^/]+/(api|doc|edit|files|ipyparallel|nbconvert|notebooks|lab|login|logout|lsp|metrics|panel-preview|terminals|tree)(/|\\?|$).*;": "jupyter (reverse proxy server)",
+    ";^/node/[^/]+/[^/]+/(api|dask/clusters|doc|edit|files|github-markdown-css|ipyparallel|nbconvert|notebooks|lab|login|logout|lsp|metrics|panel-preview(?:/render)?|server-proxy|terminals|tree)(/|\\?|$).*;": "Jupyter (reverse proxy server)",
     ";^/pun/sys/dashb%E2%80%A6;": "sys/dashboard",
     ";^/pun/sys/dashboard/activejobs/?.*;": "sys/activejobs",
     ";^/pun/sys/dashboard/batch_connect/sys/bc_osc_abaqus_v2;": "sys/abaqus_cae",
@@ -53,9 +53,11 @@
     ";^/pun/sys/vncsim/usr/([^/]+)/([^/]+).*;": "usr/$1/$2",
     ";^/pun/sys/([^/^?]+).*$;": "sys/$1",
     ";^/pun/usr/([^/]+)/([^/]+).*;": "usr/$1/$2",
-    ";^/rnode/[^/]+/[^/]+/(auth-do-sign-in|auth-sign-in|auth-update-credentials|events|help|meta|p/[^/]+/terminal|rpc)(/|\\?|$).*;": "RStudio (reverse proxy server)",
-    ";^/rnode/[^/]+/[^/]+/(\\?(folder|workspace)=|login\\?(folder|to)=|mint-key|stable-|update/check).*;": "code-server (reverse proxy server)",
-    ";^/rnode/[^/]+/[^/]+/(proxy/[^/]+/)?(data|experiment)/.*;": "tensorboard (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/(auth-do-sign-in|auth-sign-in|auth-sign-out|auth-update-credentials|events|file_show|graphics/plot_zoom(?:_png)?|grid_data|grid_resource/gridviewer.html|help|log/log_exception|meta|p/[^/]+/terminal|rpc|session/viewhtml[^/]+/index.html)(/|\\?|$).*;": "RStudio (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/(\\?ew=true|\\?(folder|workspace)=|login\\?(folder|to)=|mint-key|\\?reconnectionToken=|stable-|update/check|vscode-remote-resource|webview/(?:index|fake).html\\?).*;": "VS Code (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/proxy/[^/]+/\\?vscodeBrowserReqId=.+;": "VS Code (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/(proxy/[^/]+/)?(data|experiment)/.*;": "TensorBoard (reverse proxy server)",
+    ";^/rnode/[^/]+/[^/]+/\\?(.*darkMode|pinnedCards|.*tagFilter)=.+;": "TensorBoard (reverse proxy server)",
     ";^/rnode/[^/]+/[^/]+/vnc.html\\?.*;": "Desktop (reverse proxy server)",
     ";^/r?node/.*;": "Unknown"
 }

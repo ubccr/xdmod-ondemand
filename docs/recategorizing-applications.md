@@ -180,7 +180,8 @@ DROP TABLE modw_ondemand.tmp_request_path_updates;
 ```
 
 Mark all the page impressions that have the general form as being modified
-so they can be reaggregated later:
+so they can be reaggregated later, since some may not have been modified
+because they were duplicates of ones that were deleted:
 
 ```sql
 UPDATE modw_ondemand.page_impressions
@@ -258,8 +259,7 @@ Get the list of all apps so you can get the IDs of the app whose ID you want
 to change and the ID of the app to which you want to change it.
 
 ```sql
-SELECT *
-FROM modw_ondemand.app;
+SELECT * FROM modw_ondemand.app;
 ```
 
 Set some variables that will be used in subsequent statements. Set
@@ -280,26 +280,85 @@ Get the list of page impressions that will be changed:
 SELECT *
 FROM modw_ondemand.page_impressions AS p
 JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
 WHERE p.app_id = @old_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
-Set locks for the tables you will be modifying, so that the automatic ingestion
-pipeline does not try to modify the tables at the same time you are:
+If the list is correct, set locks for the tables you will be modifying, so that
+the automatic ingestion pipeline does not try to modify the tables at the same
+time you are:
 
 ```sql
 LOCK TABLES
 modw_ondemand.page_impressions AS p WRITE,
-modw_ondemand.request_path AS rp READ;
+modw_ondemand.request_path AS rp READ,
+modw_ondemand.app AS a READ;
 ```
 
-If the list is correct, change the app ID from old to new:
+Change the app ID from old to new, ignoring any rows that are now duplicates:
+
+```sql
+UPDATE IGNORE modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+SET p.app_id = @new_app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Confirm it worked:
+
+```sql
+SELECT *
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @new_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Select any rows that are duplicates:
+
+```sql
+SELECT *
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+And delete those:
+
+```sql
+DELETE p
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Confirm there is now an empty set of duplicates:
+
+```sql
+SELECT *
+FROM modw_ondemand.page_impressions AS p
+JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+JOIN modw_ondemand.app AS a ON a.id = p.app_id
+WHERE p.app_id = @old_app_id
+AND rp.path REGEXP @request_path_filter;
+```
+
+Mark all the page impressions whose request path has the general form as being
+modified so they can be reaggregated later, since some may not have been
+modified because they were duplicates of ones that were deleted:
 
 ```sql
 UPDATE modw_ondemand.page_impressions AS p
 JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
-SET p.app_id = @new_app_id
-WHERE p.app_id = @old_app_id
+SET last_modified = CURRENT_TIMESTAMP()
+WHERE p.app_id = @new_app_id
 AND rp.path REGEXP @request_path_filter;
 ```
 
@@ -317,6 +376,6 @@ after the value for `CURRENT_TIMESTAMP()` that you obtained above (replace
 `'2024-05-09 14:10:33'` in the example below):
 
 ```sh
-xdmod-ondemand-ingestor -a -m '2024-05-09 14:10:33'
+$ xdmod-ondemand-ingestor -a -m '2024-05-09 14:10:33'
 ```
 
