@@ -3,8 +3,8 @@
 
 set -e
 
-tags="v10.5.0-1.0 v10.0.0 v9.5.0"
-latest="v10.5.0-1.0"
+tags="v11.0.0-1.0 v10.5.0-1.0 v10.0.0 v9.5.0"
+latest="v11.0.0-1.0"
 
 SED=sed
 if command -v gsed > /dev/null;
