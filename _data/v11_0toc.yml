@@ -1,0 +1,27 @@
+toc:
+  - title: About
+    subfolderitems:
+      - page: Overview
+        url: /11.0/overview.html
+  - title: Download
+    subfolderitems:
+      - page: Open OnDemand module
+        url: https://github.com/ubccr/xdmod-ondemand/releases/latest
+  - title: Installing
+    subfolderitems:
+      - page: Software Requirements
+        url: /11.0/requirements.html
+      - page: Installation Guide
+        url: /11.0/install.html
+      - page: Configuration Guide
+        url: /11.0/configuration.html
+  - title: Using
+    subfolderitems:
+      - page: Ingestion and Aggregation
+        url: /11.0/ingestion-aggregation.html
+      - page: Recategorizing Applications
+        url: /11.0/recategorizing-applications.html
+  - title: Help
+    subfolderitems:
+      - page: FAQ
+        url: /11.0/faq.html
