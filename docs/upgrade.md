@@ -93,14 +93,13 @@ version).
 
 ### Exclusion of non page impressions
 
-Prior to 11.0.0, requests for app icons, images, stylesheets, scripts,
-datafiles, etc., were counted as page impressions. In 11.0.0, such requests are
-excluded unless they are being loaded from the Files or File Editor
-applications. Requests are only ingested if the request path starts with
-`/pun/`, `/node/`, or `/rnode/`; the request is from an authenticated user
-(i.e., not `"-"`); and the request is not for one of the excluded file
-extensions from the list below (this is defined in the configuration file
-`etl/etl_action_defs.d/ood/normalized.json`).
+In 11.0.0, requests for app icons, images, stylesheets, scripts, datafiles,
+etc., are not counted as page impressions unless they were being loaded from
+the OnDemand "Files" or "File Editor" applications. Requests are only ingested
+if the request path starts with `/pun/`, `/node/`, or `/rnode/`; the request is
+from an authenticated user (i.e., not `"-"`); and the request is not for one of
+the excluded file extensions from the list below (this is defined in the
+configuration file `etl/etl_action_defs.d/ood/normalized.json`).
 
 ```
 aff, css, dic, gif, ico, jpg, js, json, map, mp3, oga, ogg, otf, png, rstheme, svg, ttf, wasm, woff, woff2
