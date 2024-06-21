@@ -94,7 +94,7 @@ version).
 ### Exclusion of non page impressions
 
 In 11.0.0, requests for app icons, images, stylesheets, scripts, datafiles,
-etc., are not counted as page impressions unless they were being loaded from
+etc. are not counted as page impressions unless they were being loaded from
 the OnDemand "Files" or "File Editor" applications. Requests are only ingested
 if the request path starts with `/pun/`, `/node/`, or `/rnode/`; the request is
 from an authenticated user (i.e., not `"-"`); and the request is not for one of
