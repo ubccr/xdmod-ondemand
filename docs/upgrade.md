@@ -110,9 +110,9 @@ aff, css, dic, gif, ico, jpg, js, json, map, mp3, oga, ogg, otf, png, rstheme, s
 Prior to 11.0.0, some applications were given a name with `(sys/ihpc)` at the
 end. `iHPC` is an old name for interactive OnDemand apps; this name is no
 longer used. In 11.0.0, page impressions that are ingested will no longer have
-`(sys/ihpc)` in their application names. Application names for page impressions
-that have already been ingested can be changed by updating the
-`modw_ondemand.app` database table.
+`(sys/ihpc)` in their application names. Applications for page impressions
+that have already been ingested can be recategorized as explained on
+[this page](recategorizing-applications.md).
 
 ### Speeding up person lookup
 
