@@ -124,6 +124,11 @@ this, but rather than doing so for all unknown people in the table, it only
 does it for the page impressions that were ingested during the current run of
 `xdmod-ondemand-ingestor`. This speeds up the overall ingestion.
 
+### Allowing `@` in usernames
+
+The `xdmod-ondemand-ingestor` now allows the `@` character to appear in
+ingested usernames.
+
 ### Configuration File Changes
 
 The upgrade renames `etl/etl_data.d/ood/application_map.json` to
