@@ -51,10 +51,10 @@ instructions for how to recategorize them, see
 [this page](recategorizing-applications.md).
 
 In order to enable parsing of the request path (and the request method, which
-does not currently appear in the XDMoD portal but is used for deduplication and
-may appear in the future), the `webserver_format_str` defined in
-`portal_settings.d/ondemand.ini` must include either `%r` or both of `%m` and
-`%U`.
+is not currently displayed in the XDMoD portal but is used for deduplication
+and may be displayed in a future version), the `webserver_format_str` defined
+in `portal_settings.d/ondemand.ini` must include either `%r` or both of `%m`
+and `%U`.
 
 11.0.0 also changes the criteria used for deduplicating page impressions. Prior
 to 11.0.0, only the request time, user, and application were used. In 11.0.0,
@@ -88,7 +88,8 @@ Jupyter notebook servers, RStudio servers, VNC servers, etc. (details
 Prior to Open XDMoD 11.0.0, such requests were not counted in XDMoD. In 11.0.0,
 such requests are now counted, and the reverse proxy host and port are
 preserved in the `modw_ondemand.page_impressions` table (but the host and port
-are not currently displayed in the XDMoD portal).
+are not currently displayed in the XDMoD portal; they may be in a future
+version).
 
 ### Exclusion of non page impressions
 
