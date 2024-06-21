@@ -38,9 +38,9 @@ this line is indicated by the request path,
 would be the `sys/jupyter` application.
 
 In version 11.0.0, the request path is now used to determine which application
-was being requested, which changes how page loads, sessions, and applications
-are counted. These changes will apply to any newly ingested log files, but not
-to previously ingested log files. If you wish to apply these changes to old
+was being requested. This changes how page loads, sessions, and applications
+are counted. The changes will apply to any newly ingested log files, but not
+to previously ingested log files. If you wish to apply the changes to old
 logs that were ingested prior to 11.0.0, you will need to back up the
 `modw_ondemand.page_impressions` database table (e.g., using `mysqldump`),
 delete the old logs from the `modw_ondemand.page_impressions` table, reingest
