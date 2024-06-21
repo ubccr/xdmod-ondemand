@@ -87,12 +87,12 @@ are not currently displayed in the XDMoD portal).
 ### Exclusion of non page impressions
 
 Prior to 11.0.0, requests for app icons, images, stylesheets, scripts,
-datafiles, etc., were counted as page impressions. In 11.0.0 such requests are
+datafiles, etc., were counted as page impressions. In 11.0.0, such requests are
 excluded unless they are being loaded from the Files or File Editor
 applications. Requests are only ingested if the request path starts with
 `/pun/`, `/node/`, or `/rnode/`; the request is from an authenticated user
 (i.e., not `"-"`); and the request is not for one of the excluded file
-extensions from the list below (as defined in the configuration file
+extensions from the list below (this is defined in the configuration file
 `etl/etl_action_defs.d/ood/normalized.json`).
 
 ```
@@ -133,8 +133,8 @@ During the upgrade, the `modw_ondemand.staging` table will have its
 The `modw_ondemand.normalized` table will be truncated during the upgrade. It
 will also receive new columns for `id` (which is now its primary key),
 `request_path`, `request_method`, `reverse_proxy_host`, and
-`reverse_proxy_port`. Its unique index is updated to no longer include `app`
-and to include `request_path`, `request_method`, `ua_family`, and
+`reverse_proxy_port`. Its unique index will be updated to no longer include
+`app` and to include `request_path`, `request_method`, `ua_family`, and
 `ua_os_family`. In order to fit the new index, the `ua_family` and
 `ua_os_family` columns are downsized from `VARCHAR(255)` to `VARCHAR(32)`.
 
