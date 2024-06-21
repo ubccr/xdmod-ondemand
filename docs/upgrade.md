@@ -50,6 +50,12 @@ For more information on how applications are categorized, including
 instructions for how to recategorize them, see
 [this page](recategorizing-applications.md).
 
+In order to enable parsing of the request path (and the request method, which
+does not currently appear in the XDMoD portal but is used for deduplication and
+may appear in the future), the `webserver_format_str` defined in
+`portal_settings.d/ondemand.ini` must include either `%r` or both of `%m` and
+`%U`.
+
 11.0.0 also changes the criteria used for deduplicating page impressions. Prior
 to 11.0.0, only the request time, user, and application were used. In 11.0.0,
 the resource, request path, request method, reverse proxy host and port (if
