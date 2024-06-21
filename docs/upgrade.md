@@ -17,7 +17,7 @@ Additional 11.0.0 Upgrade Notes
 Open XDMoD 11.0.0 fundamentally changes how page loads, sessions, and
 applications are counted and categorized.
 
-### Request path instead of Referer header
+### Using request path instead of Referer header
 
 In previous versions, during ingestion of the Open
 OnDemand web server logs, the Referer header of each line was used to determine
@@ -28,20 +28,20 @@ following line from a web server log file:
 127.0.0.1 - sfoster [21/Feb/2024:22:30:56 +0000] "GET /pun/sys/dashboard/batch_connect/sys/jupyter/session_contexts/new HTTP/1.1" 200 13058 "https://resource.example.com/pun/sys/dashboard" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 ```
 
-the Referer header is
-`https://localhost:3443/pun/sys/dashboard`, so in previous versions of Open
-XDMoD, this would be counted as a request for the `sys/dashboard` application.
-However, the Referer header actually indicates from which page the request
-originated, not the page that is actually being requested. The actual
-application being requested on this line is indicated by the request path,
+In this example, the Referer header is
+`https://localhost:3443/pun/sys/dashboard`, so prior to 11.0.0, this would be
+counted as a request for the `sys/dashboard` application. However, the Referer
+header actually indicates from which page the request originated, not the page
+that is actually being requested. The actual application being requested on
+this line is indicated by the request path,
 `/pun/sys/dashboard/batch_connect/sys/jupyter/session_contexts/new`, which
 would be the `sys/jupyter` application.
 
 In version 11.0.0, the request path is now used to determine which application
 was being requested, which changes how page loads, sessions, and applications
-are counted. This change will apply to any newly ingested log files, but not to
-previously ingested log files. If you wish to apply this change to old logs
-that were ingested prior to 11.0.0, you will need to back up the
+are counted. These changes will apply to any newly ingested log files, but not
+to previously ingested log files. If you wish to apply these changes to old
+logs that were ingested prior to 11.0.0, you will need to back up the
 `modw_ondemand.page_impressions` database table (e.g., using `mysqldump`),
 delete the old logs from the `modw_ondemand.page_impressions` table, reingest
 the original web server log files, and reaggregate.
@@ -61,7 +61,7 @@ are also used to deduplicate page impressions.
 Prior to 11.0.0, logs would only be ingested if the Referer header matched the
 value of the `-u` or `--url` option to `xdmod-ondemand-ingestor`. For example,
 if the Referer header were `https://resource.example.com/pun/sys/dashboard`,
-then the ingestor would previously only ingest the line if the `-u
+then the ingestor would only ingest the line if the `-u
 https://resource.example.com` or `--url https://resource.example.com` option
 were passed to `xdmod-ondemand-ingestor`. Now, the Referer header is not used,
 so the `-u` / `--url` option is removed from `xdmod-ondemand-ingestor`. All
@@ -117,16 +117,10 @@ this, but rather than doing so for all unknown people in the table, it only
 does it for the page impressions that were ingested during the current run of
 `xdmod-ondemand-ingestor`. This speeds up the overall ingestion.
 
-### Fixing the `Unknown` location
-
-Prior to 11.0.0, a location name would display as The code used to determine whether a location is considered 'Unknown' was
-mistakenly using the value unknown instead of NA, which is the value set during
-the normalization step.
-
 ### Configuration File Changes
 
-The `etl/etl_data.d/ood/application_map.json` file is renamed to
-`etl/etl_data.d/ood/application-map.json` and updated with additional
+The upgrade renames `etl/etl_data.d/ood/application_map.json` to
+`etl/etl_data.d/ood/application-map.json` and updates it with additional
 application mappings. See [this page](recategorizing-applications.md) for
 information on how to recategorize applications.
 
@@ -144,17 +138,22 @@ and to include `request_path`, `request_method`, `ua_family`, and
 `ua_os_family`. In order to fit the new index, the `ua_family` and
 `ua_os_family` columns are downsized from `VARCHAR(255)` to `VARCHAR(32)`.
 
-The `modw_ondemand.page_impressions` table has its `id` column updated to use
-`bigint(20) unsigned` instead of `int(11)` to be able to accommodate more than
-2,147,483,647 page impressions. It also has columns added for
-`request_path_id`, `request_method_id`, `reverse_proxy_host_id`, and
-`reverse_proxy_port_id`. Its unique index is updated to remove `app_id` and to
-include `resource_id`, `request_path_id`, `request_method_id`,
-`reverse_proxy_host_id`, `reverse_proxy_port_id`, `app_id`, `location_id`,
-`ua_family_id`, and `ua_os_family_id`. Indexes are added to speed up
-aggregation, person lookup, and application recategorization.
+During the upgrade, the `modw_ondemand.page_impressions` table will have its
+`id` column updated to use `bigint(20) unsigned` instead of `int(11)` to be
+able to accommodate more than 2,147,483,647 page impressions. It will also have
+columns added for `request_path_id`, `request_method_id`,
+`reverse_proxy_host_id`, and `reverse_proxy_port_id`. Its unique index will be
+updated to remove `app_id` and to include `resource_id`, `request_path_id`,
+`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port_id`,
+`app_id`, `location_id`, `ua_family_id`, and `ua_os_family_id`. Indexes will be
+added to speed up aggregation, person lookup, and application recategorization.
 
-Tables are added for `modw_ondemand.request_method`,
+If the `modw_ondemand.location` table has a row with `unknown` as its value for
+`city`, `state`, and `country`; and `Unknown` as its value for `name`; the
+upgrade will change the values for `city`, `state`, and `country` to `NA` for
+that row.
+
+The upgrade will add tables for `modw_ondemand.request_method`,
 `modw_ondemand.request_path`, `modw_ondemand.reverse_proxy_host`, and
 `modw_ondemand.reverse_proxy_port`.
 
