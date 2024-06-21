@@ -8,8 +8,8 @@ geolocation database file can also be [installed](requirements.md).
 
 ### Manual configuration
 
-If the database server is located on a different host than the webserver then it is necessary
-to setup the database manually. Otherwise, it can be set up interactively instead per the
+If the database server is located on a different host than the webserver, then it is necessary
+to set up the database manually. Otherwise, it can be set up interactively instead per the
 next section below.
 
 To set up the database manually, create a database schema called `modw_ondemand` and grant permission for the XDMoD database user
