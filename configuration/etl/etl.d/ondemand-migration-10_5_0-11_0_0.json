@@ -18,10 +18,11 @@
     "migration-10_5_0-11_0_0": [
         {
             "name": "resize-normalized-table-columns",
-            "description": "Resize the ua_family and ua_os_family columns before adding the new unique index to avoid SQL error '1071 Specified key was too long'",
+            "description": "Resize the ua_family and ua_os_family columns before adding the new unique index to avoid SQL error '1071 Specified key was too long'. Also replace unknown with NA in location table",
             "class": "ExecuteSql",
             "sql_file_list": [
-                "ood/ondemand-migration-10_5_0-11_0_0-resize-normalized-columns.sql"
+                "ood/ondemand-migration-10_5_0-11_0_0-resize-normalized-columns.sql",
+                "ood/ondemand-migration-10_5_0-11_0_0-replace-unknown-location.sql"
             ]
         },
         {
