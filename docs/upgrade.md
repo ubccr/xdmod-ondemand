@@ -168,4 +168,8 @@ The upgrade will add tables for `modw_ondemand.request_method`,
 `modw_ondemand.request_path`, `modw_ondemand.reverse_proxy_host`, and
 `modw_ondemand.reverse_proxy_port`.
 
+During the upgrade, if the `modw_ondemand.location` table has a row with
+`unknown` as its value for `city`, `state`, and `country`, these will be
+replaced with the value `NA`.
+
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
