@@ -1,6 +1,12 @@
 XDMoD Open OnDemand Module ChangeLog
 =====================
 
+## 2024-XX-XX v11.0.0
+
+- Change how page loads, sessions, and applications are counted and
+  categorized. See the
+  [upgrade guide](https://ondemand.xdmod.org/11.0/upgrade.html) for details.
+
 ## 2023-09-11 v10.5.0
 
 - Add OnDemand usage chart to the dashboard for Center Directors and Center Staff.
