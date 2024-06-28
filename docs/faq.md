@@ -9,12 +9,12 @@ or Center Staff role. Note the admin user account that is created with `xdmod-se
 
 Re-run the `xdmod-ondemand-ingestor` command with the `--debug` flag to show detailed information
 about what it is running. Things to double check:
-- The `webserver_format_str` setting matches the data format in the log files
-- The filenames of the log files end in `.log` or `.log.N` where `N` is a number
+- The `webserver_format_str` setting matches the data format in the log files.
+- The filenames of the log files end in `.log` or `.log.N` where `N` is a number.
 
 ## The xdmod-ondemand-ingestor command fails with out of memory error
 
-If the memory usage of the `xdmod-ondemand-ingestor` command reaches the php memory limit
+If the memory usage of the `xdmod-ondemand-ingestor` command reaches the PHP memory limit
 then it will exit with an error message similar to the one shown below
 ```
 PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 86 bytes) in /usr/share/xdmod/vendor/kassner/log-parser/src/Kassner/LogParser/LogParser.php on line 113
@@ -23,4 +23,4 @@ PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to all
 This memory error is caused because the `xdmod-ondemand-ingestor` command loads all records in a
 log file into memory before loading into the database. This error can be mitigated by either
 splitting the log file into multiple smaller files (described in the [Hints](ingestion-aggregation.md#hints)) or
-by increasing the php memory limit setting.
+by increasing the PHP memory limit setting.
