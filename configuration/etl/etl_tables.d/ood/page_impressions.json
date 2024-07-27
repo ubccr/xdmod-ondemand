@@ -115,7 +115,13 @@
                 "is_unique": true
             },
             {
-                "name": "agg_and_person_lookup",
+                "name": "aggregation",
+                "columns": [
+                    "log_day_id"
+                ]
+            },
+            {
+                "name": "person_lookup",
                 "columns": [
                     "last_modified",
                     "person_id",
