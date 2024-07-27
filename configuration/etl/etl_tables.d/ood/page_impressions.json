@@ -121,7 +121,7 @@
                 ]
             },
             {
-                "name": "person_lookup",
+                "name": "agg_and_person_lookup",
                 "columns": [
                     "last_modified",
                     "person_id",
