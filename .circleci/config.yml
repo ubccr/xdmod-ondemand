@@ -6,9 +6,6 @@ executors:
   rocky8-upgrade: &rocky8-upgrade-executor
     docker:
       - image: tools-ext-01.ccr.xdmod.org/xdmod-ondemand:x86_64-rockylinux8.5-v10.5.0-1.0-01
-  centos7-export-tool: &centos7-export-tool-executor
-    docker:
-      - image: centos:7
   rocky8-export-tool: &rocky8-export-tool-executor
     docker:
       - image: rockylinux:8
@@ -101,14 +98,6 @@ jobs:
     steps:
       - when:
           condition:
-            equal: [ centos7, << parameters.os >> ]
-          steps:
-            - run:
-                # This step is needed to make sure the test artifacts are checked out.
-                name: Install Git
-                command: yum install git -y
-      - when:
-          condition:
             or:
               - equal: [ rocky8, << parameters.os >> ]
               - equal: [ alma8, << parameters.os >> ]
@@ -133,17 +122,6 @@ jobs:
                   apt install git -y
       - checkout
       # Steps below come from https://osc.github.io/ood-documentation/latest/installation/install-software.html
-      - when:
-          condition:
-            equal: [ centos7, << parameters.os >> ]
-          steps:
-            - run:
-                name: Install OnDemand dependencies
-                command: |
-                  yum install centos-release-scl epel-release -y
-            - run:
-                name: Make logs directory in preparation for testing README instructions
-                command: mkdir -p /etc/httpd/logs
       - when:
           condition:
             or:
@@ -172,7 +150,6 @@ jobs:
       - when:
           condition:
             or:
-              - equal: [ centos7, << parameters.os >> ]
               - equal: [ rocky8, << parameters.os >> ]
               - equal: [ alma8, << parameters.os >> ]
               - equal: [ rocky9, << parameters.os >> ]
@@ -257,7 +234,6 @@ workflows:
           matrix:
             parameters:
               os:
-                - centos7
                 - rocky8
                 - alma8
                 - rocky9
