@@ -15,14 +15,53 @@ Additional 11.0.0 Upgrade Notes
 -------------------
 
 Open XDMoD 11.0.0 fundamentally changes how page loads, sessions, and
-applications are counted and categorized.
+applications are counted and categorized, as described in detail in the
+sections below. The changes only apply to newly ingested Open OnDemand web
+server logs after upgrading to 11.0.0. If you have already ingested logs with a
+prior version of Open XDMoD, those logs will not be able to be recounted and
+recategorized using the new methods from 11.0.0 unless you still have copies of
+the original log files, in which case you can delete the corresponding rows
+from the `modw_ondemand.page_impressions` table (see the paragraph below for
+tips on doing this) and reingest and reaggregate the logs (instructions for
+ingesting and aggregating are [here](ingestion-aggregation.md)).
+
+To delete existing ingested logs for which you still have the original log
+files and intend to reingest, it is recommended to follow this procedure:
+1. Find the earliest and latest timestamps in the log files by running this
+Bash loop in the directory containing the log files:
+    ```bash
+    earliest=9999999999;
+    latest=0;
+    while read line; do
+        current=$(date -d "$line" +"%s");
+        if [ $current -lt $earliest ]; then
+            earliest=$current;
+        fi;
+        if [ $current -gt $latest ]; then
+            latest=$current;
+        fi;
+    done < <(cat *.log* | cut -d ']' -f 1 | cut -d '[' -f 2 | sed 's#/#-#g' | sed 's/:/ /');
+    echo -e "Earliest: $earliest\nLatest: $latest"
+    ```
+1. List the page impressions that will be deleted by running this SQL command,
+replacing `:earliest` with the earliest timestamp and `:latest` with the latest
+timestamp obtained in the previous step:
+    ```sql
+    SELECT *
+    FROM modw_ondemand.page_impressions
+    WHERE log_time_ts BETWEEN :earliest AND :latest
+    ```
+1. If that is the correct list of page impressions you want to delete, run the
+same SQL command replacing `SELECT *` with `DELETE`.
+
+The sections below explain the details of the changes in 11.0.0.
 
 ### Using request path instead of Referer header
 
-In previous versions, during ingestion of the Open
-OnDemand web server logs, the Referer header of each line was used to determine
-which application was being requested for that line. For example, in the
-following line from a web server log file:
+In previous versions, during ingestion of the Open OnDemand web server logs,
+the Referer header of each line was used to determine which application was
+being requested for that line. For example, in the following line from a web
+server log file:
 
 ```
 127.0.0.1 - sfoster [21/Feb/2024:22:30:56 +0000] "GET /pun/sys/dashboard/batch_connect/sys/jupyter/session_contexts/new HTTP/1.1" 200 13058 "https://resource.example.com/pun/sys/dashboard" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
