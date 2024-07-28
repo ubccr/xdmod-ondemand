@@ -21,9 +21,11 @@ server logs after upgrading to 11.0.0. If you have already ingested logs with a
 prior version of Open XDMoD, those logs will not be able to be recounted and
 recategorized using the new methods from 11.0.0 unless you still have copies of
 the original log files, in which case you can delete the corresponding rows
-from the `modw_ondemand.page_impressions` table and reingest and reaggregate
-the logs following the instructions below:
+from the `modw_ondemand.page_impressions` database table and reingest and
+reaggregate the logs following the instructions below:
 
+1. Back up the `modw_ondemand.page_impressions` database table (e.g., using
+`mysqldump`).
 1. Run the Bash loop below in the directory containing the log files to find
 the earliest and latest timestamps in the logs:
     ```bash
@@ -73,16 +75,8 @@ header actually indicates from which page the request originated, not the page
 that is actually being requested. The actual application being requested on
 this line is indicated by the request path,
 `/pun/sys/dashboard/batch_connect/sys/jupyter/session_contexts/new`, which
-would be the `sys/jupyter` application.
-
-In version 11.0.0, the request path is now used to determine which application
-was being requested. This changes how page loads, sessions, and applications
-are counted. The changes will apply to any newly ingested log files, but not to
-previously ingested log files. After upgrading, if you wish to apply the
-changes to old logs that were ingested prior to 11.0.0, you will need to back
-up the `modw_ondemand.page_impressions` database table (e.g., using
-`mysqldump`), delete the old logs from the `modw_ondemand.page_impressions`
-table, reingest the original web server log files, and reaggregate.
+would be the `sys/jupyter` application. In version 11.0.0, the request path is
+now used to determine which application was being requested.
 
 For more information on how applications are categorized, including
 instructions for how to recategorize them, see
