@@ -59,7 +59,7 @@ The sections below explain the details of the changes in 11.0.0.
 
 In previous versions, during ingestion of the Open OnDemand web server logs,
 the Referer header of each line was used to determine which application was
-being requested for that line. For example, in the following line from a web
+being requested for that line. For example, take the following line from a web
 server log file:
 
 ```
