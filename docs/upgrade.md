@@ -134,7 +134,7 @@ the excluded file extensions from the list below (this is defined in the
 configuration file `etl/etl_action_defs.d/ood/normalized.json`).
 
 ```
-aff, css, dic, gif, ico, jpg, js, json, map, mp3, oga, ogg, otf, png, rstheme, svg, ttf, wasm, woff, woff2
+aff, css, dic, eot, gif, ico, jpeg, jpg, js, json, map, mp3, oga, ogg, otf, png, rstheme, svg, ttf, wasm, woff, woff2
 ```
 
 ### Removing `ihpc` from application names
