@@ -51,7 +51,7 @@ timestamp obtained in the previous step:
 1. If that is the correct list of page impressions you want to delete, run the
 same SQL command from the previous step, replacing `SELECT *` with `DELETE`.
 1. Reingest and reaggregate the logs following
-[these instructions](ingestion-aggregation.md)).
+[these instructions](ingestion-aggregation.md).
 
 The sections below explain the details of the changes in 11.0.0.
 
