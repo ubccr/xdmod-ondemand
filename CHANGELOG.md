@@ -1,4 +1,4 @@
-XDMoD Open OnDemand Module ChangeLog
+XDMoD Open OnDemand Module Change Log
 =====================
 
 ## 2024-XX-XX v11.0.0
