@@ -40,3 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_docdir}/%{name}-%{version}__PRERELEASE__/
 %{_sysconfdir}/xdmod/
 %{_datadir}/xdmod/
+
+%changelog
+* Wed Sep 11 2024 XDMoD <ccr-xdmod-list@listserv.buffalo.edu> 11.0.0-1.0
+    - Release 11.0.0
