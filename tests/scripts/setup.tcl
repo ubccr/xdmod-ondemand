@@ -32,6 +32,8 @@ selectMenuOption d
 
 answerQuestion {DB Admin Username} root
 providePassword {DB Admin Password:} {}
+answerQuestion {XDMoD Server name} xdmod.xdmod_default
+
 
 provideInput {Do you want to see the output*} {no}
 
