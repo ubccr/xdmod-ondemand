@@ -6,17 +6,15 @@ for setup and install instructions.
 
 ## Source code install
 
-The source package is installed as follows:
+The source package is installed as follows. Change the prefix to match the directory where Open XDMoD is installed.
 
-    $ tar zxvf xdmod-ondemand-{{ page.sw_version }}.tar.gz
-    $ cd xdmod-ondemand-{{ page.sw_version }}
-    # ./install --prefix=/opt/xdmod
-
-Change the prefix as desired. The default installation prefix is `/usr/local/xdmod`. These instructions assume you are installing Open XDMoD in `/opt/xdmod`.
+    # tar zxvf xdmod-ondemand-{{ page.sw_version }}.tar.gz
+    # cd xdmod-ondemand-{{ page.sw_version }}
+    # ./install --prefix=/usr/local/xdmod
 
 ## RPM install
 
-    # yum install xdmod-ondemand-{{ page.sw_version }}-1.0.el7.noarch.rpm
+    # dnf install xdmod-ondemand-{{ page.sw_version }}-1.0.el8.noarch.rpm
 
 ## Next Step
 
