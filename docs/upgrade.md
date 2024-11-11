@@ -219,10 +219,10 @@ are of this form:
 /pun/sys/dashboard/noVNC-[version]/vnc.html?[params]&commit=Launch+[app]
 ```
 
-Previously, these page loads were mapped to the `sys/dashboard` application. In
-this release, they are mapped to the value of `[app]`. For example, a page load
-with a request path having the following form will be mapped to the application
-`Desktop`:
+Previously, these page loads were mapped to the `sys/dashboard` application.
+This release fixes this to map them to the value of `[app]`. For example, a
+page load with a request path that has the following form will be mapped to the
+application `Desktop`:
 
 ```
 /pun/sys/dashboard/noVNC-1.3.0/vnc.html?[params]&commit=Launch+Desktop
@@ -244,7 +244,7 @@ can be run to remap them to the correct applications.
         modw_ondemand.request_path rp READ,
         modw_ondemand.app a READ
     ```
-1. Insert the new rows into the `app` table if they do not already exist.
+1. Insert the new rows into the `app` table if they do not already exist:
     ```SQL
     INSERT INTO modw_ondemand.app (app_path)
     SELECT REPLACE(
@@ -322,10 +322,11 @@ can be run to remap them to the correct applications.
     ```SQL
     UNLOCK TABLES
     ```
-1. Reaggregate the page loads, replacing `[timestamp]` with the timestamp when
-   you started, in the format `YYYY-MM-DD HH:MM:SS`:
+1. Reaggregate the page loads, replacing `YYYY-MM-DD HH:MM:SS` with the
+   timestamp when you started:
+    ```sh
+    xdmod-ondemand-ingestor -a -m '[timestamp]'
     ```
-    $ xdmod-ondemand-ingestor -a -m '[timestamp]'
 
 ### Fix request path filtering of File Editor page impressions
 
