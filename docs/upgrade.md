@@ -11,7 +11,7 @@ page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and source
 packages for the XDMoD OnDemand module are available from
 [GitHub][github-latest-release].
 
-Additional 11.0.0 Upgrade Notes
+11.0.0 Upgrade Notes
 -------------------
 
 Open XDMoD 11.0.0 fundamentally changes how page loads, sessions, and
@@ -203,5 +203,125 @@ The upgrade will add tables for `modw_ondemand.request_method`,
 During the upgrade, if the `modw_ondemand.location` table has a row with
 `unknown` as its value for `city`, `state`, and `country`, these will be
 replaced with the value `NA`.
+
+11.0.1 Upgrade Notes
+-------------------
+
+This release fixes the application mapping of page loads for OnDemand
+applications launched via noVNC, specifically page loads whose request paths
+are of this form:
+
+```
+/pun/sys/dashboard/noVNC-[version]/vnc.html?[params]&commit=Launch+[app]
+```
+
+Previously, these page loads were mapped to the `sys/dashboard` application.
+This release fixes this to map them to the value of `[app]`. For example, a
+page load with a request path that has the following form will be mapped to the
+application `Desktop`:
+
+```
+/pun/sys/dashboard/noVNC-1.3.0/vnc.html?[params]&commit=Launch+Desktop
+```
+
+This new mapping will apply to any new page loads that are ingested into XDMoD.
+For page loads that have already been ingested, the following SQL statements
+can be run to remap them to the correct applications.
+
+1. Make note of the timestamp when you started; this will be used later when
+   reaggregating.
+1. Lock the tables that will be updated:
+    ```SQL
+    LOCK TABLES
+        modw_ondemand.app WRITE,
+        modw_ondemand.request_path READ,
+        modw_ondemand.page_impressions p1 WRITE,
+        modw_ondemand.page_impressions p2 READ,
+        modw_ondemand.request_path rp READ,
+        modw_ondemand.app a READ
+    ```
+1. Insert the new rows into the `app` table if they do not already exist:
+    ```SQL
+    INSERT INTO modw_ondemand.app (app_path)
+    SELECT REPLACE(
+        REPLACE(
+            REPLACE(
+                REPLACE(
+                    REPLACE(
+                        REGEXP_REPLACE(
+                            path,
+                            '.*Launch\\+',
+                            ''
+                        ),
+                        '+',
+                        ' '
+                    ),
+                    '%28',
+                    '('
+                ),
+                '%29',
+                ')'
+            ),
+            '%2B',
+            '+'
+        ),
+        '%2F',
+        '/'
+    )
+    FROM modw_ondemand.request_path
+    WHERE path LIKE '/pun/sys/dashboard/noVNC-%Launch+%'
+    ON DUPLICATE KEY UPDATE app.id = app.id
+    ```
+1. Update the application mappings in the `page_impressions` table. Note
+   that if you have many rows in the `page_impressions` table, it is
+   recommended to do this in chunks, updating the values below of `BETWEEN 0
+   AND 10000000` for each chunk:
+    ```SQL
+    UPDATE modw_ondemand.page_impressions p1
+    JOIN (
+        SELECT
+            p2.id,
+            REPLACE(
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(
+                                REGEXP_REPLACE(
+                                    path,
+                                    '.*Launch\\+',
+                                    ''
+                                ),
+                                '+',
+                                ' '
+                            ),
+                            '%28',
+                            '('
+                        ),
+                        '%29',
+                        ')'
+                    ),
+                    '%2B',
+                    '+'
+                ),
+                '%2F',
+                '/'
+            ) AS new_app_path
+        FROM modw_ondemand.page_impressions p2
+        JOIN modw_ondemand.request_path rp ON rp.id = p2.request_path_id
+        WHERE rp.path LIKE '/pun/sys/dashboard/noVNC-%Launch+%'
+        AND p2.id BETWEEN 0 AND 10000000
+    ) p3 ON p3.id = p1.id
+    JOIN modw_ondemand.app a ON a.app_path = p3.new_app_path
+    SET p1.app_id = a.id
+    ```
+1. Unlock the tables:
+    ```SQL
+    UNLOCK TABLES
+    ```
+1. Reaggregate the page loads, replacing `YYYY-MM-DD HH:MM:SS` with the
+   timestamp when you started:
+    ```
+    $ xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
+    ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
