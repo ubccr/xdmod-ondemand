@@ -3,6 +3,10 @@ XDMoD Open OnDemand Module Change Log
 
 ## v11.5.0 development branch
 
+## v11.0.1 development branch
+
+- Fix mapping of noVNC applications ([\#71](https://github.com/ubccr/xdmod-ondemand/pull/71)).
+
 ## 2024-09-16 v11.0.0
 
 - Change how page loads, sessions, and applications are counted and
