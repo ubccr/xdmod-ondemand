@@ -473,6 +473,20 @@ NOTES:
     ```
 1. Copy that file (which will now be referred to in the instructions below as
    "the input file") to the server with the original OnDemand web server log
-   files. On that server, run a Bash command that will loop over the input file
+   files (which will now be referred to in the instructions below as "the
+   source logs"). On that server, run a Bash command that will, for each line
+   in the input file at the path
+   `/path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv` (make sure to
+   change that to the actual path to the input file), find the matching line
+   from the source logs at `/path/to/logs/*.log*` (make sure to change that to
+   the actual path to the source logs), find the port number, and save the
+   result into a new file at `` (make sure to change that to the actual desired
+   path for the output file):
+    ```bash
+    while IFS=, read -r id regex; do
+        echo "\"$regex\"";
+        grep -o "$regex" /path/to/logs/*.log*;
+        done < /path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv
+    ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
