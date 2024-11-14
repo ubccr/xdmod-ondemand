@@ -34,6 +34,8 @@ jobs:
         type: string
       install-type:
         type: string
+      upgrade-type:
+        type: string
     executor: << parameters.os >>-<< parameters.upgrade-type >><< parameters.install-type >>
     environment:
       COMPOSER_ALLOW_SUPERUSER: 1
@@ -243,10 +245,13 @@ workflows:
             exclude:
               - os: rocky8
                 install-type: fresh_install
-                upgrade-type: major
+                upgrade-type: 'major-'
               - os: rocky8
                 install-type: fresh_install
-                upgrade-type: minor
+                upgrade-type: 'minor-'
+              - os: rocky8
+                install-type: upgrade
+                upgrade-type: ''
       - test-export-tool:
           matrix:
             parameters:
