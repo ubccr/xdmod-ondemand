@@ -27,7 +27,7 @@
         {
             "name": "update-page-impressions-unique-index",
             "description": "Update the unique index for the page impressions table",
-            "class": "ManageTables",,
+            "class": "ManageTables",
             "definition_file_list": [
                 "ood/page_impressions.json"
             ]
