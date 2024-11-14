@@ -3,9 +3,12 @@ executors:
   rocky8-fresh_install: &rocky8-fresh_install-executor
     docker:
       - image: tools-ext-01.ccr.xdmod.org/xdmod-10.5.0-x86_64:rockylinux8.5-0.3
-  rocky8-upgrade: &rocky8-upgrade-executor
+  rocky8-major-upgrade: &rocky8-major-upgrade-executor
     docker:
       - image: tools-ext-01.ccr.xdmod.org/xdmod-ondemand:x86_64-rockylinux8.5-v10.5.0-1.0-02
+  rocky8-minor-upgrade: &rocky8-minor-upgrade-executor
+    docker:
+      - image: tools-ext-01.ccr.xdmod.org/xdmod-ondemand:x86_64-rockylinux8.9.20231119-v11.0.0-1.0-03
   rocky8-export-tool: &rocky8-export-tool-executor
     docker:
       - image: rockylinux:8
@@ -228,8 +231,20 @@ workflows:
       - build:
           matrix:
             parameters:
-              os: [rocky8]
-              install-type: ["fresh_install", "upgrade"]
+              os:
+                - rocky8
+              install-type:
+                - fresh_install
+                - upgrade
+              upgrade-type:
+                - major
+                - minor
+            exclude:
+              - os: rocky8
+                install-type: fresh_install
+                upgrade-type:
+                  - major
+                  - minor
       - test-export-tool:
           matrix:
             parameters:
@@ -240,4 +255,5 @@ workflows:
                 - alma9
                 - ubuntu20_04
                 - ubuntu22_04
-              install-type: ["export-tool"]
+              install-type:
+                - export-tool
