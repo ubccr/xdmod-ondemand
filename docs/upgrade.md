@@ -410,6 +410,69 @@ Because the correct mapping of port numbers cannot be determined for
 `modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
 have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to 0.
 The correct values can be updated if you still have the original OnDemand web
-server log files by following the process described below.
+server log files by following the process described below. If you have multiple
+OnDemand resources, you will want to do these steps for each resource.
+
+NOTES:
+- If the time zone of the resource's OnDemand web server is different than the
+  time zone of your XDMoD MySQL server, .
+- These instructions assume that your value for [configuration setting] is the
+  default, . If not, the query will need to be modified.
+- Replace RESOURCE_ID and RESOURCE_NAME with the ID and name of the resource, respectively.
+
+1. Run the SQL query below to 1) get the list of page impression IDs that have
+   unknown ports and the corresponding regular expressions that will be used to
+   match those page impressions against the log files and 2) save this list
+   into a CSV file at
+   `/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv`. If    
+   you want a different output file path, make sure to change the value below
+   `INTO OUTFILE` before running the query.
+    ```sql
+    SELECT
+        p.id,
+        CONCAT(
+            '^[^ ]\\+ - ',
+            u.username,
+            ' \\[',
+            DATE_FORMAT(
+                FROM_UNIXTIME(log_time_ts),
+                '%d/%b/%Y:%H:%i:%S -0400'
+            ),
+            '\\] "',
+            rm.method,
+            ' ',
+            REPLACE(
+                REPLACE(
+                    rp.path,
+                    '[host]',
+                    rph.name
+                ),
+                '[port]',
+                '\\([^\\/ ]\\+\\)'
+            ),
+            ' HTTP'
+        )
+    FROM
+        modw_ondemand.page_impressions p
+    JOIN
+        users u ON u.id = p.user_id
+    JOIN
+        request_method rm ON rm.id = p.request_method_id
+    JOIN
+        request_path rp ON rp.id = p.request_path_id
+    JOIN
+        reverse_proxy_host rph ON rph.id = p.reverse_proxy_host_id
+    WHERE
+        reverse_proxy_port = 0
+    AND
+        reverse_proxy_host_id != 1
+    INTO OUTFILE
+        '/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv'
+    FIELDS TERMINATED BY
+        ','
+    ```
+1. Copy that file (which will now be referred to in the instructions below as
+   "the input file") to the server with the original OnDemand web server log
+   files. On that server, run a Bash command that will loop over the input file
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
