@@ -1,0 +1,36 @@
+{
+    "module": "ondemand",
+    "defaults": {
+        "migration-11_0_0-11_0_1": {
+            "truncate_destination": false,
+            "namespace": "ETL\\Maintenance",
+            "options_class": "MaintenanceOptions",
+            "endpoints": {
+                "destination": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "datawarehouse",
+                    "schema": "modw_ondemand"
+                }
+            }
+        }
+    },
+    "migration-11_0_0-11_0_1": [
+        {
+            "name": "fix-reverse-proxy-ports",
+            "description": "Change how reverse proxy ports are stored",
+            "class": "ExecuteSql",
+            "sql_file_list": [
+                "ood/ondemand-migration-11_0_0-11_0_1-fix-reverse-proxy-ports.sql"
+            ]
+        },
+        {
+            "name": "update-page-impressions-unique-index",
+            "description": "Update the unique index for the page impressions table",
+            "class": "ManageTables",,
+            "definition_file_list": [
+                "ood/page_impressions.json"
+            ]
+        }
+    ]
+}
