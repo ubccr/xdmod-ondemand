@@ -50,6 +50,8 @@ BEGIN
                 0
             )
         ;
+        DROP INDEX uniq ON ${DESTINATION_SCHEMA}.page_impressions
+        ;
         ALTER TABLE
             ${DESTINATION_SCHEMA}.page_impressions
         DROP COLUMN
