@@ -12,14 +12,14 @@
  * `reverse_proxy_port`.
  */
 ALTER TABLE
-    page_impressions
+    ${DESTINATION_SCHEMA}.page_impressions
 ADD
     reverse_proxy_port smallint(5) unsigned NOT NULL
 //
 UPDATE
-    page_impressions p
+    ${DESTINATION_SCHEMA}.page_impressions p
 LEFT JOIN
-    reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
+    ${DESTINATION_SCHEMA}.reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
 SET
     reverse_proxy_port = IF(
         reverse_proxy_port_id < 65535,
@@ -28,7 +28,7 @@ SET
     )
 //
 ALTER TABLE
-    page_impressions
+    ${DESTINATION_SCHEMA}.page_impressions
 DROP COLUMN
     reverse_proxy_port_id
 //
