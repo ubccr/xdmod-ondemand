@@ -17,7 +17,6 @@
  * which means the `reverse_proxy_port_id` column doesn't yet have any
  * data, in which case the remaining SQL is unnecessary.
  */
-DELIMITER $$
 IF NOT EXISTS(
     SELECT
         1
@@ -29,7 +28,8 @@ IF NOT EXISTS(
         TABLE_NAME = 'page_impressions'
     AND
         COLUMN_NAME = 'reverse_proxy_port'
-) THEN
+)
+BEGIN
     ALTER TABLE
         ${DESTINATION_SCHEMA}.page_impressions
     ADD
@@ -53,6 +53,4 @@ IF NOT EXISTS(
     //
     DROP TABLE reverse_proxy_port
     //
-END IF
-$$
-DELIMITER //
+END
