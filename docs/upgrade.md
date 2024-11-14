@@ -391,16 +391,25 @@ statements can be run to remap them to the correct request paths.
 Release 11.0.0 had a bug in which the
 `modw_ondemand.page_impressions.reverse_proxy_port_id` column was of type
 `smallint(5) unsigned`, but the corresponding
-`modw_ondemand.reverse_proxy_port.id` column was of type `int(11)`. This means
+`modw_ondemand.reverse_proxy_port.id` column was of type `int(11)`. This meant
 that all values of `modw_ondemand.reverse_proxy_port.id` > 65535 (the maximum
-value of `smallint(5) unsigned`) have the wrong value stored in
+value of `smallint(5) unsigned`) would have the wrong value stored in
 `modw_ondemand.page_impressions.reverse_proxy_port_id` (they all have 65535).
 
 If you are upgrading directly from 10.5.0 to 11.0.1, this will not be an issue.
 
 However, if you previously upgraded from 10.5.0 to 11.0.0 and are now upgrading
-from 11.0.0 to 11.0.1, the upgrade will automatically create a new `modw_ondemand.page_impressions.reverse_proxy_port` column, fill it in with the  table will be
-altered to have a new `reverse_proxy_port` column, its value will be filled in
-with
+from 11.0.0 to 11.0.1, the upgrade will automatically create a new
+`modw_ondemand.page_impressions.reverse_proxy_port` column, fill it in with the
+corresponding values from `modw_ondemand.reverse_proxy_port.port` (but only for
+`modw_ondemand.page_impressions.reverse_proxy_port_id` < 65535), drop the
+`modw_ondemand.page_impressions.reverse_proxy_port_id` column, and drop the
+`modw_ondemand.reverse_proxy_port` table.
+
+Because the correct mapping of port numbers cannot be determined for
+`modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
+have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to 0.
+The correct values can be updated if you still have the original OnDemand web
+server log files by following the process described below.
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
