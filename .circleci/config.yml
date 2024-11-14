@@ -47,20 +47,25 @@ jobs:
       REG_TEST_BASE: /../../../../../project/tests/artifacts/regression/current
     steps:
       - checkout
-      - run:
-          name: Update php module
-          command: dnf module -y reset php && dnf module -y enable php:7.4
-      - run:
-          name: Install PHP 7.4 and PHP module pre-reqs & an updated version of PHP Pear
-          command: dnf install -y php libzip-devel php-pear php-devel
-      - run:
-          name: Install MongoDB Pear module
-          command: yes '' | pecl install mongodb || true
-      - run:
-          name: Update NodeJS version
-          command: |
-            dnf module -y reset nodejs
-            dnf module -y install nodejs:16
+      - when:
+          condition:
+            not:
+              equal: [ 'minor-', << parameters.upgrade-type >> ]
+          steps:
+            - run:
+                name: Update php module
+                command: dnf module -y reset php && dnf module -y enable php:7.4
+            - run:
+                name: Install PHP 7.4 and PHP module pre-reqs & an updated version of PHP Pear
+                command: dnf install -y php libzip-devel php-pear php-devel
+            - run:
+                name: Install MongoDB Pear module
+                command: yes '' | pecl install mongodb || true
+            - run:
+                name: Update NodeJS version
+                command: |
+                  dnf module -y reset nodejs
+                  dnf module -y install nodejs:16
       - run:
           name: Checkout XDMoD
           command: |
@@ -83,6 +88,13 @@ jobs:
             pushd $XDMOD_SRC_DIR
             ~/bin/buildrpm xdmod ondemand
             popd
+      - when:
+          condition:
+            equal: [ 'minor-', << parameters.upgrade-type >> ]
+          steps:
+            - run:
+                name: Remove old expected prompt from 10.5.0 upgrade
+                command: sed '/^confirmResourceSpecs/d' $XDMOD_SRC_DIR/tests/ci/scripts/xdmod-upgrade.tcl
       - run:
           name: Bootstrap XDMoD
           command: $XDMOD_SRC_DIR/tests/ci/bootstrap.sh
