@@ -17,40 +17,50 @@
  * which means the `reverse_proxy_port_id` column doesn't yet have any
  * data, in which case the remaining SQL is unnecessary.
  */
-IF NOT EXISTS(
-    SELECT
-        1
-    FROM
-        INFORMATION_SCHEMA.COLUMNS
-    WHERE
-        TABLE_SCHEMA = '${DESTINATION_SCHEMA}'
-    AND
-        TABLE_NAME = 'page_impressions'
-    AND
-        COLUMN_NAME = 'reverse_proxy_port'
-)
+DROP PROCEDURE IF EXISTS ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports
+//
+CREATE PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports()
 BEGIN
-    ALTER TABLE
-        ${DESTINATION_SCHEMA}.page_impressions
-    ADD
-        reverse_proxy_port smallint(5) unsigned NOT NULL
-    //
-    UPDATE
-        ${DESTINATION_SCHEMA}.page_impressions p
-    LEFT JOIN
-        ${DESTINATION_SCHEMA}.reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
-    SET
-        reverse_proxy_port = IF(
-            reverse_proxy_port_id < 65535,
-            COALESCE(rpp.port, 0),
-            0
-        )
-    //
-    ALTER TABLE
-        ${DESTINATION_SCHEMA}.page_impressions
-    DROP COLUMN
-        reverse_proxy_port_id
-    //
-    DROP TABLE reverse_proxy_port
-    //
-END
+    IF NOT EXISTS(
+        SELECT
+            1
+        FROM
+            INFORMATION_SCHEMA.COLUMNS
+        WHERE
+            TABLE_SCHEMA = '${DESTINATION_SCHEMA}'
+        AND
+            TABLE_NAME = 'page_impressions'
+        AND
+            COLUMN_NAME = 'reverse_proxy_port'
+    )
+    THEN
+        ALTER TABLE
+            ${DESTINATION_SCHEMA}.page_impressions
+        ADD
+            reverse_proxy_port smallint(5) unsigned NOT NULL
+        ;
+        UPDATE
+            ${DESTINATION_SCHEMA}.page_impressions p
+        LEFT JOIN
+            ${DESTINATION_SCHEMA}.reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
+        SET
+            reverse_proxy_port = IF(
+                reverse_proxy_port_id < 65535,
+                COALESCE(rpp.port, 0),
+                0
+            )
+        ;
+        ALTER TABLE
+            ${DESTINATION_SCHEMA}.page_impressions
+        DROP COLUMN
+            reverse_proxy_port_id
+        ;
+        DROP TABLE reverse_proxy_port
+        ;
+    END IF
+    ;
+//
+CALL ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports()
+//
+DROP PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports
+//
