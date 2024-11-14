@@ -17,6 +17,7 @@
  * which means the `reverse_proxy_port_id` column doesn't yet have any
  * data, in which case the remaining SQL is unnecessary.
  */
+DELIMITER $$
 IF NOT EXISTS(
     SELECT
         1
@@ -53,4 +54,5 @@ IF NOT EXISTS(
     DROP TABLE reverse_proxy_port
     //
 END IF
-//
+$$
+DELIMITER //
