@@ -235,13 +235,13 @@ workflows:
             parameters:
               os:
                 - rocky8
-              install-type:
-                - fresh_install
-                - upgrade
               upgrade-type:
                 - ''
                 - 'major-'
                 - 'minor-'
+              install-type:
+                - fresh_install
+                - upgrade
             exclude:
               - os: rocky8
                 install-type: fresh_install
