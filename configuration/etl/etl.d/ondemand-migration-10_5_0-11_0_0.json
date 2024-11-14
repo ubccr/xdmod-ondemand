@@ -43,7 +43,6 @@
                 "ood/request_path.json",
                 "ood/request_method.json",
                 "ood/reverse_proxy_host.json",
-                "ood/reverse_proxy_port.json",
                 "ood/page_impressions.json"
             ]
         },
