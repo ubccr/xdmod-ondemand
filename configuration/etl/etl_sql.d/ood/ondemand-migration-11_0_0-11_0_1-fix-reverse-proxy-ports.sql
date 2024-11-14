@@ -58,7 +58,7 @@ BEGIN
         DROP TABLE reverse_proxy_port
         ;
     END IF
-    ;
+END
 //
 CALL ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports()
 //
