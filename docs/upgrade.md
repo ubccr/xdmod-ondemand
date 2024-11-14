@@ -185,9 +185,9 @@ During the upgrade, the `modw_ondemand.page_impressions` table will have its
 `id` column updated to use `bigint(20) unsigned` instead of `int(11)` to be
 able to accommodate more than 2,147,483,647 page impressions. It will also have
 columns added for `request_path_id`, `request_method_id`,
-`reverse_proxy_host_id`, and `reverse_proxy_port_id`. Its unique index will be
+`reverse_proxy_host_id`, and `reverse_proxy_port`. Its unique index will be
 updated to remove `app_id` and to include `resource_id`, `request_path_id`,
-`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port_id`,
+`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port`,
 `app_id`, `location_id`, `ua_family_id`, and `ua_os_family_id`. Indexes will be
 added to speed up aggregation, person lookup, and application recategorization.
 
@@ -197,8 +197,7 @@ upgrade will change the values for `city`, `state`, and `country` to `NA` for
 that row.
 
 The upgrade will add tables for `modw_ondemand.request_method`,
-`modw_ondemand.request_path`, `modw_ondemand.reverse_proxy_host`, and
-`modw_ondemand.reverse_proxy_port`.
+`modw_ondemand.request_path`, and `modw_ondemand.reverse_proxy_host`.
 
 During the upgrade, if the `modw_ondemand.location` table has a row with
 `unknown` as its value for `city`, `state`, and `country`, these will be
