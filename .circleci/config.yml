@@ -34,7 +34,7 @@ jobs:
         type: string
       install-type:
         type: string
-    executor: << parameters.os >>-<< parameters.install-type >>
+    executor: << parameters.os >>-<< parameters.upgrade-type >>-<< parameters.install-type >>
     environment:
       COMPOSER_ALLOW_SUPERUSER: 1
       XDMOD_REALMS: 'jobs,storage,cloud,resourcespecifications'
@@ -237,6 +237,7 @@ workflows:
                 - fresh_install
                 - upgrade
               upgrade-type:
+                - ''
                 - major
                 - minor
             exclude:
@@ -257,3 +258,5 @@ workflows:
                 - ubuntu22_04
               install-type:
                 - export-tool
+              upgrade-type:
+                - ''
