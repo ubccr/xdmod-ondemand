@@ -234,6 +234,41 @@ can be run to remap them to the correct request paths.
 1. Lock the tables that will be updated:
     ```
     ```
-1. 
+1. Add the request path if it doesn't already exist:
+    ```
+    INSERT INTO modw_ondemand.request_path (path)
+    VALUES ('/pun/sys/dashboard/files/edit/[path]');
+    ```
+   If a `Duplicate entry` error occurs, it just means the request path is
+   already in the table; you can continue with the instructions below.
+1. Set a variable for the request path ID:
+    ```
+    SET @request_path_id = (
+        SELECT id
+        FROM modw_ondemand.request_path
+        WHERE path = '/pun/sys/dashboard/files/edit/[path]'
+    );
+    ```
+1. Set the new request path ID, ignoring any rows that are now duplicates:
+    ```
+    UPDATE IGNORE modw_ondemand.page_impressions AS p
+    JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+    JOIN modw_ondemand.app AS a ON a.id = p.app_id
+    WHERE rp.path = '/pun/sys/dashboard/files/[path]'
+    AND a.app_path = 'sys/file-editor'
+    SET p.request_path_id = @request_path_id;
+    ```
+1. Delete rows that are now duplicates:
+    ```
+    DELETE FROM modw_ondemand.page_impressions AS p
+    JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
+    JOIN modw_ondemand.app AS a ON a.id = p.app_id
+    WHERE rp.path = '/pun/sys/dashboard/files/[path]'
+    AND a.app_path = 'sys/file-editor';
+    ```
+1. Unlock the tables:
+    ```
+    UNLOCK TABLES;
+    ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
