@@ -207,4 +207,33 @@ replaced with the value `NA`.
 11.0.1 Upgrade Notes
 -------------------
 
+## Configuration Changes
+
+### Fix request path filtering of File Editor page loads
+
+This release fixes the request path filter for page loads of the OnDemand File
+Editor app. In 11.0.0, if a page load had a request with a path of the
+following form:
+
+```
+/pun/sys/dashboard/files/edit/[path]
+```
+
+it would mistakenly map that to this request path instead:
+
+```
+/pun/sys/dashboard/files/[path]
+```
+
+This is fixed in 11.0.1 for any new page loads that are ingested into XDMoD.
+For page loads that have already been ingested, the following SQL statements
+can be run to remap them to the correct request paths.
+
+1. Make note of the timestamp when you started; this will be used later when
+   reaggregating.
+1. Lock the tables that will be updated:
+    ```
+    ```
+1. 
+
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
