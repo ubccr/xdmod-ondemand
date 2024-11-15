@@ -414,8 +414,6 @@ server log files by following the process described below. If you have multiple
 OnDemand resources, you will want to do these steps for each resource.
 
 NOTES:
-- If the time zone of the resource's OnDemand web server is different than the
-  time zone of your XDMoD MySQL server, .
 - These instructions assume that your value for [configuration setting] is the
   default, . If not, the query will need to be modified.
 - Replace RESOURCE_ID and RESOURCE_NAME with the ID and name of the resource, respectively.
@@ -424,9 +422,18 @@ NOTES:
    unknown ports and the corresponding regular expressions that will be used to
    match those page impressions against the log files and 2) save this list
    into a CSV file at
-   `/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv`. If    
-   you want a different output file path, make sure to change the value below
-   `INTO OUTFILE` before running the query.
+   `/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv`. Make
+   sure to change the value of `RESOURCE_ID` below to the ID of the resource.
+   If you want a different output file path, make sure to change the value
+   below `INTO OUTFILE` before running the query.
+   - NOTE: The query below assumes your SQL database is in a time zone 4 hours
+     behind UTC and the log files have times listed in a time zone 5 hours
+     behind UTC. Change the values `-04:00`, `-05:00`, and `-0500` accordingly.
+     Note that because of daylight saving you may have to run these steps
+     twice, once for standard time and once for daylight time.
+   - NOTE: The query below assumes you are using the default value in the
+     configuration file `portal_settings.d/ondemand.ini` for the parameter
+     `webserver_format_str`.
     ```sql
     SELECT
         p.id,
@@ -435,22 +442,58 @@ NOTES:
             u.username,
             ' \\[',
             DATE_FORMAT(
-                FROM_UNIXTIME(log_time_ts),
-                '%d/%b/%Y:%H:%i:%S -0400'
+                CONVERT_TZ(
+                    FROM_UNIXTIME(log_time_ts),
+                    '-04:00',
+                    '-05:00'
+                ),
+                '%d/%b/%Y:%H:%i:%S -0500'
             ),
             '\\] "',
             rm.method,
             ' ',
             REPLACE(
                 REPLACE(
-                    rp.path,
-                    '[host]',
-                    rph.name
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REGEXP_REPLACE(
+                                            REGEXP_REPLACE(
+                                                REPLACE(
+                                                    rp.path,
+                                                    '[host]',
+                                                    rph.name
+                                                ),
+                                                '\\[port\\](/lab)?/tree/',
+                                                '[port]\\1/tree\\\\(/\\\\|?\\\\|$\\\\)'
+                                            ),
+                                            '\\[port\\]$',
+                                            '[port]/\\\\?'
+                                        ),
+                                        '[port]',
+                                        '\\([^/ ]\\+\\)'
+                                    ),
+                                    '[params]',
+                                    '.*'
+                                ),
+                                '[setting]',
+                                '.\\+'
+                            ),
+                            '[/path][?params]',
+                            '.*'
+                        ),
+                        '[path]',
+                        '.*'
+                    ),
+                    '[id]',
+                    '[^/]\\+'
                 ),
-                '[port]',
-                '\\([^\\/ ]\\+\\)'
+                '[version]',
+                '[0-9a-f]{40}'
             ),
-            ' HTTP'
+            ' HTTP.\\+'
         )
     FROM
         modw_ondemand.page_impressions p
@@ -465,11 +508,14 @@ NOTES:
     WHERE
         reverse_proxy_port = 0
     AND
-        reverse_proxy_host_id != 1
+        rph.name != '-1'
+    AND
+        resource_id = RESOURCE_ID
     INTO OUTFILE
         '/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv'
-    FIELDS TERMINATED BY
-        ','
+    FIELDS
+        TERMINATED BY ','
+        ESCAPED BY ''
     ```
 1. Copy that file (which will now be referred to in the instructions below as
    "the input file") to the server with the original OnDemand web server log
@@ -480,13 +526,13 @@ NOTES:
    change that to the actual path to the input file), find the matching line
    from the source logs at `/path/to/logs/*.log*` (make sure to change that to
    the actual path to the source logs), find the port number, and save the
-   result into a new file at `` (make sure to change that to the actual desired
-   path for the output file):
+   result into a new file at `/path/to/outfile.csv` (make sure to change that
+   to the actual desired path for the output file):
     ```bash
     while IFS=, read -r id regex; do
-        echo "\"$regex\"";
-        grep -o "$regex" /path/to/logs/*.log*;
-        done < /path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv
+        port="$(sed -n "s#$regex#\1#p" <(grep -m 1 "$regex" /path/to/logs/*.log* | head -1))";
+        echo "$id,${port:=0}" >> /path/to/outfile.csv;
+    done < /path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv
     ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
