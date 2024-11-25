@@ -11,7 +11,7 @@ page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and source
 packages for the XDMoD OnDemand module are available from
 [GitHub][github-latest-release].
 
-Additional 11.0.0 Upgrade Notes
+11.0.0 Upgrade Notes
 -------------------
 
 Open XDMoD 11.0.0 fundamentally changes how page loads, sessions, and
@@ -203,5 +203,8 @@ The upgrade will add tables for `modw_ondemand.request_method`,
 During the upgrade, if the `modw_ondemand.location` table has a row with
 `unknown` as its value for `city`, `state`, and `country`, these will be
 replaced with the value `NA`.
+
+11.0.1 Upgrade Notes
+-------------------
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
