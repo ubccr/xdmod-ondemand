@@ -1,3 +1,0 @@
-ALTER TABLE `modw_ondemand`.`normalized`
-MODIFY COLUMN `ua_family` VARCHAR(32) DEFAULT NULL,
-MODIFY COLUMN `ua_os_family` VARCHAR(32) DEFAULT NULL
