@@ -1,6 +1,8 @@
 XDMoD Open OnDemand Module Change Log
 =====================
 
+## XXXX-XX-XX v11.5.0
+
 ## 2024-09-16 v11.0.0
 
 - Change how page loads, sessions, and applications are counted and
