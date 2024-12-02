@@ -3,6 +3,8 @@ XDMoD Open OnDemand Module Change Log
 
 ## XXXX-XX-XX v11.0.1
 
+- Add website table of contents template ([\#65](https://github.com/ubccr/xdmod-ondemand/pull/65)).
+
 ## 2024-09-11 v11.0.0
 
 - Change how page loads, sessions, and applications are counted and
