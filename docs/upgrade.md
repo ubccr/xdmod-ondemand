@@ -408,131 +408,14 @@ corresponding values from `modw_ondemand.reverse_proxy_port.port` (but only for
 
 Because the correct mapping of port numbers cannot be determined for
 `modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
-have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to 0.
-The correct values can be updated if you still have the original OnDemand web
-server log files by following the process described below. If you have multiple
-OnDemand resources, you will want to do these steps for each resource.
+have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to
+`0`. In order for these rows to have the correct value, they will need to be
+reingested from the original OnDemand web server log files. The recommended way
+to do this is documented below.
 
-NOTES:
-- These instructions assume that your value for [configuration setting] is the
-  default, . If not, the query will need to be modified.
-- Replace RESOURCE_ID and RESOURCE_NAME with the ID and name of the resource, respectively.
-
-1. Run the SQL query below to 1) get the list of page impression IDs that have
-   unknown ports and the corresponding regular expressions that will be used to
-   match those page impressions against the log files and 2) save this list
-   into a CSV file at
-   `/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv`. Make
-   sure to change the value of `RESOURCE_ID` below to the ID of the resource.
-   If you want a different output file path, make sure to change the value
-   below `INTO OUTFILE` before running the query.
-   - NOTE: The query below assumes your SQL database is in a time zone 4 hours
-     behind UTC and the log files have times listed in a time zone 5 hours
-     behind UTC. Change the values `-04:00`, `-05:00`, and `-0500` accordingly.
-     Note that because of daylight saving you may have to run these steps
-     twice, once for standard time and once for daylight time.
-   - NOTE: The query below assumes you are using the default value in the
-     configuration file `portal_settings.d/ondemand.ini` for the parameter
-     `webserver_format_str`.
-    ```sql
-    SELECT
-        p.id,
-        CONCAT(
-            '^[^ ]\\+ - ',
-            u.username,
-            ' \\[',
-            DATE_FORMAT(
-                CONVERT_TZ(
-                    FROM_UNIXTIME(log_time_ts),
-                    '-04:00',
-                    '-05:00'
-                ),
-                '%d/%b/%Y:%H:%i:%S -0500'
-            ),
-            '\\] "',
-            rm.method,
-            ' ',
-            REPLACE(
-                REPLACE(
-                    REPLACE(
-                        REPLACE(
-                            REPLACE(
-                                REPLACE(
-                                    REPLACE(
-                                        REGEXP_REPLACE(
-                                            REGEXP_REPLACE(
-                                                REPLACE(
-                                                    rp.path,
-                                                    '[host]',
-                                                    rph.name
-                                                ),
-                                                '\\[port\\](/lab)?/tree/',
-                                                '[port]\\1/tree\\\\(/\\\\|?\\\\|$\\\\)'
-                                            ),
-                                            '\\[port\\]$',
-                                            '[port]/\\\\?'
-                                        ),
-                                        '[port]',
-                                        '\\([^/ ]\\+\\)'
-                                    ),
-                                    '[params]',
-                                    '.*'
-                                ),
-                                '[setting]',
-                                '.\\+'
-                            ),
-                            '[/path][?params]',
-                            '.*'
-                        ),
-                        '[path]',
-                        '.*'
-                    ),
-                    '[id]',
-                    '[^/]\\+'
-                ),
-                '[version]',
-                '[0-9a-f]{40}'
-            ),
-            ' HTTP.\\+'
-        )
-    FROM
-        modw_ondemand.page_impressions p
-    JOIN
-        users u ON u.id = p.user_id
-    JOIN
-        request_method rm ON rm.id = p.request_method_id
-    JOIN
-        request_path rp ON rp.id = p.request_path_id
-    JOIN
-        reverse_proxy_host rph ON rph.id = p.reverse_proxy_host_id
-    WHERE
-        reverse_proxy_port = 0
-    AND
-        rph.name != '-1'
-    AND
-        resource_id = RESOURCE_ID
-    INTO OUTFILE
-        '/var/lib/mysql/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv'
-    FIELDS
-        TERMINATED BY ','
-        ESCAPED BY ''
-    ```
-1. Copy that file (which will now be referred to in the instructions below as
-   "the input file") to the server with the original OnDemand web server log
-   files (which will now be referred to in the instructions below as "the
-   source logs"). On that server, run a Bash command that will, for each line
-   in the input file at the path
-   `/path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv` (make sure to
-   change that to the actual path to the input file), find the matching line
-   from the source logs at `/path/to/logs/*.log*` (make sure to change that to
-   the actual path to the source logs), find the port number, and save the
-   result into a new file at `/path/to/outfile.csv` (make sure to change that
-   to the actual desired path for the output file):
-    ```bash
-    while IFS=, read -r id regex; do
-        port="$(sed -n "s#$regex#\1#p" <(grep -m 1 "$regex" /path/to/logs/*.log* | head -1))";
-        echo "$id,${port:=0}" >> /path/to/outfile.csv;
-    done < /path/to/reverse-proxy-port-id-regex-map-RESOURCE_NAME.csv
-    ```
+1. Make a backup of the database, specifically the `modw_ondemand` schema.
+1. Reingest the original OnDemand web server log files.
+1. Run SQL to identify rows that are the same as another row except for the
+   `reverse_proxy_port` column being 0, and delete those rows.
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
