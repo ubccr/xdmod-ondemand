@@ -185,9 +185,9 @@ During the upgrade, the `modw_ondemand.page_impressions` table will have its
 `id` column updated to use `bigint(20) unsigned` instead of `int(11)` to be
 able to accommodate more than 2,147,483,647 page impressions. It will also have
 columns added for `request_path_id`, `request_method_id`,
-`reverse_proxy_host_id`, and `reverse_proxy_port_id`. Its unique index will be
+`reverse_proxy_host_id`, and `reverse_proxy_port`. Its unique index will be
 updated to remove `app_id` and to include `resource_id`, `request_path_id`,
-`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port_id`,
+`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port`,
 `app_id`, `location_id`, `ua_family_id`, and `ua_os_family_id`. Indexes will be
 added to speed up aggregation, person lookup, and application recategorization.
 
@@ -197,8 +197,7 @@ upgrade will change the values for `city`, `state`, and `country` to `NA` for
 that row.
 
 The upgrade will add tables for `modw_ondemand.request_method`,
-`modw_ondemand.request_path`, `modw_ondemand.reverse_proxy_host`, and
-`modw_ondemand.reverse_proxy_port`.
+`modw_ondemand.request_path`, and `modw_ondemand.reverse_proxy_host`.
 
 During the upgrade, if the `modw_ondemand.location` table has a row with
 `unknown` as its value for `city`, `state`, and `country`, these will be
@@ -206,5 +205,80 @@ replaced with the value `NA`.
 
 11.0.1 Upgrade Notes
 -------------------
+
+## Database Changes
+
+Release 11.0.0 had a bug in which the
+`modw_ondemand.page_impressions.reverse_proxy_port_id` column was of type
+`smallint(5) unsigned`, but the corresponding
+`modw_ondemand.reverse_proxy_port.id` column was of type `int(11)`. This meant
+that all values of `modw_ondemand.reverse_proxy_port.id` > 65535 (the maximum
+value of `smallint(5) unsigned`) would have the wrong value stored in
+`modw_ondemand.page_impressions.reverse_proxy_port_id` (they all have 65535).
+
+If you are upgrading directly from 10.5.0 to 11.0.1, this will not be an issue.
+
+However, if you previously upgraded from 10.5.0 to 11.0.0 and are now upgrading
+from 11.0.0 to 11.0.1, the upgrade will automatically create a new
+`modw_ondemand.page_impressions.reverse_proxy_port` column, fill it in with the
+corresponding values from `modw_ondemand.reverse_proxy_port.port` (but only for
+`modw_ondemand.page_impressions.reverse_proxy_port_id` < 65535), drop the
+`modw_ondemand.page_impressions.reverse_proxy_port_id` column, and drop the
+`modw_ondemand.reverse_proxy_port` table.
+
+Because the correct mapping of port numbers cannot be determined for
+`modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
+have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to
+`0`. In order for these rows to have the correct value, they will need to be
+reingested from the original OnDemand web server log files. The recommended way
+to do this is documented below.
+
+1. Make a backup of the database, specifically the `modw_ondemand` schema.
+1. Reingest the original OnDemand web server log files.
+1. Run SQL to identify rows that are the same as another row except for the
+   `reverse_proxy_port` column being 0. Note that if you have many rows in the
+   `modw_ondemand.page_impressions` table you may wish to add a `WHERE`
+   condition to the query to run it in chunks, e.g., `WHERE p1.id BETWEEN 0 AND
+   100000`:
+    ```sql
+    SELECT *
+    FROM modw_ondemand.page_impressions p1
+    JOIN modw_ondemand.page_impressions p2 ON
+        p1.log_time_ts = p2.log_time_ts AND
+        p1.resource_id = p2.resource_id AND
+        p1.resource_organization_id = p2.resource_organization_id AND
+        p1.person_id = p2.person_id AND
+        p1.user_id = p2.user_id AND
+        p1.request_path_id = p2.request_path_id AND
+        p1.request_method_id = p2.request_method_id AND
+        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
+        p1.app_id = p2.app_id AND
+        p1.location_id = p2.location_id AND
+        p1.ua_family_id = p2.ua_family_id AND
+        p1.ua_os_family_id = p2.ua_os_family_id
+    WHERE p1.reverse_proxy_port = 0
+    AND p2.reverse_proxy_port != 0
+    ```
+1. Run SQL to delete those rows (same query with `DELETE p1` instead of
+   `SELECT *`):
+    ```sql
+    DELETE p1
+    FROM modw_ondemand.page_impressions p1
+    JOIN modw_ondemand.page_impressions p2 ON
+        p1.log_time_ts = p2.log_time_ts AND
+        p1.resource_id = p2.resource_id AND
+        p1.resource_organization_id = p2.resource_organization_id AND
+        p1.person_id = p2.person_id AND
+        p1.user_id = p2.user_id AND
+        p1.request_path_id = p2.request_path_id AND
+        p1.request_method_id = p2.request_method_id AND
+        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
+        p1.app_id = p2.app_id AND
+        p1.location_id = p2.location_id AND
+        p1.ua_family_id = p2.ua_family_id AND
+        p1.ua_os_family_id = p2.ua_os_family_id
+    WHERE p1.reverse_proxy_port = 0
+    AND p2.reverse_proxy_port != 0
+    ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
