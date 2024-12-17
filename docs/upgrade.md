@@ -416,6 +416,46 @@ to do this is documented below.
 1. Make a backup of the database, specifically the `modw_ondemand` schema.
 1. Reingest the original OnDemand web server log files.
 1. Run SQL to identify rows that are the same as another row except for the
-   `reverse_proxy_port` column being 0, and delete those rows.
+   `reverse_proxy_port` column being 0:
+    ```sql
+    SELECT *
+    FROM modw_ondemand.page_impressions p1
+    JOIN modw_ondemand.page_impressions p2 ON
+        p1.log_time_ts = p2.log_time_ts AND
+        p1.resource_id = p2.resource_id AND
+        p1.resource_organization_id = p2.resource_organization_id AND
+        p1.person_id = p2.person_id AND
+        p1.user_id = p2.user_id AND
+        p1.request_path_id = p2.request_path_id AND
+        p1.request_method_id = p2.request_method_id AND
+        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
+        p1.app_id = p2.app_id AND
+        p1.location_id = p2.location_id AND
+        p1.ua_family_id = p2.ua_family_id AND
+        p1.ua_os_family_id = p2.ua_os_family_id
+    WHERE p1.reverse_proxy_port = 0
+    AND p2.reverse_proxy_port != 0
+    ```
+1. Run SQL to delete those rows (same query with `DELETE p1` instead of
+   `SELECT *`):
+    ```sql
+    DELETE p1
+    FROM modw_ondemand.page_impressions p1
+    JOIN modw_ondemand.page_impressions p2 ON
+        p1.log_time_ts = p2.log_time_ts AND
+        p1.resource_id = p2.resource_id AND
+        p1.resource_organization_id = p2.resource_organization_id AND
+        p1.person_id = p2.person_id AND
+        p1.user_id = p2.user_id AND
+        p1.request_path_id = p2.request_path_id AND
+        p1.request_method_id = p2.request_method_id AND
+        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
+        p1.app_id = p2.app_id AND
+        p1.location_id = p2.location_id AND
+        p1.ua_family_id = p2.ua_family_id AND
+        p1.ua_os_family_id = p2.ua_os_family_id
+    WHERE p1.reverse_proxy_port = 0
+    AND p2.reverse_proxy_port != 0
+    ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
