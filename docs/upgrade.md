@@ -414,7 +414,11 @@ reingested from the original OnDemand web server log files. The recommended way
 to do this is documented below.
 
 1. Make a backup of the database, specifically the `modw_ondemand` schema.
-1. Reingest the original OnDemand web server log files.
+1. Reingest the original OnDemand web server log files. For rows in
+   `modw_ondemand.page_impressions` for which `reverse_proxy_port` is 0, this
+   will add new rows that are the same but have the correct port number. For
+   rows in which `reverse_proxy_port` is not 0, new rows will NOT be added
+   because they are duplicates of existing rows.
 1. Run SQL to identify rows that are the same as another row except for the
    `reverse_proxy_port` column being 0. Note that if you have many rows in the
    `modw_ondemand.page_impressions` table you may wish to add a `WHERE`
