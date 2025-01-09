@@ -230,20 +230,11 @@ application `Desktop`:
 
 This new mapping will apply to any new page loads that are ingested into XDMoD.
 For page loads that have already been ingested, the following SQL statements
-can be run to remap them to the correct applications.
+can be run to remap them to the correct applications. Make sure to run them at
+a time when ingestion and aggregation are NOT running.
 
 1. Make note of the timestamp when you started; this will be used later when
    reaggregating.
-1. Lock the tables that will be updated:
-    ```SQL
-    LOCK TABLES
-        modw_ondemand.app WRITE,
-        modw_ondemand.request_path READ,
-        modw_ondemand.page_impressions p1 WRITE,
-        modw_ondemand.page_impressions p2 READ,
-        modw_ondemand.request_path rp READ,
-        modw_ondemand.app a READ
-    ```
 1. Insert the new rows into the `app` table if they do not already exist:
     ```SQL
     INSERT INTO modw_ondemand.app (app_path)
@@ -317,10 +308,6 @@ can be run to remap them to the correct applications.
     ) p3 ON p3.id = p1.id
     JOIN modw_ondemand.app a ON a.app_path = p3.new_app_path
     SET p1.app_id = a.id
-    ```
-1. Unlock the tables:
-    ```SQL
-    UNLOCK TABLES
     ```
 1. Reaggregate the page loads, replacing `YYYY-MM-DD HH:MM:SS` with the
    timestamp when you started:
