@@ -421,9 +421,9 @@ to do this is documented below.
    because they are duplicates of existing rows.
 1. Run SQL to identify rows that are the same as another row except for the
    `reverse_proxy_port` column being 0. Note that if you have many rows in the
-   `modw_ondemand.page_impressions` table you may wish to add a `WHERE`
-   condition to the query to run it in chunks, e.g., `WHERE p1.id BETWEEN 0 AND
-   100000`:
+   `modw_ondemand.page_impressions` table you may wish to add an additional
+   `WHERE` condition to the query to run it in chunks, e.g., `AND p1.id
+   BETWEEN 0 AND 100000`:
     ```sql
     SELECT *
     FROM modw_ondemand.page_impressions p1
