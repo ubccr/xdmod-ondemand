@@ -441,11 +441,12 @@ to do this is documented below.
         p1.ua_family_id = p2.ua_family_id AND
         p1.ua_os_family_id = p2.ua_os_family_id
     WHERE p1.reverse_proxy_port = 0
-    AND p2.reverse_proxy_port != 0
+    AND p2.reverse_proxy_port != 0;
     ```
 1. Run SQL to delete those rows (same query with `DELETE p1` instead of
    `SELECT *`):
     ```sql
+    USE modw_ondemand;
     DELETE p1
     FROM modw_ondemand.page_impressions p1
     JOIN modw_ondemand.page_impressions p2 ON
@@ -462,7 +463,7 @@ to do this is documented below.
         p1.ua_family_id = p2.ua_family_id AND
         p1.ua_os_family_id = p2.ua_os_family_id
     WHERE p1.reverse_proxy_port = 0
-    AND p2.reverse_proxy_port != 0
+    AND p2.reverse_proxy_port != 0;
     ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
