@@ -57,7 +57,7 @@ BEGIN
         DROP COLUMN
             reverse_proxy_port_id
         ;
-        DROP TABLE reverse_proxy_port
+        DROP TABLE ${DESTINATION_SCHEMA}.reverse_proxy_port
         ;
     END IF;
 END
