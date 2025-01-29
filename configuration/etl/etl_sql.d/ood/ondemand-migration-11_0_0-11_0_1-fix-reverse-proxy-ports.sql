@@ -40,8 +40,10 @@ BEGIN
                 CASE WHEN reverse_proxy_port_id = -1
                 THEN 0
                 ELSE rpp.port
+                END
             )
             ELSE 0
+            END
         )
         ;
         DROP INDEX uniq ON ${DESTINATION_SCHEMA}.page_impressions
