@@ -388,82 +388,116 @@ statements can be run to remap them to the correct request paths.
 
 #### Database Changes
 
-Release 11.0.0 had a bug in which the
+Release 11.0.0 had bugs in which columns in the
+`modw_ondemand.page_impressions` table were too small to fit the corresponding
+IDs in the dimension tables. Specifically, the
 `modw_ondemand.page_impressions.reverse_proxy_port_id` column was of type
 `smallint(5) unsigned`, but the corresponding
 `modw_ondemand.reverse_proxy_port.id` column was of type `int(11)`. This meant
 that all values of `modw_ondemand.reverse_proxy_port.id` > 65535 (the maximum
 value of `smallint(5) unsigned`) would have the wrong value stored in
 `modw_ondemand.page_impressions.reverse_proxy_port_id` (they all have 65535).
+Similarly, the `modw_ondemand.page_impressions.request_method_id` column was of
+type `tinyint`, but the corresponding `modw_ondemand.request_method.id` column
+was of type `int(11)`. This meant
+that all values of `modw_ondemand.request_method.id` > 255 (the maximum
+value of `tinyint`) would have the wrong value stored in
+`modw_ondemand.page_impressions.request_method_id` (they all have 255).
 
 If you are upgrading directly from 10.5.0 to 11.0.1, this will not be an issue.
 
 However, if you previously upgraded from 10.5.0 to 11.0.0 and are now upgrading
-from 11.0.0 to 11.0.1, the upgrade will automatically create a new
-`modw_ondemand.page_impressions.reverse_proxy_port` column, fill it in with the
-corresponding values from `modw_ondemand.reverse_proxy_port.port` (but only for
-`modw_ondemand.page_impressions.reverse_proxy_port_id` < 65535), drop the
-`modw_ondemand.page_impressions.reverse_proxy_port_id` column, and drop the
-`modw_ondemand.reverse_proxy_port` table.
+from 11.0.0 to 11.0.1, the upgrade will automatically do the following:
+
+1. Create a new
+   `modw_ondemand.page_impressions.reverse_proxy_port` column.
+1. Fill it in with the corresponding values from
+   `modw_ondemand.reverse_proxy_port.port` (but only for
+   `modw_ondemand.page_impressions.reverse_proxy_port_id` < 65535).
+1. Drop the `modw_ondemand.page_impressions.reverse_proxy_port_id` column.
+1. Drop the `modw_ondemand.reverse_proxy_port` table.
+
+It will also resize the `modw_ondemand.page_impressions.request_method_id`
+column to `int(11)`.
+
+#### Remapping the reverse proxy port IDs
 
 Because the correct mapping of port numbers cannot be determined for
 `modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
 have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to
-`0`. In order for these rows to have the correct value, they will need to be
-reingested from the original OnDemand web server log files. The recommended way
-to do this is documented below.
+`0` during the upgrade. In order for these rows to be fixed to the correct
+value, they will need to be reingested from the original OnDemand web server
+log files. The recommended way to do this is as follows.
 
-1. Make a backup of the database, specifically the `modw_ondemand` schema.
-1. Reingest the original OnDemand web server log files. For rows in
-   `modw_ondemand.page_impressions` for which `reverse_proxy_port` is 0, this
-   will add new rows that are the same but have the correct port number. For
-   rows in which `reverse_proxy_port` is not 0, new rows will NOT be added
-   because they are duplicates of existing rows.
-1. Run SQL to identify rows that are the same as another row except for the
-   `reverse_proxy_port` column being 0. Note that if you have many rows in the
-   `modw_ondemand.page_impressions` table you may wish to add an additional
-   `WHERE` condition to the query to run it in chunks, e.g., `AND p1.id
-   BETWEEN 0 AND 100000`:
+1. Make a backup of the database, specifically the `modw_ondemand` schema, in
+   case you need to recover it later.
+1. Run the SQL below to delete all the rows from the
+   `modw_ondemand.page_impressions` table whose `reverse_proxy_port` is `0`
+   **and** whose `reverse_proxy_host_id` is not `-1` (this is important because
+   `0` will also be the value of `reverse_proxy_port` for page impressions for
+   apps that are not running on a reverse proxy server, that is, whose
+   `reverse_proxy_host_id` is `-1`):
     ```sql
-    SELECT *
-    FROM modw_ondemand.page_impressions p1
-    JOIN modw_ondemand.page_impressions p2 ON
-        p1.log_time_ts = p2.log_time_ts AND
-        p1.resource_id = p2.resource_id AND
-        p1.resource_organization_id = p2.resource_organization_id AND
-        p1.person_id = p2.person_id AND
-        p1.user_id = p2.user_id AND
-        p1.request_path_id = p2.request_path_id AND
-        p1.request_method_id = p2.request_method_id AND
-        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
-        p1.app_id = p2.app_id AND
-        p1.location_id = p2.location_id AND
-        p1.ua_family_id = p2.ua_family_id AND
-        p1.ua_os_family_id = p2.ua_os_family_id
-    WHERE p1.reverse_proxy_port = 0
-    AND p2.reverse_proxy_port != 0;
+    DELETE FROM modw_ondemand.page_impressions
+    WHERE reverse_proxy_port = 0
+    AND reverse_proxy_host_id != -1;
     ```
-1. Run SQL to delete those rows (same query with `DELETE p1` instead of
-   `SELECT *`):
-    ```sql
-    USE modw_ondemand;
-    DELETE p1
-    FROM modw_ondemand.page_impressions p1
-    JOIN modw_ondemand.page_impressions p2 ON
-        p1.log_time_ts = p2.log_time_ts AND
-        p1.resource_id = p2.resource_id AND
-        p1.resource_organization_id = p2.resource_organization_id AND
-        p1.person_id = p2.person_id AND
-        p1.user_id = p2.user_id AND
-        p1.request_path_id = p2.request_path_id AND
-        p1.request_method_id = p2.request_method_id AND
-        p1.reverse_proxy_host_id = p2.reverse_proxy_host_id AND
-        p1.app_id = p2.app_id AND
-        p1.location_id = p2.location_id AND
-        p1.ua_family_id = p2.ua_family_id AND
-        p1.ua_os_family_id = p2.ua_os_family_id
-    WHERE p1.reverse_proxy_port = 0
-    AND p2.reverse_proxy_port != 0;
+1. [Reingest and aggregate](ingestion-aggregation.md) the original log
+   files. You can limit it to just the relevant lines by using grep to search
+   for requests for apps running on reverse proxy servers and output the
+   relevant lines into new files. The following command will do this for log
+   files matching the filename pattern `*.log*` and create new files in the
+   directory `/tmp/ood-logs` (make sure to `mkdir` it first), which you can
+   then ingest and aggregate.
+    ```sh
+    for i in *.log*; do grep '/r\?node/' $i > /tmp/ood-logs/$i.new; done
     ```
+
+#### Remapping the request method IDs
+
+You may need to run manual SQL to fix the request method IDs of the already
+ingested page impressions. First run the SQL below to check how many request
+methods have IDs ≥ 255:
+
+```sql
+SELECT * FROM modw_ondemand.request_method;
+```
+
+* If there are no rows with ID ≥ 255, you do not need to do anything further to
+  remap the request methods.
+* If only one row has ID ≥ 255, you can fix the mapping by running the
+  following SQL.
+    1. First make a backup of the database, specifically the `modw_ondemand`
+       schema, in case you need to recover it later.
+    1. Make note of the ID in the `modw_ondemand.request_method` table that is
+       ≥ 255. Use it in place of the `OLD_ID_GOES_HERE` in the query below.
+       Pick an ID < 255 that doesn't already exist in the
+       `modw_ondemand.request_method` table. Use it in place of
+       `NEW_ID_GOES_HERE` in the query below.
+        ```sql
+        UPDATE modw_ondemand.page_impressions
+        SET request_method_id = NEW_ID_GOES_HERE
+        WHERE request_method_id = OLD_ID_GOES_HERE;
+        ```
+* If more than one row has ID ≥ 255, you will need to do the following.
+    1. First make a backup of the database, specifically the `modw_ondemand`
+       schema, in case you need to recover it later.
+    1. Take note of which request methods have IDs ≥ 255.
+    1. Run the SQL below to delete all the rows from the
+       `modw_ondemand.page_impressions` table whose `request_method_id` ≥ 255:
+        ```sql
+        DELETE FROM modw_ondemand.page_impressions
+        WHERE request_method_id >= 255;
+        ```
+    1. [Reingest and aggregate](ingestion-aggregation.md) the original log
+       files. You can limit it to just the relevant lines by using grep to
+       search for the request method and output the relevant lines into new
+       files. The following command will do this for log files matching the
+       filename pattern `*.log*` and create new files in the directory
+       `/tmp/ood-logs` (make sure to `mkdir` it first), which you can then
+       ingest and aggregate. Replace `METHOD` with the given request method:
+        ```sh
+        for i in *.log*; do grep '] "METHOD ' $i > /tmp/ood-logs/$i.new; done
+        ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest

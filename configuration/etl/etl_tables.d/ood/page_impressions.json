@@ -48,7 +48,7 @@
             },
             {
                 "name": "request_method_id",
-                "type": "tinyint",
+                "type": "int(11)",
                 "nullable": true
             },
             {
