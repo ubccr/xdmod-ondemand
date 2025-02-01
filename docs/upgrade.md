@@ -450,7 +450,7 @@ log files. The recommended way to do this is as follows.
    directory `/tmp/ood-logs` (make sure to `mkdir` it first), which you can
    then ingest and aggregate.
     ```sh
-    for i in *.log*; do grep '/r\?node/' $i > /tmp/ood-logs/$i.new; done
+    for i in *.log*; do grep '/r\?node/' $i > /tmp/ood-logs/; done
     ```
 
 #### Remapping the request method IDs
@@ -497,7 +497,7 @@ SELECT * FROM modw_ondemand.request_method;
        `/tmp/ood-logs` (make sure to `mkdir` it first), which you can then
        ingest and aggregate. Replace `METHOD` with the given request method:
         ```sh
-        for i in *.log*; do grep '] "METHOD ' $i > /tmp/ood-logs/$i.new; done
+        for i in *.log*; do grep '] "METHOD ' $i > /tmp/ood-logs/; done
         ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
