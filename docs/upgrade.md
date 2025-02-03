@@ -472,29 +472,27 @@ SELECT * FROM modw_ondemand.request_method;
 
 * If there are no rows with ID ≥ 127, you do not need to do anything further to
   remap the request methods.
-* If only one row has ID ≥ 127, you can fix the mapping by running the
-  following SQL.
+* If only one row has ID ≥ 127, you can fix the mapping by doing the following.
     1. Make sure to follow these steps when the automated ingestion and
        aggregation of OnDemand logs are NOT running.
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
-    1. Make note of the ID in the `modw_ondemand.request_method` table that is
-       ≥ 127. Use it in place of the `OLD_ID_GOES_HERE` in the query below.
-       Pick an ID < 127 that doesn't already exist in the
-       `modw_ondemand.request_method` table. Use it in place of
-       `NEW_ID_GOES_HERE` in the query below.
+    1. Run the following SQL:
         ```sql
         UPDATE modw_ondemand.page_impressions
-        SET request_method_id = NEW_ID_GOES_HERE
-        WHERE request_method_id = OLD_ID_GOES_HERE;
+        SET request_method_id = (
+            SELECT id
+            FROM modw_ondemand.request_method
+            WHERE request_method_id >= 127
+        )
+        WHERE request_method_id = 127;
         ```
 * If more than one row has ID ≥ 127, you will need to do the following.
     1. Make sure to follow these steps when the automated ingestion and
        aggregation of OnDemand logs are NOT running.
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
-    1. Take note of which request methods have IDs ≥ 127.
-    1. Run the SQL below to delete all the rows from the
+    1. Run the query below to delete all the rows from the
        `modw_ondemand.page_impressions` table whose `request_method_id` ≥ 127:
         ```sql
         DELETE FROM modw_ondemand.page_impressions
