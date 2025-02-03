@@ -440,7 +440,12 @@ log files. The recommended way to do this is as follows.
     ```sql
     DELETE FROM modw_ondemand.page_impressions
     WHERE reverse_proxy_port = 0
-    AND reverse_proxy_host_id != -1;
+    AND reverse_proxy_host_id != -1
+    AND reverse_proxy_host_id != (
+        SELECT id
+        FROM modw_ondemand.reverse_proxy_host
+        WHERE name = '-1'
+    );
     ```
 1. [Reingest and aggregate](ingestion-aggregation.md) the original log
    files. You can limit it to just the relevant lines by using grep to search
