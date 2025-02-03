@@ -429,6 +429,8 @@ have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to
 value, they will need to be reingested from the original OnDemand web server
 log files. The recommended way to do this is as follows.
 
+1. Make sure to follow these steps when the automated ingestion and aggregation
+   of OnDemand logs are NOT running.
 1. Make a backup of the database, specifically the `modw_ondemand` schema, in
    case you need to recover it later.
 1. Run the SQL below to delete all the rows from the
@@ -472,6 +474,8 @@ SELECT * FROM modw_ondemand.request_method;
   remap the request methods.
 * If only one row has ID ≥ 127, you can fix the mapping by running the
   following SQL.
+    1. Make sure to follow these steps when the automated ingestion and
+       aggregation of OnDemand logs are NOT running.
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
     1. Make note of the ID in the `modw_ondemand.request_method` table that is
@@ -485,6 +489,8 @@ SELECT * FROM modw_ondemand.request_method;
         WHERE request_method_id = OLD_ID_GOES_HERE;
         ```
 * If more than one row has ID ≥ 127, you will need to do the following.
+    1. Make sure to follow these steps when the automated ingestion and
+       aggregation of OnDemand logs are NOT running.
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
     1. Take note of which request methods have IDs ≥ 127.
