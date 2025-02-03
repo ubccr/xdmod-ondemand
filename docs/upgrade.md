@@ -209,30 +209,33 @@ replaced with the value `NA`.
 
 ## Configuration Changes
 
-### Fix application map for noVNC requests
+### Fix application mapping for noVNC page impressions
 
-This release fixes the application mapping of page loads for OnDemand
-applications launched via noVNC, specifically page loads whose request paths
-are of this form:
+This release fixes the application mapping of page impressions for OnDemand
+applications launched via noVNC, specifically page impressions whose request
+paths are of this form:
 
 ```
 /pun/sys/dashboard/noVNC-[version]/vnc.html?[params]&commit=Launch+[app]
 ```
 
-Previously, these page loads were mapped to the `sys/dashboard` application.
-This release fixes this to map them to the value of `[app]`. For example, a
-page load with a request path that has the following form will be mapped to the
-application `Desktop`:
+Previously, these page impressions were mapped to the `sys/dashboard`
+application. This release fixes this to map them to the value of `[app]`. For
+example, a page load with a request path that has the following form will be
+mapped to the application `Desktop`:
 
 ```
 /pun/sys/dashboard/noVNC-1.3.0/vnc.html?[params]&commit=Launch+Desktop
 ```
 
-This new mapping will apply to any new page loads that are ingested into XDMoD.
-For page loads that have already been ingested, the following SQL statements
-can be run to remap them to the correct applications. Make sure to run them at
-a time when ingestion and aggregation are NOT running.
+This new mapping will apply to any new page impressions that are ingested into
+XDMoD. For page loads that have already been ingested, the following SQL
+statements can be run to remap them to the correct applications.
 
+1. Make sure to follow these steps when the automated ingestion and
+   aggregation of OnDemand logs are NOT running.
+1. First make a backup of the database, specifically the `modw_ondemand`
+   schema, in case you need to recover it later.
 1. Make note of the timestamp when you started; this will be used later when
    reaggregating.
 1. Insert the new rows into the `app` table if they do not already exist:
@@ -309,7 +312,7 @@ a time when ingestion and aggregation are NOT running.
     JOIN modw_ondemand.app a ON a.app_path = p3.new_app_path
     SET p1.app_id = a.id
     ```
-1. Reaggregate the page loads, replacing `YYYY-MM-DD HH:MM:SS` with the
+1. Reaggregate the page impressions, replacing `YYYY-MM-DD HH:MM:SS` with the
    timestamp when you started:
     ```sh
     xdmod-ondemand-ingestor -a -m '[timestamp]'
