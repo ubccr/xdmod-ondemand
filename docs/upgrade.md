@@ -475,15 +475,11 @@ SELECT * FROM modw_ondemand.request_method;
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
     1. Make note of the ID in the `modw_ondemand.request_method` table that is
-       ≥ 255. Use it in place of the `OLD_ID_GOES_HERE` in the queries below.
+       ≥ 255. Use it in place of the `OLD_ID_GOES_HERE` in the query below.
        Pick an ID < 255 that doesn't already exist in the
        `modw_ondemand.request_method` table. Use it in place of
-       `NEW_ID_GOES_HERE` in the queries below.
+       `NEW_ID_GOES_HERE` in the query below.
         ```sql
-        UPDATE modw_ondemand.request_method
-        SET id = NEW_ID_GOES_HERE
-        WHERE id = OLD_ID_GOES_HERE;
-
         UPDATE modw_ondemand.page_impressions
         SET request_method_id = NEW_ID_GOES_HERE
         WHERE request_method_id = OLD_ID_GOES_HERE;
@@ -491,14 +487,7 @@ SELECT * FROM modw_ondemand.request_method;
 * If more than one row has ID ≥ 255, you will need to do the following.
     1. First make a backup of the database, specifically the `modw_ondemand`
        schema, in case you need to recover it later.
-    1. Take note of which request methods have IDs ≥ 255. For each one, run
-       the SQL below, replacing `OLD_ID_GOES_HERE` with the old ID, and choose
-       a new unique ID < 255 to use in place of `NEW_ID_GOES_HERE`:
-        ```sql
-        UPDATE modw_ondemand.request_method
-        SET id = NEW_ID_GOES_HERE
-        WHERE id = OLD_ID_GOES_HERE;
-        ```
+    1. Take note of which request methods have IDs ≥ 255.
     1. Run the SQL below to delete all the rows from the
        `modw_ondemand.page_impressions` table whose `request_method_id` ≥ 255:
         ```sql
