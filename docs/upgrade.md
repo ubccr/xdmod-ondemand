@@ -258,13 +258,13 @@ statements can be run to remap them to the correct request paths.
     UPDATE IGNORE modw_ondemand.page_impressions AS p
     JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
     JOIN modw_ondemand.app AS a ON a.id = p.app_id
+    SET p.request_path_id = @request_path_id
     WHERE rp.path = '/pun/sys/dashboard/files/[path]'
     AND a.app_path = 'sys/file-editor'
-    AND p.id BETWEEN 0 AND 10000000
-    SET p.request_path_id = @request_path_id;
+    AND p.id BETWEEN 0 AND 10000000;
     ```
     ```
-    DELETE FROM modw_ondemand.page_impressions AS p
+    DELETE p FROM modw_ondemand.page_impressions AS p
     JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
     JOIN modw_ondemand.app AS a ON a.id = p.app_id
     WHERE rp.path = '/pun/sys/dashboard/files/[path]'
