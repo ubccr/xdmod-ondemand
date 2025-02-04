@@ -268,8 +268,8 @@ statements can be run to remap them to the correct request paths.
     JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
     JOIN modw_ondemand.app AS a ON a.id = p.app_id
     WHERE rp.path = '/pun/sys/dashboard/files/[path]'
-    AND a.app_path = 'sys/file-editor';
-    AND p.id BETWEEN 0 AND 10000000
+    AND a.app_path = 'sys/file-editor'
+    AND p.id BETWEEN 0 AND 10000000;
     ```
 1. Reaggregate the changed page impressions by running the following command as
    the `xdmod` user, replacing `YYYY-MM-DD HH:MM:SS` with the timestamp when
