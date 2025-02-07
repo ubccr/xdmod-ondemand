@@ -221,15 +221,15 @@ paths are of this form:
 
 Previously, these page impressions were mapped to the `sys/dashboard`
 application. This release fixes this to map them to the value of `[app]`. For
-example, a page load with a request path that has the following form will be
-mapped to the application `Desktop`:
+example, a page impression with a request path that has the following form will
+be mapped to the application `Desktop`:
 
 ```
 /pun/sys/dashboard/noVNC-1.3.0/vnc.html?[params]&commit=Launch+Desktop
 ```
 
 This new mapping will apply to any new page impressions that are ingested into
-XDMoD. For page loads that have already been ingested, the following SQL
+XDMoD. For page impressions that have already been ingested, the following SQL
 statements can be run to remap them to the correct applications.
 
 1. Make sure to follow these steps when the automated ingestion and
