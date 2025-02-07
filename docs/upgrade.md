@@ -386,7 +386,7 @@ statements can be run to remap them to the correct request paths.
     xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
     ```
 
-#### Database Changes
+### Database Changes
 
 Release 11.0.0 had bugs in which columns in the
 `modw_ondemand.page_impressions` table were too small to fit the corresponding
