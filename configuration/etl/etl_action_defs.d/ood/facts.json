@@ -15,7 +15,7 @@
             "request_path_id": "rp.id",
             "request_method_id": "rm.id",
             "reverse_proxy_host_id": "rph.id",
-            "reverse_proxy_port_id": "rpp.id",
+            "reverse_proxy_port": "n.reverse_proxy_port",
             "app_id": "a.id",
             "location_id": "l.id",
             "ua_family_id": "ua.id",
@@ -50,12 +50,6 @@
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "rph",
                 "on": "rph.name = n.reverse_proxy_host"
-            },
-            {
-                "name": "reverse_proxy_port",
-                "schema": "${SOURCE_SCHEMA}",
-                "alias": "rpp",
-                "on": "rpp.port = n.reverse_proxy_port"
             },
             {
                 "name": "app",
@@ -100,7 +94,7 @@
             "request_path_id": "request_path_id",
             "request_method_id": "request_method_id",
             "reverse_proxy_host_id": "reverse_proxy_host_id",
-            "reverse_proxy_port_id": "reverse_proxy_port_id",
+            "reverse_proxy_port": "reverse_proxy_port",
             "app_id": "app_id",
             "location_id": "location_id",
             "ua_family_id": "ua_family_id",
