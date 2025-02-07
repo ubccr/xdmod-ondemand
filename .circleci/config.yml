@@ -89,7 +89,7 @@ jobs:
           command: composer install -d $XDMOD_SRC_DIR --no-progress
       - run:
           name: Run Regression Tests
-          command: $XDMOD_SRC_DIR/tests/regression/runtests.sh --junit-output-dir ~/phpunit
+          command: ./tests/regression/runtests.sh --junit-output-dir ~/phpunit
       - run:
           name: Ensure that no PHP command-line errors were generated
           command: >
