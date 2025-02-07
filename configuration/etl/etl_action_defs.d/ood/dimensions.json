@@ -10,9 +10,6 @@
             "$ref": "${table_definition_dir}/ood/reverse_proxy_host.json#/table_definition"
         },
         {
-            "$ref": "${table_definition_dir}/ood/reverse_proxy_port.json#/table_definition"
-        },
-        {
             "$ref": "${table_definition_dir}/ood/app.json#/table_definition"
         },
         {
@@ -33,7 +30,6 @@
             "request_path": "n.request_path",
             "request_method": "n.request_method",
             "reverse_proxy_host": "n.reverse_proxy_host",
-            "reverse_proxy_port": "n.reverse_proxy_port",
             "app": "n.app",
             "user": "n.user",
             "city": "n.city",
@@ -61,9 +57,6 @@
         },
         "reverse_proxy_host": {
             "name": "reverse_proxy_host"
-        },
-        "reverse_proxy_port": {
-            "port": "reverse_proxy_port"
         },
         "app": {
             "app_path": "app"
