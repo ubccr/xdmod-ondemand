@@ -207,9 +207,9 @@ replaced with the value `NA`.
 11.0.1 Upgrade Notes
 -------------------
 
-## Configuration Changes
+### Configuration File Changes
 
-### Fix application mapping of noVNC page impressions
+#### Fix application mapping of noVNC page impressions
 
 This release fixes the application mapping of page impressions for OnDemand
 applications launched via noVNC, specifically page impressions whose request
@@ -318,7 +318,7 @@ statements can be run to remap them to the correct applications.
     xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
     ```
 
-### Fix request path filtering of File Editor page impressions
+#### Fix request path filtering of File Editor page impressions
 
 This release fixes the request path filter for categorizing page impressions
 for requests of the OnDemand File Editor app. In 11.0.0, if a page impressions
