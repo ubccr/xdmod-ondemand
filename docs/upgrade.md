@@ -315,7 +315,7 @@ statements can be run to remap them to the correct applications.
 1. Reaggregate the page impressions, replacing `YYYY-MM-DD HH:MM:SS` with the
    timestamp when you started:
     ```sh
-    xdmod-ondemand-ingestor -a -m '[timestamp]'
+    xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
     ```
 
 ### Fix request path filtering of File Editor page impressions
