@@ -209,7 +209,7 @@ replaced with the value `NA`.
 
 ## Configuration Changes
 
-### Fix application mapping for noVNC page impressions
+### Fix application mapping of noVNC page impressions
 
 This release fixes the application mapping of page impressions for OnDemand
 applications launched via noVNC, specifically page impressions whose request
@@ -384,7 +384,7 @@ statements can be run to remap them to the correct request paths.
    the `xdmod` user, replacing `YYYY-MM-DD HH:MM:SS` with the timestamp when
    you started:
     ```sh
-    xdmod-ondemand-ingestor -a -m YYYY-MM-DD HH:MM:SS
+    xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
     ```
 
 [github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
