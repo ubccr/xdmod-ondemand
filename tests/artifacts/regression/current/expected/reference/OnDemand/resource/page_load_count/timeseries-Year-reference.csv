@@ -1,0 +1,10 @@
+title
+"Number of Page Loads: by Resource"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Year,"[styx] Number of Page Loads"
+2021,1134
+---------

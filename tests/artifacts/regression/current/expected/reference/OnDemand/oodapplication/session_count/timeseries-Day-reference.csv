@@ -1,0 +1,10 @@
+title
+"Number of Sessions: by OnDemand Application"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Day,"[sys/dashboard] Number of Sessions","[sys/jupyter (sys/ihpc)] Number of Sessions","[sys/bc_desktop/hpc (sys/ihpc)] Number of Sessions","[sys/myjobs] Number of Sessions"
+2021-01-12,2,2,1,1
+---------

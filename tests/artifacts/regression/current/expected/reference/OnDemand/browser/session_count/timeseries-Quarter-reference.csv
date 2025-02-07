@@ -1,0 +1,10 @@
+title
+"Number of Sessions: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Quarter,"[Chrome] Number of Sessions","[Firefox] Number of Sessions"
+"2021 Q1",4,2
+---------

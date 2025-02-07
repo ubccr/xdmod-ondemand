@@ -1,0 +1,10 @@
+title
+"Number of Users: Active: by Resource"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Resource,"Number of Users: Active"
+styx,2
+---------

@@ -1,0 +1,10 @@
+title
+"Number of Sessions: Per User: by Operating System"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"Operating System","Number of Sessions: Per User"
+"Mac OS X",3.0000
+---------

@@ -1,0 +1,10 @@
+title
+"Number of Apps: Active: by Location"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Location,"Number of Apps: Active"
+Unknown,4
+---------

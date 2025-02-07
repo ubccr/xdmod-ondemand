@@ -1,0 +1,10 @@
+title
+"Number of Sessions: Per User: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Day,"[Chrome] Number of Sessions: Per User","[Firefox] Number of Sessions: Per User"
+2021-01-12,4.0000,2.0000
+---------

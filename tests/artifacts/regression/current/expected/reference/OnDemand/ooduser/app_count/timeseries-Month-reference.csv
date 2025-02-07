@@ -1,0 +1,10 @@
+title
+"Number of Apps: Active: by OnDemand Username"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Month,"[hpcadmin] Number of Apps: Active","[sfoster] Number of Apps: Active"
+2021-01,4,2
+---------
