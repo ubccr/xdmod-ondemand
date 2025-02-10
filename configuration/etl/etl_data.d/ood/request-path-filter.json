@@ -3,7 +3,7 @@
     ";(?# Remove trailing slash                )/$;": "",
     ";(?# Generalize shell                     )^(/pun/sys/shell)(/.*|$);": "$1/[...]",
     ";(?# Generalize file editor app paths     )^(/pun/sys/(?:dashboard/files|file-editor)/edit/(?:fs/)?).*;": "$1[path]",
-    ";(?# Generalize files app paths           )^(/pun/sys/(?:dashboard/)?files/(?:(?:api/[^/]+/)?fs/)?).*;": "$1[path]",
+    ";(?# Generalize files app paths           )^(/pun/sys/(?:dashboard/)?files/(?:(?:api/[^/]+/)?fs/)?)(?!edit).*;": "$1[path]",
     ";(?# Generalize active jobs params        )^(/pun/sys/(?:dashboard/)?activejobs(?:/|/delete_job|/json)?\\?).*;": "$1[params]",
     ";(?# Generalize job composer workflow IDs )^(/pun/sys/myjobs/workflows/)\\d+(/?.*);": "$1[id]$2",
     ";(?# Generalize job composer paths        )^(/pun/sys/myjobs/templates/(new|delete)\\?path=).+;": "$1[path]",

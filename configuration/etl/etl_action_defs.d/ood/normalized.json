@@ -10,7 +10,7 @@
             "request_path": "s.request_path",
             "request_method": "s.request_method",
             "reverse_proxy_host": -1,
-            "reverse_proxy_port": -1,
+            "reverse_proxy_port": 0,
             "app": "'Unknown'",
             "user": "s.user",
             "city": "CASE WHEN s.city = '' THEN 'NA' ELSE s.city END",
