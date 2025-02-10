@@ -1,7 +1,7 @@
 {
     "module": "ondemand",
     "defaults": {
-        "migration-10_0_0-10_5_0": {
+        "migration-10_0_3-10_5_0": {
             "truncate_destination": false,
             "namespace": "ETL\\Ingestor",
             "class": "StructuredFileIngestor",
@@ -16,7 +16,7 @@
             }
         }
     },
-    "migration-10_0_0-10_5_0": [
+    "migration-10_0_3-10_5_0": [
        {
             "name": "ondemand-report-templates-charts",
             "definition_file": "xdb/report-template-charts.json",
