@@ -5,7 +5,17 @@ XDMoD Open OnDemand Module Change Log
 
 ## XXXX-XX-XX v11.0.1
 
-- Add website table of contents template ([\#76](https://github.com/ubccr/xdmod-ondemand/pull/76)).
+- Bug Fixes
+    - Fix request path filtering of File Editor page impressions
+      ([\#79](https://github.com/ubccr/xdmod-ondemand/pull/79)).
+    - Fix application mapping of noVNC page impressions
+      ([\#79](https://github.com/ubccr/xdmod-ondemand/pull/79)).
+- Documentation
+    - Add upgrade guide
+      ([\#56](https://github.com/ubccr/xdmod-ondemand/pull/56)).
+- Miscellaneous
+    - Add website table of contents template
+      ([\#76](https://github.com/ubccr/xdmod-ondemand/pull/76)).
 
 ## 2024-09-16 v11.0.0
 
