@@ -404,7 +404,7 @@ that all values of `modw_ondemand.request_method.id` > 127 (the maximum
 value of `tinyint`) would have the wrong value stored in
 `modw_ondemand.page_impressions.request_method_id` (they all have 127).
 
-If you are upgrading directly from 10.5.0 to 11.0.1, this will not be an issue.
+If you are upgrading directly from 10.5 to 11.0.1, this will not be an issue.
 
 However, if you previously upgraded from 10.5.0 to 11.0.0 and are now upgrading
 from 11.0.0 to 11.0.1, the upgrade will automatically do the following:

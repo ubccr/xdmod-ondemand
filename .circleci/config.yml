@@ -93,7 +93,7 @@ jobs:
             equal: [ 'minor-', << parameters.upgrade-type >> ]
           steps:
             - run:
-                name: Remove old expected prompt from 10.5.0 upgrade
+                name: Remove old expected prompt from 10.5 upgrade
                 command: sed -i '/^confirmResourceSpecs/d' $XDMOD_SRC_DIR/tests/ci/scripts/xdmod-upgrade.tcl
       - run:
           name: Bootstrap XDMoD
