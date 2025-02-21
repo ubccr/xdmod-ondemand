@@ -12,8 +12,8 @@
  * `reverse_proxy_port`.
  *
  * This SQL is only run if the `reverse_proxy_port` column does not already
- * exist. If it does exist, that means XDMoD is being upgraded from 10.5.x to
- * 11.0.1 and the column was created in the migration from 10.5.x to 11.0.0,
+ * exist. If it does exist, that means XDMoD is being upgraded from 10.5.1 to
+ * 11.0.1 and the column was created in the migration from 10.5.1 to 11.0.0,
  * which means the `reverse_proxy_port_id` column doesn't yet have any
  * data, in which case the remaining SQL is unnecessary.
  */
