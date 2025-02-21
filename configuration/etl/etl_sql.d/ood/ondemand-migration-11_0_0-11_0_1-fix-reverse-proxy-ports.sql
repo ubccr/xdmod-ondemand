@@ -17,10 +17,39 @@
  * which means the `reverse_proxy_port_id` column doesn't yet have any
  * data, in which case the remaining SQL is unnecessary.
  */
+DROP PROCEDURE IF EXISTS ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports_inner
+//
+CREATE PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports_inner(
+    start_id INT,
+    end_id INT
+)
+BEGIN
+    SELECT start_id, end_id;
+    UPDATE ${DESTINATION_SCHEMA}.page_impressions p
+    LEFT JOIN ${DESTINATION_SCHEMA}.reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
+    SET reverse_proxy_port = (
+        CASE WHEN (reverse_proxy_port_id < 65535)
+        THEN (
+            CASE WHEN reverse_proxy_port_id = -1
+            THEN 0
+            ELSE rpp.port
+            END
+        )
+        ELSE 0
+        END
+    )
+    WHERE p.id BETWEEN start_id AND end_id
+    ;
+END
+//
 DROP PROCEDURE IF EXISTS ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports
 //
 CREATE PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports()
 BEGIN
+    DECLARE batch_size INT default 100000;
+    DECLARE max_id INT default (SELECT MAX(id) FROM ${DESTINATION_SCHEMA}.page_impressions);
+    DECLARE batch_start_id INT default 0;
+    DECLARE batch_end_id INT default batch_size - 1;
     IF NOT EXISTS(
         SELECT 1
         FROM INFORMATION_SCHEMA.COLUMNS
@@ -32,19 +61,17 @@ BEGIN
         ALTER TABLE ${DESTINATION_SCHEMA}.page_impressions
         ADD reverse_proxy_port smallint(5) unsigned
         ;
-        UPDATE ${DESTINATION_SCHEMA}.page_impressions p
-        LEFT JOIN ${DESTINATION_SCHEMA}.reverse_proxy_port rpp ON rpp.id = p.reverse_proxy_port_id
-        SET reverse_proxy_port = (
-            CASE WHEN (reverse_proxy_port_id < 65535)
-            THEN (
-                CASE WHEN reverse_proxy_port_id = -1
-                THEN 0
-                ELSE rpp.port
-                END
+        WHILE batch_end_id <= max_id DO
+            CALL ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports_inner(
+                batch_start_id,
+                batch_end_id
             )
-            ELSE 0
-            END
-        )
+            ;
+            SET batch_start_id = batch_start_id + batch_size
+            ;
+            SET batch_end_id = batch_end_id + batch_size
+            ;
+        END WHILE
         ;
         DROP INDEX uniq ON ${DESTINATION_SCHEMA}.page_impressions
         ;
@@ -59,4 +86,6 @@ END
 CALL ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports()
 //
 DROP PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports
+//
+DROP PROCEDURE ${DESTINATION_SCHEMA}.fix_reverse_proxy_ports_inner
 //
