@@ -7,7 +7,7 @@ use CCR\DB;
 use CCR\DB\MySQLHelper;
 use ETL\Utilities;
 
-class DatabasesMigration extends AbstractDatabasesMigration
+class OnDemandDatabasesMigration extends AbstractDatabasesMigration
 {
     public function execute()
     {
