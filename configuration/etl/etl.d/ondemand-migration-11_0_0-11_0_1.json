@@ -23,6 +23,7 @@
             "name": "MigratePageImpressions",
             "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id.",
             "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
             "options_class": "IngestorOptions",
             "definition_file": "ood/migrations/11_0_0-11_0_1/new_page_impressions.json"
         },
