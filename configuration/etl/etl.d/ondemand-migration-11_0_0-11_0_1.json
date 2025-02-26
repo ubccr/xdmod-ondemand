@@ -2,10 +2,13 @@
     "module": "ondemand",
     "defaults": {
         "migration-11_0_0-11_0_1": {
-            "truncate_destination": false,
-            "namespace": "ETL\\Maintenance",
-            "options_class": "MaintenanceOptions",
             "endpoints": {
+                "source": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "datawarehouse",
+                    "schema": "modw_ondemand"
+                },
                 "destination": {
                     "type": "mysql",
                     "name": "Database with Open OnDemand usage data",
@@ -17,17 +20,28 @@
     },
     "migration-11_0_0-11_0_1": [
         {
-            "name": "fix-reverse-proxy-ports",
-            "description": "Change how reverse proxy ports are stored",
+            "name": "MigratePageImpressions",
+            "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id.",
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/new_page_impressions.json"
+        },
+        {
+            "name": "CleanUpPageImpressions",
+            "description": "Replace the page_impressions table with the new table, delete the reverse_proxy_ports table.",
+            "namespace": "ETL\\Maintenance",
             "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
             "sql_file_list": [
-                "ood/ondemand-migration-11_0_0-11_0_1-fix-reverse-proxy-ports.sql"
+                "ood/migrations/11_0_0-11_0_1/clean_up_page_impressions.sql"
             ]
         },
         {
-            "name": "update-page-impressions-unique-index",
-            "description": "Update the unique index for the page impressions table",
+            "name": "AddPageImpressionsIndices",
+            "description": "Add the indexes back to the page_impressions table.",
+            "namespace": "ETL\\Maintenance",
             "class": "ManageTables",
+            "options_class": "MaintenanceOptions",
             "definition_file_list": [
                 "ood/page_impressions.json"
             ]
