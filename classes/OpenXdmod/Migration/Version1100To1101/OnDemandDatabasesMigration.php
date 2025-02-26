@@ -28,7 +28,9 @@ class OnDemandDatabasesMigration extends AbstractDatabasesMigration
         if ($mysql_helper->tableExists('modw_ondemand.reverse_proxy_port')) {
             Utilities::runEtlPipeline(
                 ['migrate-page-impressions-11_0_0-11_0_1'],
-                $this->logger
+                $this->logger,
+                [],
+                'ondemand'
             );
         }
     }
