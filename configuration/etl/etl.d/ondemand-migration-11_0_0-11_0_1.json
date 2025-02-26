@@ -1,7 +1,7 @@
 {
     "module": "ondemand",
     "defaults": {
-        "migration-11_0_0-11_0_1": {
+        "migrate-page-impressions-11_0_0-11_0_1": {
             "endpoints": {
                 "source": {
                     "type": "mysql",
@@ -18,7 +18,7 @@
             }
         }
     },
-    "migration-11_0_0-11_0_1": [
+    "migrate-page-impressions-11_0_0-11_0_1": [
         {
             "name": "MigratePageImpressions",
             "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id.",
