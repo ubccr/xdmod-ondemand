@@ -19,7 +19,7 @@
             "request_path_id": "p.request_path_id",
             "request_method_id": "p.request_method_id",
             "reverse_proxy_host_id": "p.reverse_proxy_host_id",
-            "reverse_proxy_port": "CASE WHEN p.reverse_proxy_port_id < 65535 THEN (CASE WHEN p.reverse_proxy_port_id = -1 THEN 0 ELSE rpp.port END) ELSE 0 END",
+            "reverse_proxy_port": "CASE WHEN p.reverse_proxy_port_id < 65535 THEN (CASE WHEN p.reverse_proxy_port_id = -1 THEN 0 ELSE (CASE WHEN rpp.port = -1 THEN 0 ELSE rpp.port END) END) ELSE 0 END",
             "app_id": "p.app_id",
             "location_id": "p.location_id",
             "ua_family_id": "p.ua_family_id",
