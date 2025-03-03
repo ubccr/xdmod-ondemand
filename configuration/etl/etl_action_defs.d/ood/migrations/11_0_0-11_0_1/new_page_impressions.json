@@ -16,7 +16,7 @@
             "resource_organization_id": "p.resource_organization_id",
             "person_id": "p.person_id",
             "user_id": "p.user_id",
-            "request_path_id": "p.request_path_id",
+            "request_path_id": "CASE WHEN p.request_path_id = (SELECT id FROM ${SOURCE_SCHEMA}.request_path WHERE path = '/pun/sys/dashboard/files/[path]') AND p.app_id = (SELECT id FROM ${SOURCE_SCHEMA}.app WHERE app_path = 'sys/file-editor') THEN (SELECT id FROM ${SOURCE_SCHEMA}.request_path WHERE path = '/pun/sys/dashboard/files/edit/[path]') ELSE p.request_path_id END",
             "request_method_id": "p.request_method_id",
             "reverse_proxy_host_id": "p.reverse_proxy_host_id",
             "reverse_proxy_port": "CASE WHEN p.reverse_proxy_port_id < 65535 THEN (CASE WHEN p.reverse_proxy_port_id = -1 THEN 0 ELSE (CASE WHEN rpp.port = -1 THEN 0 ELSE rpp.port END) END) ELSE 0 END",
