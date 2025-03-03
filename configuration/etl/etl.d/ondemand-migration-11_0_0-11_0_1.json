@@ -2,6 +2,9 @@
     "module": "ondemand",
     "defaults": {
         "migrate-page-impressions-11_0_0-11_0_1": {
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
             "endpoints": {
                 "source": {
                     "type": "mysql",
@@ -20,11 +23,18 @@
     },
     "migrate-page-impressions-11_0_0-11_0_1": [
         {
+            "name": "AddNoVNCApps",
+            "description": "Identify noVNC apps from the page_impressions table and add them to the apps table.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/add_novnc_apps.json"
+        },
+        {
+            "name": "CreateNoVNCRequestPathIdToAppIdMap",
+            "description": "Create a temporary table mapping noVNC request path IDs to app IDs.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/map_novnc_request_path_apps.json"
+        },
+        {
             "name": "MigratePageImpressions",
             "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id.",
-            "namespace": "ETL\\Ingestor",
-            "class": "DatabaseIngestor",
-            "options_class": "IngestorOptions",
             "definition_file": "ood/migrations/11_0_0-11_0_1/new_page_impressions.json"
         },
         {
