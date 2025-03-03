@@ -1,7 +1,7 @@
 {
     "table_definition": [
         {
-            "$ref": "${table_definition_dir}/ood/migrations/11_0_0-11_0_1/request_path_ids_to_app_ids.json#/table_definition"
+            "$ref": "${table_definition_dir}/ood/migrations/11_0_0-11_0_1/novnc_request_path_ids_to_app_ids.json#/table_definition"
         }
     ],
     "source_query": {

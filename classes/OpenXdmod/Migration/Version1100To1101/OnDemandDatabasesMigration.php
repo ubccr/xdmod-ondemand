@@ -32,6 +32,7 @@ class OnDemandDatabasesMigration extends AbstractDatabasesMigration
                 [],
                 'ondemand'
             );
+            // TODO: Reaggregate
         }
     }
 }
