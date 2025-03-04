@@ -210,9 +210,9 @@ replaced with the value `NA`.
 
 #### Fixing application mapping of noVNC page impressions
 
-This release fixes the application mapping of page impressions for OnDemand
-applications launched via noVNC, specifically page impressions whose request
-paths are of this form:
+This release updates `application-map.json` to fix the application mapping of
+page impressions for OnDemand applications launched via noVNC, specifically
+page impressions whose request paths are of this form:
 
 ```
 /pun/sys/dashboard/noVNC-[version]/vnc.html?[params]&commit=Launch+[app]
@@ -228,14 +228,15 @@ be mapped to the application `Desktop`:
 ```
 
 This new mapping will apply to any new page impressions that are ingested into
-XDMoD. Page impressions that have already been ingested will be remapped during
-the upgrade.
+XDMoD. Page impressions that have already been ingested will also be remapped
+during the upgrade.
 
 #### Fixing request path filtering of File Editor page impressions
 
-This release fixes the request path filter for categorizing page impressions
-for requests of the OnDemand File Editor app. In 11.0.0, if a page impressions
-had a request with a path of the following form:
+This release fixes `request-path-filter.json` to fix the request path filter
+for categorizing page impressions for requests of the OnDemand File Editor app.
+In 11.0.0, if a page impressions had a request with a path of the following
+form:
 
 ```
 /pun/sys/dashboard/files/edit/[path]
@@ -248,57 +249,8 @@ it would mistakenly map that to this request path instead:
 ```
 
 This is fixed in 11.0.1 for any new page impressions that are ingested into
-XDMoD. For page impressions that have already been ingested, the following SQL
-statements can be run to remap them to the correct request paths.
-
-1. Make sure to follow these steps when the automated ingestion and aggregation
-   of OnDemand logs are NOT running.
-1. First make a backup of the database, specifically the `modw_ondemand`
-   schema, in case you need to recover it later.
-1. Make note of the timestamp when you started; this will be used later when
-   reaggregating.
-1. Add the request path if it doesn't already exist:
-    ```
-    INSERT INTO modw_ondemand.request_path (path)
-    VALUES ('/pun/sys/dashboard/files/edit/[path]');
-    ```
-   If a `Duplicate entry` error occurs, it just means the request path is
-   already in the table; you can continue with the instructions below.
-1. Set a variable for the request path ID:
-    ```
-    SET @request_path_id = (
-        SELECT id
-        FROM modw_ondemand.request_path
-        WHERE path = '/pun/sys/dashboard/files/edit/[path]'
-    );
-    ```
-1. Set the new request path ID, ignoring any rows that are now duplicates, and
-   then delete the duplicates. Note that if you have many rows in the
-   `page_impressions` table, it is recommended to do this in chunks, updating
-   the values in the queries below of `BETWEEN 0 AND 10000000` for each chunk:
-    ```
-    UPDATE IGNORE modw_ondemand.page_impressions AS p
-    JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
-    JOIN modw_ondemand.app AS a ON a.id = p.app_id
-    SET p.request_path_id = @request_path_id
-    WHERE rp.path = '/pun/sys/dashboard/files/[path]'
-    AND a.app_path = 'sys/file-editor'
-    AND p.id BETWEEN 0 AND 10000000;
-    ```
-    ```
-    DELETE p FROM modw_ondemand.page_impressions AS p
-    JOIN modw_ondemand.request_path AS rp ON rp.id = p.request_path_id
-    JOIN modw_ondemand.app AS a ON a.id = p.app_id
-    WHERE rp.path = '/pun/sys/dashboard/files/[path]'
-    AND a.app_path = 'sys/file-editor'
-    AND p.id BETWEEN 0 AND 10000000;
-    ```
-1. Reaggregate the changed page impressions by running the following command as
-   the `xdmod` user, replacing `YYYY-MM-DD HH:MM:SS` with the timestamp when
-   you started:
-    ```sh
-    xdmod-ondemand-ingestor -a -m 'YYYY-MM-DD HH:MM:SS'
-    ```
+XDMoD. Page impressions that have already been ingested will also be remapped
+during the upgrade.
 
 ### Database Changes
 
@@ -333,6 +285,10 @@ from 11.0.0 to 11.0.1, the upgrade will automatically do the following:
 
 It will also resize the `modw_ondemand.page_impressions.request_method_id`
 column to `int(11)`.
+
+It will also fix the application mapping of noVNC page impressions and the
+request path filtering of File Editor page impressions as explained in the
+section above, `Configuration File Changes`.
 
 #### Remapping the reverse proxy port IDs
 

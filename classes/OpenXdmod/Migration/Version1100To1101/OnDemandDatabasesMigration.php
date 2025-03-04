@@ -14,25 +14,31 @@ class OnDemandDatabasesMigration extends AbstractDatabasesMigration
         parent::execute();
 
         $dbh = DB::factory('datawarehouse');
-        $mysql_helper = MySQLHelper::factory($dbh);
+        $mysqlHelper = MySQLHelper::factory($dbh);
 
-        /* Fix how version 11.0.0 stored reverse proxy ports. This migration
-         * only needs to be run if upgrading from a previous install of 11.0.0
-         * to 11.0.1 (i.e., if the `reverse_proxy_port` table exists, since it
-         * was created in the 10.5.0 to 11.0.0 migration). If upgrading from
-         * 10.5.1 to 11.0.1 (i.e., if the `reverse_proxy_port` table does not
-         * exist), the reverse proxy port storage is being newly introduced,
-         * so there is no need to fix the old version because there is no old
-         * version.
+        /* Fix bugs introduced in 11.0.0. This does not need to be done for
+         * upgrades from 10.5.1 -> 11.0.0 -> 11.0.1, since there will have
+         * been no ingestion done in between upgrading from 10.5.1 -> 11.0.0
+         * and upgrading from 11.0.0 -> 11.0.1. The way to detect this is the
+         * presence of the `reverse_proxy_port` table whose definition was
+         * added in 11.0.0 but then removed in 11.0.1. However, if someone
+         * previously upgraded from 10.5.0 to 11.0.0 and ran ingestion, those
+         * ingested logs need to be fixed, which they will be here.
          */
-        if ($mysql_helper->tableExists('modw_ondemand.reverse_proxy_port')) {
+        if ($mysqlHelper->tableExists('modw_ondemand.reverse_proxy_port')) {
+            $startTime = date('Y-m-d H:i:s');
             Utilities::runEtlPipeline(
                 ['migrate-page-impressions-11_0_0-11_0_1'],
                 $this->logger,
                 [],
                 'ondemand'
             );
-            // TODO: Reaggregate
+            Utilities::runEtlPipeline(
+                ['aggregation'],
+                $this->logger,
+                ['last-modified-start-date' => $startTime],
+                'ondemand'
+            );
         }
     }
 }

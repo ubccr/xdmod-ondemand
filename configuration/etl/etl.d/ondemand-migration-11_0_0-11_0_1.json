@@ -21,6 +21,7 @@
             }
         }
     },
+    "#": "Note this is not named ondemand-migration-11_0_0-11_0_1 because it should only run for some upgrades, see classes/OpenXdmod/Migration/Version1100To1101/OnDemandDatabasesMigration.php",
     "migrate-page-impressions-11_0_0-11_0_1": [
         {
             "name": "AddNoVNCApps",
@@ -33,18 +34,23 @@
             "definition_file": "ood/migrations/11_0_0-11_0_1/map_novnc_request_path_apps.json"
         },
         {
-            "name": "MigratePageImpressions",
-            "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id.",
-            "definition_file": "ood/migrations/11_0_0-11_0_1/new_page_impressions.json"
+            "name": "AddFileEditorRequestPath",
+            "description": "Add the missing request path for the File Editor app if it does not already exist.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/add_file_editor_request_path.json"
         },
         {
-            "name": "CleanUpPageImpressions",
-            "description": "Replace the page_impressions table with the new table, delete the reverse_proxy_ports table.",
+            "name": "MigratePageImpressions",
+            "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id and fixes application mapping of noVNC applications and request path mapping of File Editor applications.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/migrate_page_impressions.json"
+        },
+        {
+            "name": "CleanUpTables",
+            "description": "Replace the page_impressions table with the new table, delete the reverse_proxy_ports table and temporary tables.",
             "namespace": "ETL\\Maintenance",
             "class": "ExecuteSql",
             "options_class": "MaintenanceOptions",
             "sql_file_list": [
-                "ood/migrations/11_0_0-11_0_1/clean_up_page_impressions.sql"
+                "ood/migrations/11_0_0-11_0_1/clean_up_tables.sql"
             ]
         },
         {
