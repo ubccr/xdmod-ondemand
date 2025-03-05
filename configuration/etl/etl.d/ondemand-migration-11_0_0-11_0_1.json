@@ -36,7 +36,12 @@
         {
             "name": "AddFileEditorRequestPath",
             "description": "Add the missing request path for the File Editor app if it does not already exist.",
-            "definition_file": "ood/migrations/11_0_0-11_0_1/add_file_editor_request_path.json"
+            "namespace": "ETL\\Maintenance",
+            "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
+            "sql_file_list": [
+                "ood/migrations/11_0_0-11_0_1/add_file_editor_request_path.sql"
+            ]
         },
         {
             "name": "MigratePageImpressions",
