@@ -24,7 +24,7 @@
             "location_id": "p.location_id",
             "ua_family_id": "p.ua_family_id",
             "ua_os_family_id": "p.ua_os_family_id",
-            "last_modified": "p.last_modified"
+            "last_modified": "CASE WHEN novnc_map.app_id IS NULL THEN p.last_modified ELSE CURRENT_TIMESTAMP() END"
         },
         "joins": [
             {
