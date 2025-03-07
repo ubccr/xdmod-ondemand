@@ -1,0 +1,51 @@
+{
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/ood/migrations/11_0_0-11_0_1/new_page_impressions.json#/table_definition"
+        }
+    ],
+    "source_query": {
+        "overseer_restrictions": {
+            "exclude_resource_codes": "p.resource_id NOT IN ${VALUE}"
+        },
+        "records": {
+            "id": "p.id",
+            "log_time_ts": "p.log_time_ts",
+            "log_day_id": "p.log_day_id",
+            "resource_id": "p.resource_id",
+            "resource_organization_id": "p.resource_organization_id",
+            "person_id": "p.person_id",
+            "user_id": "p.user_id",
+            "request_path_id": "CASE WHEN p.request_path_id = (SELECT id FROM ${SOURCE_SCHEMA}.request_path WHERE path = '/pun/sys/dashboard/files/[path]') AND p.app_id = (SELECT id FROM ${SOURCE_SCHEMA}.app WHERE app_path = 'sys/file-editor') THEN (SELECT id FROM ${SOURCE_SCHEMA}.request_path WHERE path = '/pun/sys/dashboard/files/edit/[path]') ELSE p.request_path_id END",
+            "request_method_id": "p.request_method_id",
+            "reverse_proxy_host_id": "p.reverse_proxy_host_id",
+            "reverse_proxy_port": "CASE WHEN p.reverse_proxy_port_id < 65535 THEN (CASE WHEN p.reverse_proxy_port_id = -1 THEN 0 ELSE (CASE WHEN rpp.port = -1 THEN 0 ELSE rpp.port END) END) ELSE 0 END",
+            "app_id": "COALESCE(novnc_map.app_id, p.app_id)",
+            "location_id": "p.location_id",
+            "ua_family_id": "p.ua_family_id",
+            "ua_os_family_id": "p.ua_os_family_id",
+            "last_modified": "CASE WHEN novnc_map.app_id IS NULL THEN p.last_modified ELSE CURRENT_TIMESTAMP() END"
+        },
+        "joins": [
+            {
+                "name": "page_impressions",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "p"
+            },
+            {
+                "name": "reverse_proxy_port",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rpp",
+                "on": "rpp.id = p.reverse_proxy_port_id",
+                "type": "left"
+            },
+            {
+                "name": "11_0_0_11_0_1_novnc_request_path_ids_to_app_ids",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "novnc_map",
+                "on": "novnc_map.request_path_id = p.request_path_id",
+                "type": "left"
+            }
+        ]
+    }
+}

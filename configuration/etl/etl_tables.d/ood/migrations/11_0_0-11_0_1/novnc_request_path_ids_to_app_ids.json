@@ -1,0 +1,19 @@
+{
+    "#": "Temporary table containing mapping of request path IDs to app IDs for noVNC applications.",
+    "table_definition": {
+        "name": "11_0_0_11_0_1_novnc_request_path_ids_to_app_ids",
+        "engine": "InnoDB",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_general_ci",
+        "columns": [
+            {
+                "name": "request_path_id",
+                "type": "int(11)"
+            },
+            {
+                "name": "app_id",
+                "type": "int(11)"
+            }
+        ]
+    }
+}

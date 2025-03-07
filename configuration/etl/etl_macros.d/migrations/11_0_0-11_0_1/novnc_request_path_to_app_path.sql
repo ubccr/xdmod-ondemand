@@ -1,0 +1,25 @@
+REPLACE(
+    REPLACE(
+        REPLACE(
+            REPLACE(
+                REPLACE(
+                    REGEXP_REPLACE(
+                        ${request_path},
+                        '.*Launch\\+',
+                        ''
+                    ),
+                    '+',
+                    ' '
+                ),
+                '%28',
+                '('
+            ),
+            '%29',
+            ')'
+        ),
+        '%2B',
+        '+'
+    ),
+    '%2F',
+    '/'
+)

@@ -1,11 +1,17 @@
 {
     "module": "ondemand",
     "defaults": {
-        "migration-11_0_0-11_0_1": {
-            "truncate_destination": false,
-            "namespace": "ETL\\Maintenance",
-            "options_class": "MaintenanceOptions",
+        "migrate-page-impressions-11_0_0-11_0_1": {
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
             "endpoints": {
+                "source": {
+                    "type": "mysql",
+                    "name": "Database with Open OnDemand usage data",
+                    "config": "datawarehouse",
+                    "schema": "modw_ondemand"
+                },
                 "destination": {
                     "type": "mysql",
                     "name": "Database with Open OnDemand usage data",
@@ -15,19 +21,49 @@
             }
         }
     },
-    "migration-11_0_0-11_0_1": [
+    "#": "Note this is not named ondemand-migration-11_0_0-11_0_1 because it should only run for some upgrades, see classes/OpenXdmod/Migration/Version1100To1101/OnDemandDatabasesMigration.php",
+    "migrate-page-impressions-11_0_0-11_0_1": [
         {
-            "name": "fix-reverse-proxy-ports",
-            "description": "Change how reverse proxy ports are stored",
+            "name": "AddNoVNCApps",
+            "description": "Identify noVNC apps from the page_impressions table and add them to the apps table.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/add_novnc_apps.json"
+        },
+        {
+            "name": "CreateNoVNCRequestPathIdToAppIdMap",
+            "description": "Create a temporary table mapping noVNC request path IDs to app IDs.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/map_novnc_request_path_apps.json"
+        },
+        {
+            "name": "AddFileEditorRequestPath",
+            "description": "Add the missing request path for the File Editor app if it does not already exist.",
+            "namespace": "ETL\\Maintenance",
             "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
             "sql_file_list": [
-                "ood/ondemand-migration-11_0_0-11_0_1-fix-reverse-proxy-ports.sql"
+                "ood/migrations/11_0_0-11_0_1/add_file_editor_request_path.sql"
             ]
         },
         {
-            "name": "update-page-impressions-unique-index",
-            "description": "Update the unique index for the page impressions table",
+            "name": "MigratePageImpressions",
+            "description": "Migrate the contents of the page_impressions table to a new table that stores reverse_proxy_port instead of reverse_proxy_port_id and fixes application mapping of noVNC applications and request path mapping of File Editor applications.",
+            "definition_file": "ood/migrations/11_0_0-11_0_1/migrate_page_impressions.json"
+        },
+        {
+            "name": "CleanUpTables",
+            "description": "Replace the page_impressions table with the new table, delete the reverse_proxy_ports table and temporary tables.",
+            "namespace": "ETL\\Maintenance",
+            "class": "ExecuteSql",
+            "options_class": "MaintenanceOptions",
+            "sql_file_list": [
+                "ood/migrations/11_0_0-11_0_1/clean_up_tables.sql"
+            ]
+        },
+        {
+            "name": "AddPageImpressionsIndices",
+            "description": "Add the indexes back to the page_impressions table.",
+            "namespace": "ETL\\Maintenance",
             "class": "ManageTables",
+            "options_class": "MaintenanceOptions",
             "definition_file_list": [
                 "ood/page_impressions.json"
             ]

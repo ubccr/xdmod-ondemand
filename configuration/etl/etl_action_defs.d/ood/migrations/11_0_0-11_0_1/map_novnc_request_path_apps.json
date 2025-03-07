@@ -1,0 +1,38 @@
+{
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/ood/migrations/11_0_0-11_0_1/novnc_request_path_ids_to_app_ids.json#/table_definition"
+        }
+    ],
+    "source_query": {
+        "records": {
+            "request_path_id": "rp.id",
+            "app_id": "a.id"
+        },
+        "joins": [
+            {
+                "name": "request_path",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "rp"
+            },
+            {
+                "name": "app",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "a",
+                "on": "a.app_path = ${novnc_request_path_to_app_path}"
+            }
+        ],
+        "where": [
+            "rp.path LIKE '/pun/sys/dashboard/noVNC-%Launch+%'"
+        ],
+        "macros": [
+            {
+                "name": "novnc_request_path_to_app_path",
+                "file": "migrations/11_0_0-11_0_1/novnc_request_path_to_app_path.sql",
+                "args": {
+                    "request_path": "rp.path"
+                }
+            }
+        ]
+    }
+}

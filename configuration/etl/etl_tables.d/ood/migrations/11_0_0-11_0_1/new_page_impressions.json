@@ -1,0 +1,18 @@
+{
+    "#": "Copy of the page_impressions table with indexes removed; they will be added back after the data are copied.",
+    "table_definition": {
+        "$ref-with-overwrite": "${table_definition_dir}/ood/page_impressions.json#/table_definition",
+        "$overwrite": {
+            "name": "11_0_0_11_0_1_new_page_impressions",
+            "indexes": [
+                {
+                    "name": "PRIMARY",
+                    "columns": [
+                        "id"
+                    ],
+                    "is_unique": true
+                }
+            ]
+        }
+    }
+}
