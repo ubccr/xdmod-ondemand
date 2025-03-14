@@ -1,7 +1,7 @@
 XDMoD Open OnDemand Module Change Log
 =====================
 
-## XXXX-XX-XX v11.0.1
+## 2025-03-17 v11.0.1
 
 - Bug Fixes
     - Fix request path filtering of File Editor page impressions
