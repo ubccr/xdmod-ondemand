@@ -9,7 +9,8 @@ XDMoD Open OnDemand Module Change Log
     - Fix application mapping of noVNC page impressions
       ([\#70](https://github.com/ubccr/xdmod-ondemand/pull/70)).
     - Fix how reverse proxy ports and request methods are stored
-      ([\#72](https://github.com/ubccr/xdmod-ondemand/pull/72)).
+      ([\#72](https://github.com/ubccr/xdmod-ondemand/pull/72),
+      ([\#84](https://github.com/ubccr/xdmod-ondemand/pull/84))).
 - Documentation
     - Add upgrade guide
       ([\#56](https://github.com/ubccr/xdmod-ondemand/pull/56)).
