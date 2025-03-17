@@ -1,9 +1,9 @@
 XDMoD Open OnDemand Module ChangeLog
 =====================
 
-## XXXX-XX-XX v10.5.1
+## 2025-03-17 v10.5.1
 
-- Updates to support Open XDMoD 10.5.1
+- Updated for compatibility with Open XDMoD 10.5.1
 
 ## 2023-09-11 v10.5.0
 
