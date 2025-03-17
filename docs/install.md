@@ -14,7 +14,7 @@ The source package is installed as follows. Change the prefix to match the direc
 
 ## RPM install
 
-    # dnf install xdmod-ondemand-{{ page.sw_version }}-1.0.el8.noarch.rpm
+    # dnf install xdmod-ondemand-{{ page.sw_version }}-1.el8.noarch.rpm
 
 ## Next Step
 
