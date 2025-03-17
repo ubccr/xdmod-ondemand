@@ -199,10 +199,6 @@ that row.
 The upgrade will add tables for `modw_ondemand.request_method`,
 `modw_ondemand.request_path`, and `modw_ondemand.reverse_proxy_host`.
 
-During the upgrade, if the `modw_ondemand.location` table has a row with
-`unknown` as its value for `city`, `state`, and `country`, these will be
-replaced with the value `NA`.
-
 11.0.1 Upgrade Notes
 -------------------
 

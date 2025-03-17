@@ -1,7 +1,24 @@
 XDMoD Open OnDemand Module Change Log
 =====================
 
-## 2024-09-11 v11.0.0
+## 2025-03-17 v11.0.1
+
+- Bug Fixes
+    - Fix request path filtering of File Editor page impressions
+      ([\#78](https://github.com/ubccr/xdmod-ondemand/pull/78)).
+    - Fix application mapping of noVNC page impressions
+      ([\#70](https://github.com/ubccr/xdmod-ondemand/pull/70)).
+    - Fix how reverse proxy ports and request methods are stored
+      ([\#72](https://github.com/ubccr/xdmod-ondemand/pull/72),
+      ([\#84](https://github.com/ubccr/xdmod-ondemand/pull/84))).
+- Documentation
+    - Add upgrade guide
+      ([\#56](https://github.com/ubccr/xdmod-ondemand/pull/56)).
+- Miscellaneous
+    - Add website table of contents template
+      ([\#65](https://github.com/ubccr/xdmod-ondemand/pull/65)).
+
+## 2024-09-16 v11.0.0
 
 - Change how page loads, sessions, and applications are counted and
   categorized. See the
