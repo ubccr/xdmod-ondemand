@@ -199,9 +199,6 @@ workflows:
             parameters:
               os: [rocky8]
               install-type: ["fresh_install", "upgrade"]
-            exclude:
-              - os: rocky8
-                install-type: "upgrade"
       - test-export-tool:
           matrix:
             parameters:
