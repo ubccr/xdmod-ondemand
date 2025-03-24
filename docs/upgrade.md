@@ -5,11 +5,11 @@ title: Upgrade Guide
 General Upgrade Notes
 ---------------------
 
-The XDMoD OnDemand module should be upgraded at the same time as the main Open
-XDMoD software. The upgrade procedure is documented on the [XDMoD upgrade
-page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and source
-packages for the XDMoD OnDemand module are available from
-[GitHub][github-latest-release].
+The OnDemand module for Open XDMoD should be upgraded at the same time as the
+main Open XDMoD software. The upgrade procedure is documented on the [Open
+XDMoD upgrade page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and
+source packages for the OnDemand module for Open XDMoD are available from
+[GitHub][github-release].
 
 11.0.0 Upgrade Notes
 -------------------
@@ -375,4 +375,4 @@ SELECT * FROM modw_ondemand.request_method;
         for i in *.log*; do grep '] "METHOD ' $i > /tmp/ood-logs/$i; done
         ```
 
-[github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
+[github-release]: https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{ page.rpm_version }}

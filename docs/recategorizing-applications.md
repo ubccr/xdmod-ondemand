@@ -31,7 +31,7 @@ doing this are immediately below).
 
 The file used for filtering request paths into more general forms is in the
 configuration directory (whose location depends on how you configured your
-installation, e.g., `/etc/xdmod`, `/opt/xdmod/etc`) under
+installation, e.g., `/etc/xdmod`, `/opt/xdmod-{{ page.sw_version }}/etc`) under
 `etl/etl_data.d/ood/request-path-filter.json`. This file contains a JSON object
 whose keys are regular expressions used for matching against request paths from
 the ingested logs, and whose values are the corresponding general forms that
@@ -219,12 +219,13 @@ UNLOCK TABLES;
 
 The file used for mapping applications is in the configuration directory (whose
 location depends on how you configured your installation, e.g., `/etc/xdmod`,
-`/opt/xdmod/etc`) under `etl/etl_data.d/ood/application-map.json`. This
-file contains a JSON object whose keys are regular expressions used for
-matching against request paths from the ingested logs, and whose values are the
-corresponding applications that will be stored in the database and assigned to
-future page impressions when they are ingested. Edit this file to configure the
-application map how you wish.
+`/opt/xdmod-{{ page.sw_version }}/etc`) under
+`etl/etl_data.d/ood/application-map.json`. This file contains a JSON object
+whose keys are regular expressions used for matching against request paths from
+the ingested logs, and whose values are the corresponding applications that
+will be stored in the database and assigned to future page impressions when
+they are ingested. Edit this file to configure the application map how you
+wish.
 
 If you have multiple OnDemand resources configured in XDMoD, you can also
 map applications on a per-resource basis by having other similar files at
