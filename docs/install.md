@@ -6,7 +6,14 @@ instructions.
 
 ## RPM Installation
 
-The RPM package can be downloaded from [GitHub](https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{ page.rpm_version }}).
+If your web server can reach GitHub via HTTPS, you can install the RPM package
+directly:
+
+    # dnf install https://github.com/ubccr/xdmod-ondemand/releases/download/v{{ page.rpm_version }}/xdmod-ondemand-{{ page.rpm_version }}.el8.noarch.rpm
+
+Otherwise, you can download the RPM file from the [GitHub page for the
+release](https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{
+page.rpm_version }}) and install it:
 
     # dnf install xdmod-ondemand-{{ page.rpm_version }}.el8.noarch.rpm
 
