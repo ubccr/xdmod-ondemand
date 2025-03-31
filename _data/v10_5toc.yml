@@ -15,6 +15,8 @@ toc:
         url: /10.5/install.html
       - page: Configuration Guide
         url: /10.5/configuration.html
+      - page: Upgrade Guide
+        url: /11.0/upgrade.html
       - page: Usage
         url: /10.5/usage.html
   - title: Help

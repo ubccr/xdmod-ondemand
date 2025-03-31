@@ -5,16 +5,16 @@ title: Upgrade Guide
 General Upgrade Notes
 ---------------------
 
-The XDMoD OnDemand module should be upgraded at the same time as the main Open
-XDMoD software. The upgrade procedure is documented on the [XDMoD upgrade
-page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and source
-packages for the XDMoD OnDemand module are available from
-[GitHub][github-latest-release].
+The OnDemand module for Open XDMoD should be upgraded at the same time as the
+main Open XDMoD software. The upgrade procedure is documented on the [Open
+XDMoD upgrade page](https://open.xdmod.org/upgrade.html). Downloads of RPMs and
+source packages for the OnDemand module for Open XDMoD are available from
+[GitHub][github-release].
 
-Additional 11.0.0 Upgrade Notes
+11.0.0 Upgrade Notes
 -------------------
 
-Open XDMoD 11.0.0 fundamentally changes how page loads, sessions, and
+Open XDMoD 11.0.0 fundamentally changes how page impressions, sessions, and
 applications are counted and categorized, as described in detail in the
 sections below. The changes only apply to newly ingested Open OnDemand web
 server logs after upgrading to 11.0.0. If you have already ingested logs with a
@@ -185,9 +185,9 @@ During the upgrade, the `modw_ondemand.page_impressions` table will have its
 `id` column updated to use `bigint(20) unsigned` instead of `int(11)` to be
 able to accommodate more than 2,147,483,647 page impressions. It will also have
 columns added for `request_path_id`, `request_method_id`,
-`reverse_proxy_host_id`, and `reverse_proxy_port_id`. Its unique index will be
+`reverse_proxy_host_id`, and `reverse_proxy_port`. Its unique index will be
 updated to remove `app_id` and to include `resource_id`, `request_path_id`,
-`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port_id`,
+`request_method_id`, `reverse_proxy_host_id`, `reverse_proxy_port`,
 `app_id`, `location_id`, `ua_family_id`, and `ua_os_family_id`. Indexes will be
 added to speed up aggregation, person lookup, and application recategorization.
 
@@ -197,11 +197,182 @@ upgrade will change the values for `city`, `state`, and `country` to `NA` for
 that row.
 
 The upgrade will add tables for `modw_ondemand.request_method`,
-`modw_ondemand.request_path`, `modw_ondemand.reverse_proxy_host`, and
-`modw_ondemand.reverse_proxy_port`.
+`modw_ondemand.request_path`, and `modw_ondemand.reverse_proxy_host`.
 
-During the upgrade, if the `modw_ondemand.location` table has a row with
-`unknown` as its value for `city`, `state`, and `country`, these will be
-replaced with the value `NA`.
+11.0.1 Upgrade Notes
+-------------------
 
-[github-latest-release]: https://github.com/ubccr/xdmod-ondemand/releases/latest
+### Configuration File Changes
+
+#### Fixing application mapping of noVNC page impressions
+
+This release updates `application-map.json` to fix the application mapping of
+page impressions for OnDemand applications launched via noVNC, specifically
+page impressions whose request paths are of this form:
+
+```
+/pun/sys/dashboard/noVNC-[version]/vnc.html?[params]&commit=Launch+[app]
+```
+
+Previously, these page impressions were mapped to the `sys/dashboard`
+application. This release fixes this to map them to the value of `[app]`. For
+example, a page impression with a request path that has the following form will
+be mapped to the application `Desktop`:
+
+```
+/pun/sys/dashboard/noVNC-1.3.0/vnc.html?[params]&commit=Launch+Desktop
+```
+
+This new mapping will apply to any new page impressions that are ingested into
+XDMoD. Page impressions that have already been ingested will also be remapped
+during the upgrade.
+
+#### Fixing request path filtering of File Editor page impressions
+
+This release fixes `request-path-filter.json` to fix the request path filter
+for categorizing page impressions for requests of the OnDemand File Editor app.
+In 11.0.0, if a page impressions had a request with a path of the following
+form:
+
+```
+/pun/sys/dashboard/files/edit/[path]
+```
+
+it would mistakenly map that to this request path instead:
+
+```
+/pun/sys/dashboard/files/[path]
+```
+
+This is fixed in 11.0.1 for any new page impressions that are ingested into
+XDMoD. Page impressions that have already been ingested will also be remapped
+during the upgrade.
+
+### Database Changes
+
+Release 11.0.0 had bugs in which columns in the
+`modw_ondemand.page_impressions` table were too small to fit the corresponding
+IDs in the dimension tables. Specifically, the
+`modw_ondemand.page_impressions.reverse_proxy_port_id` column was of type
+`smallint(5) unsigned`, but the corresponding
+`modw_ondemand.reverse_proxy_port.id` column was of type `int(11)`. This meant
+that all values of `modw_ondemand.reverse_proxy_port.id` > 65535 (the maximum
+value of `smallint(5) unsigned`) would have the wrong value stored in
+`modw_ondemand.page_impressions.reverse_proxy_port_id` (they all have 65535).
+Similarly, the `modw_ondemand.page_impressions.request_method_id` column was of
+type `tinyint`, but the corresponding `modw_ondemand.request_method.id` column
+was of type `int(11)`. This meant
+that all values of `modw_ondemand.request_method.id` > 127 (the maximum
+value of `tinyint`) would have the wrong value stored in
+`modw_ondemand.page_impressions.request_method_id` (they all have 127).
+
+If you are upgrading directly from 10.5 to 11.0.1, this will not be an issue.
+
+However, if you previously upgraded from 10.5.0 to 11.0.0 and are now upgrading
+from 11.0.0 to 11.0.1, the upgrade will automatically do the following:
+
+1. Create a new
+   `modw_ondemand.page_impressions.reverse_proxy_port` column.
+1. Fill it in with the corresponding values from
+   `modw_ondemand.reverse_proxy_port.port` (but only for
+   `modw_ondemand.page_impressions.reverse_proxy_port_id` < 65535).
+1. Drop the `modw_ondemand.page_impressions.reverse_proxy_port_id` column.
+1. Drop the `modw_ondemand.reverse_proxy_port` table.
+
+It will also resize the `modw_ondemand.page_impressions.request_method_id`
+column to `int(11)`.
+
+It will also fix the application mapping of noVNC page impressions and the
+request path filtering of File Editor page impressions as explained in the
+section above, `Configuration File Changes`.
+
+#### Remapping the reverse proxy port IDs
+
+Because the correct mapping of port numbers cannot be determined for
+`modw_ondemand.page_impressions.reverse_proxy_port_id` ≥ 65535, these rows will
+have their `modw_ondemand.page_impressions.reverse_proxy_port` column set to
+`0` during the upgrade. In order for these rows to be fixed to the correct
+value, they will need to be reingested from the original OnDemand web server
+log files. The recommended way to do this is as follows.
+
+1. Make sure to follow these steps when the automated ingestion and aggregation
+   of OnDemand logs are NOT running.
+1. Make a backup of the database, specifically the `modw_ondemand` schema, in
+   case you need to recover it later.
+1. Run the SQL below to delete all the rows from the
+   `modw_ondemand.page_impressions` table whose `reverse_proxy_port` is `0`
+   **and** whose `reverse_proxy_host_id` is not `-1` (this is important because
+   `0` will also be the value of `reverse_proxy_port` for page impressions for
+   apps that are not running on a reverse proxy server, that is, whose
+   `reverse_proxy_host_id` is `-1`):
+    ```sql
+    DELETE FROM modw_ondemand.page_impressions
+    WHERE reverse_proxy_port = 0
+    AND reverse_proxy_host_id != -1
+    AND reverse_proxy_host_id != (
+        SELECT id
+        FROM modw_ondemand.reverse_proxy_host
+        WHERE name = '-1'
+    );
+    ```
+1. [Reingest and aggregate](ingestion-aggregation.md) the original log
+   files. You can limit it to just the relevant lines by using grep to search
+   for requests for apps running on reverse proxy servers and output the
+   relevant lines into new files. The following command will do this for log
+   files matching the filename pattern `*.log*` and create new files in the
+   directory `/tmp/ood-logs` (make sure to `mkdir` it first), which you can
+   then ingest and aggregate.
+    ```sh
+    for i in *.log*; do grep '/r\?node/' $i > /tmp/ood-logs/$i; done
+    ```
+
+#### Remapping the request method IDs
+
+You may need to run manual SQL to fix the request method IDs of the already
+ingested page impressions. First run the SQL below and check how many request
+methods have IDs ≥ 127:
+
+```sql
+SELECT * FROM modw_ondemand.request_method;
+```
+
+* If there are no rows with ID ≥ 127, you do not need to do anything further to
+  remap the request methods.
+* If only one row has ID ≥ 127, you can fix the mapping by doing the following.
+    1. Make sure to follow these steps when the automated ingestion and
+       aggregation of OnDemand logs are NOT running.
+    1. First make a backup of the database, specifically the `modw_ondemand`
+       schema, in case you need to recover it later.
+    1. Run the following SQL:
+        ```sql
+        UPDATE modw_ondemand.page_impressions
+        SET request_method_id = (
+            SELECT id
+            FROM modw_ondemand.request_method
+            WHERE request_method_id >= 127
+        )
+        WHERE request_method_id = 127;
+        ```
+* If more than one row has ID ≥ 127, you will need to do the following.
+    1. Make sure to follow these steps when the automated ingestion and
+       aggregation of OnDemand logs are NOT running.
+    1. First make a backup of the database, specifically the `modw_ondemand`
+       schema, in case you need to recover it later.
+    1. Run the query below to delete all the rows from the
+       `modw_ondemand.page_impressions` table whose `request_method_id` ≥ 127:
+        ```sql
+        DELETE FROM modw_ondemand.page_impressions
+        WHERE request_method_id >= 127;
+        ```
+    1. [Reingest and aggregate](ingestion-aggregation.md) the original log
+       files. You can limit it to just the relevant lines by using grep to
+       search for the request method and output the relevant lines into new
+       files. The following command will do this for log files matching the
+       filename pattern `*.log*` and create new files in the directory
+       `/tmp/ood-logs` (make sure to `mkdir` it first), which you can then
+       ingest and aggregate. Replace `METHOD` with the given request method:
+        ```sh
+        for i in *.log*; do grep '] "METHOD ' $i > /tmp/ood-logs/$i; done
+        ```
+
+[github-release]: https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{ page.rpm_version }}
