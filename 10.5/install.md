@@ -1,22 +1,36 @@
 ## Prerequisites
 
-The OnDemand module should be added to an existing working instance of
-Open XDMoD version {{ page.version }} or later. See the [Open XDMoD site](https://open.xdmod.org/)
-for setup and install instructions.
+The OnDemand module should be added to an existing working instance of Open
+XDMoD. See the [Open XDMoD site](https://open.xdmod.org/) for setup and install
+instructions.
 
-## Source code install
+## RPM Installation
 
-The source package is installed as follows:
+If your web server can reach GitHub via HTTPS, you can install the RPM package
+directly:
 
-    $ tar zxvf xdmod-ondemand-{{ page.sw_version }}.tar.gz
-    $ cd xdmod-ondemand-{{ page.sw_version }}
-    # ./install --prefix=/opt/xdmod
+    # dnf install https://github.com/ubccr/xdmod-ondemand/releases/download/v{{ page.rpm_version }}/xdmod-ondemand-{{ page.rpm_version }}.el8.noarch.rpm
 
-Change the prefix as desired. The default installation prefix is `/usr/local/xdmod`. These instructions assume you are installing Open XDMoD in `/opt/xdmod`.
+Otherwise, you can download the RPM file from the [GitHub page for the
+release](https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{
+page.rpm_version }}) and install it:
 
-## RPM install
+    # dnf install xdmod-ondemand-{{ page.rpm_version }}.el8.noarch.rpm
 
-    # yum install xdmod-ondemand-{{ page.sw_version }}-1.0.el7.noarch.rpm
+## Source Installation
+
+The source package can be downloaded from
+[GitHub](https://github.com/ubccr/xdmod-ondemand/releases/tag/v{{ page.rpm_version }}).
+Make sure to download `xdmod-ondemand-{{ page.sw_version }}.tar.gz`, not the
+GitHub-generated "Source code" files.
+
+**NOTE**: The installation prefix must be the same as your existing Open
+XDMoD installation. These instructions assume you have already installed
+Open XDMoD in `/opt/xdmod-{{ page.sw_version }}`.
+
+    # tar zxvf xdmod-ondemand-{{ page.sw_version }}.tar.gz
+    # cd xdmod-ondemand-{{ page.sw_version }}
+    # ./install --prefix=/opt/xdmod-{{ page.sw_version }}
 
 ## Next Step
 
