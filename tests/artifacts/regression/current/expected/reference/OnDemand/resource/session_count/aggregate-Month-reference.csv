@@ -1,0 +1,10 @@
+title
+"Number of Sessions: by Resource"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Resource,"Number of Sessions"
+styx,6
+---------

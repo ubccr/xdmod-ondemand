@@ -1,0 +1,10 @@
+title
+"Number of Page Loads: by User"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+User,"Number of Page Loads"
+Unknown,1134
+---------

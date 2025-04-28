@@ -1,0 +1,11 @@
+title
+"Number of Apps: Active: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Browser,"Number of Apps: Active"
+Chrome,4
+Firefox,2
+---------

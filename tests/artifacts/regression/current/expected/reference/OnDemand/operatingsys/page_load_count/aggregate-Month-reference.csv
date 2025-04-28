@@ -1,0 +1,10 @@
+title
+"Number of Page Loads: by Operating System"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+"Operating System","Number of Page Loads"
+"Mac OS X",1134
+---------

@@ -1,0 +1,11 @@
+title
+"Number of Users: Active: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Browser,"Number of Users: Active"
+Chrome,1
+Firefox,1
+---------

@@ -1,0 +1,10 @@
+title
+"Number of Page Loads: by Browser"
+parameters
+
+start,end
+2021-01-12,2021-01-12
+---------
+Day,"[Chrome] Number of Page Loads","[Firefox] Number of Page Loads"
+2021-01-12,592,542
+---------
