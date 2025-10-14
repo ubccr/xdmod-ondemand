@@ -144,8 +144,7 @@ function main()
     $logger->info("Command: $cmd");
 
     $process_start_time = date('Y-m-d H:i:s');
-    $logger->notice(array(
-        'message'            => 'xdmod-ondemand-ingestor start',
+    $logger->notice('xdmod-ondemand-ingestor start', array(
         'process_start_time' => $process_start_time
     ));
 
@@ -154,7 +153,7 @@ function main()
     } elseif (is_null($ingest)) {
         $ingest = false;
         if (is_null($last_modified)) {
-            $logger->err('-a / --aggregate provided without a value provided for -m / --last-modified-start-date');
+            $logger->error('-a / --aggregate provided without a value provided for -m / --last-modified-start-date');
             exit(1);
         }
     } elseif (is_null($aggregate)) {
@@ -216,8 +215,7 @@ function main()
         $filterListBuilder->buildRealmLists('OnDemand');
     }
 
-    $logger->notice(array(
-        'message'          => 'xdmod-ondemand-ingestor end',
+    $logger->notice('xdmod-ondemand-ingestor end', array(
         'process_end_time' => date('Y-m-d H:i:s'),
     ));
 }
