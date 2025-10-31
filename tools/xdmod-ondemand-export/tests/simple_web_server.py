@@ -2,6 +2,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
 
+output_dir = None
+request_index = None
+mode = None
+
+
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         global output_dir, request_index, mode
