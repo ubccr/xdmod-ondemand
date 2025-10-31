@@ -2,9 +2,14 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
 
+output_dir = None
+request_index = None
+mode = None
+
+
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
-        global output_dir, request_index, mode
+        global request_index
         authorization = self.headers.get('Authorization')
         if (
             authorization != 'Bearer 1.10fe91043025e974f798d8ddc320ac794eacefd'
@@ -50,8 +55,8 @@ class Server(BaseHTTPRequestHandler):
 def run(dir_, num_requests, mode_=200):
     global output_dir, request_index, mode
     output_dir = dir_
-    mode = mode_
     request_index = 0
+    mode = mode_
     server = HTTPServer(('localhost', 1234), Server)
     for _ in range(0, num_requests):
         server.handle_request()
