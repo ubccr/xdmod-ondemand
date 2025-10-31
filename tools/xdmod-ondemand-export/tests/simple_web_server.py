@@ -9,6 +9,7 @@ mode = None
 
 class Server(BaseHTTPRequestHandler):
     def do_POST(self):
+        global request_index
         authorization = self.headers.get('Authorization')
         if (
             authorization != 'Bearer 1.10fe91043025e974f798d8ddc320ac794eacefd'
@@ -48,7 +49,7 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b'{"message":"success"}')
         if not is_app_list:
-            global request_index += 1
+            request_index += 1
 
 
 def run(dir_, num_requests, mode_=200):
