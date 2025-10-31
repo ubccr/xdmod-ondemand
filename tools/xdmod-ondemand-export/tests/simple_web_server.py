@@ -53,9 +53,10 @@ class Server(BaseHTTPRequestHandler):
 
 
 def run(dir_, num_requests, mode_=200):
-    global output_dir = dir_
-    global mode = mode_
-    global request_index = 0
+    global output_dir, request_index, mode
+    output_dir = dir_
+    request_index = 0
+    mode = mode_
     server = HTTPServer(('localhost', 1234), Server)
     for _ in range(0, num_requests):
         server.handle_request()
