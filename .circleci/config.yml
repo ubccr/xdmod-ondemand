@@ -24,6 +24,15 @@ executors:
   ubuntu22_04-export-tool: &ubuntu22_04-export-tool-executor
     docker:
       - image: ubuntu:22.04
+  ubuntu24_04-export-tool: &ubuntu24_04-export-tool-executor
+    docker:
+      - image: ubuntu:24.04
+  debian12-export-tool: &debian12-export-tool-executor
+    docker:
+      - image: debian:12
+  amazonlinux2023-export-tool: &amazonlinux2023-export-tool-executor
+    docker:
+      - image: amazonlinux:2023
 jobs:
   build:
     parameters:
@@ -113,6 +122,8 @@ jobs:
             or:
               - equal: [ ubuntu20_04, << parameters.os >> ]
               - equal: [ ubuntu22_04, << parameters.os >> ]
+              - equal: [ ubuntu24_04, << parameters.os >> ]
+              - equal: [ debian12, << parameters.os >> ]
           steps:
             - run:
                 # This step is needed to make sure the test artifacts are checked out.
@@ -134,7 +145,7 @@ jobs:
                   dnf install 'dnf-command(config-manager)' -y
                   dnf config-manager --set-enabled powertools
                   dnf install epel-release -y
-                  dnf module enable ruby:3.0 nodejs:14 -y
+                  dnf module enable ruby:3.3 nodejs:20 -y
       - when:
           condition:
             or:
@@ -147,42 +158,107 @@ jobs:
                   dnf install 'dnf-command(config-manager)' -y
                   dnf config-manager --set-enabled crb
                   dnf install epel-release -y
+                  dnf module enable ruby:3.3 nodejs:20 -y
       - when:
           condition:
             or:
               - equal: [ rocky8, << parameters.os >> ]
               - equal: [ alma8, << parameters.os >> ]
+          steps:
+              - run:
+                  name: Install OnDemand
+                  command: |
+                    dnf install https://yum.osc.edu/ondemand/4.0/ondemand-release-web-4.0-1.el8.noarch.rpm -y
+                    dnf install ondemand -y
+      - when:
+          condition:
+            or:
               - equal: [ rocky9, << parameters.os >> ]
               - equal: [ alma9, << parameters.os >> ]
           steps:
               - run:
                   name: Install OnDemand
                   command: |
-                    yum install https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm -y
-                    yum install ondemand -y
+                    dnf install https://yum.osc.edu/ondemand/4.0/ondemand-release-web-4.0-1.el9.noarch.rpm -y
+                    dnf install ondemand -y
       - when:
           condition:
             or:
               - equal: [ ubuntu20_04, << parameters.os >> ]
               - equal: [ ubuntu22_04, << parameters.os >> ]
+              - equal: [ ubuntu24_04, << parameters.os >> ]
+              - equal: [ debian12, << parameters.os >> ]
           steps:
             - run:
-                name: Install OnDemand
+                name: Prepare to install OnDemand
                 command: |
                   apt install apt-transport-https ca-certificates -y
                   apt install wget -y
-                  wget -O /tmp/ondemand-release-web_3.0.0_all.deb https://apt.osc.edu/ondemand/3.0/ondemand-release-web_3.0.0_all.deb
-                  apt install /tmp/ondemand-release-web_3.0.0_all.deb
+      - when:
+          condition:
+            equal: [ ubuntu20_04, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand (part 1)
+                command: |
+                  wget -O /tmp/ondemand-release-web_4.0.0-focal_all.deb https://apt.osc.edu/ondemand/4.0/ondemand-release-web_4.0.0-focal_all.deb
+                  apt install /tmp/ondemand-release-web_4.0.0-focal_all.deb -y
+      - when:
+          condition:
+            equal: [ ubuntu22_04, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand (part 1)
+                command: |
+                  wget -O /tmp/ondemand-release-web_4.0.0-jammy_all.deb https://apt.osc.edu/ondemand/4.0/ondemand-release-web_4.0.0-jammy_all.deb
+                  apt install /tmp/ondemand-release-web_4.0.0-jammy_all.deb -y
+      - when:
+          condition:
+            equal: [ ubuntu24_04, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand (part 1)
+                command: |
+                  wget -O /tmp/ondemand-release-web_4.0.0-noble_all.deb https://apt.osc.edu/ondemand/4.0/ondemand-release-web_4.0.0-noble_all.deb
+                  apt install /tmp/ondemand-release-web_4.0.0-noble_all.deb -y
+      - when:
+          condition:
+            equal: [ debian12, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand (part 1)
+                command: |
+                  wget -O /tmp/ondemand-release-web_4.0.0-bookworm_all.deb https://apt.osc.edu/ondemand/4.0/ondemand-release-web_4.0.0-bookworm_all.deb
+                  apt install /tmp/ondemand-release-web_4.0.0-bookworm_all.deb -y
+      - when:
+          condition:
+            or:
+              - equal: [ ubuntu20_04, << parameters.os >> ]
+              - equal: [ ubuntu22_04, << parameters.os >> ]
+              - equal: [ ubuntu24_04, << parameters.os >> ]
+              - equal: [ debian12, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand (part 2)
+                command: |
                   apt update
                   DEBIAN_FRONTEND=noninteractive TZ=US/Eastern apt install ondemand -y
             - run:
-                name: Install additional Ubuntu dependencies
+                name: Install additional Ubuntu/Debian dependencies
                 command: |
                   python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
-                  apt install python${python_version}-venv -y
-                  apt install acl cron
+                  apt install python${python_version}-venv acl cron -y
                   mkdir /etc/httpd
                   ln -s /var/log/apache2 /etc/httpd/logs
+      - when:
+          condition:
+            equal: [ amazonlinux2023, << parameters.os >> ]
+          steps:
+            - run:
+                name: Install OnDemand and ACL
+                command: |
+                  dnf install https://yum.osc.edu/ondemand/4.0/ondemand-release-web-4.0-1.amzn2023.noarch.rpm -y
+                  dnf install ondemand acl -y
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
@@ -240,4 +316,7 @@ workflows:
                 - alma9
                 - ubuntu20_04
                 - ubuntu22_04
+                - ubuntu24_04
+                - debian12
+                - amazonlinux2023
               install-type: ["export-tool"]
