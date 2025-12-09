@@ -105,6 +105,9 @@ jobs:
     environment:
       VENV_DIR: /root/xdmod-ondemand-export/env
     steps:
+      - run:
+          name: Determine Python version
+          command: export python_version="$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)"
       - when:
           condition:
             or:
@@ -246,7 +249,6 @@ jobs:
             - run:
                 name: Install additional Ubuntu/Debian dependencies
                 command: |
-                  python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
                   apt install python${python_version}-venv acl cron -y
                   mkdir /etc/httpd
                   ln -s /var/log/apache2 /etc/httpd/logs
@@ -297,11 +299,31 @@ jobs:
             setfacl -dm u:xdmod-ondemand-export:r-- /etc/httpd/logs
             setfacl -m u:xdmod-ondemand-export:r-- /etc/httpd/logs
             su -c '/home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export --check-config -l INFO' -s /bin/bash xdmod-ondemand-export
+      - when:
+          condition:
+            or:
+              - equal: [ rocky8, << parameters.os >> ]
+              - equal: [ alma8, << parameters.os >> ]
+              - equal: [ rocky9, << parameters.os >> ]
+              - equal: [ alma9, << parameters.os >> ]
+          steps:
+            - run:
+                name: Upgrade Python version
+                command: dnf install python3.11 -y
+      - when:
+          condition:
+            or:
+              - equal: [ ubuntu20_04, << parameters.os >> ]
+              - equal: [ ubuntu22_04, << parameters.os >> ]
+              - equal: [ ubuntu24_04, << parameters.os >> ]
+              - equal: [ debian12, << parameters.os >> ]
+          steps:
+            - run:
+                name: Upgrade Python version
+                command: apt install python3.11 -y
       - run:
           name: Make sure the script still works after upgrading the Python version
           command: |
-            python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
-            dnf install python3.11 -y
             update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${python_version} 1
             update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2
             update-alternatives --set python3 /usr/bin/python3.11
