@@ -229,7 +229,9 @@ def run_test(
                 'file-editor',
                 'files',
                 'myjobs',
+                'projects',
                 'shell',
+                'system-status',
             ],
             'shared_apps': shared_apps,
         }
