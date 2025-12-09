@@ -94,8 +94,8 @@ su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip in
 
 ## Changing `python3` version
 If you change the version of Python used by the `python3` command, before the
-script can be run again, you will need to recreate the virtual environment used
-to run the script and reinstall the `xdmod-ondemand-export` package:
+script can be run again, you will need to recreate the virtual environment and
+reinstall the `xdmod-ondemand-export` package:
 ```
 su -c 'python3 -m venv /home/xdmod-ondemand-export/venv' -s /bin/bash xdmod-ondemand-export
 su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install xdmod-ondemand-export' -s /bin/bash xdmod-ondemand-export
