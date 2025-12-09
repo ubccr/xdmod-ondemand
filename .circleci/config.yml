@@ -122,6 +122,8 @@ jobs:
             or:
               - equal: [ ubuntu20_04, << parameters.os >> ]
               - equal: [ ubuntu22_04, << parameters.os >> ]
+              - equal: [ ubuntu24_04, << parameters.os >> ]
+              - equal: [ debian12, << parameters.os >> ]
           steps:
             - run:
                 # This step is needed to make sure the test artifacts are checked out.
