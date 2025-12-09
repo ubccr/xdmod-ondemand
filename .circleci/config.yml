@@ -247,8 +247,7 @@ jobs:
                 name: Install additional Ubuntu/Debian dependencies
                 command: |
                   python_version=$(python3 --version | awk '{print $2}' | cut -d'.' -f1-2)
-                  apt install python${python_version}-venv -y
-                  apt install acl cron
+                  apt install python${python_version}-venv acl cron -y
                   mkdir /etc/httpd
                   ln -s /var/log/apache2 /etc/httpd/logs
       - when:
@@ -256,10 +255,10 @@ jobs:
             equal: [ amazonlinux2023, << parameters.os >> ]
           steps:
             - run:
-                name: Install OnDemand
+                name: Install OnDemand and ACL
                 command: |
                   dnf install https://yum.osc.edu/ondemand/4.0/ondemand-release-web-4.0-1.amzn2023.noarch.rpm -y
-                  dnf install ondemand -y
+                  dnf install ondemand acl -y
       - run:
           name: Create virtual environment for pip installs
           command: python3 -m venv ${VENV_DIR}
