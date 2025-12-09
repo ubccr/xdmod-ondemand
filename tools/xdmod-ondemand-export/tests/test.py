@@ -221,7 +221,7 @@ def run_test(
     if num_requests > 0:
         expected_app_list = {
             'date': datetime.today().strftime('%Y-%m-%d'),
-            'version': '3.0.3',
+            'version': '4.0.8',
             'system_apps': [
                 'activejobs',
                 'bc_desktop',
