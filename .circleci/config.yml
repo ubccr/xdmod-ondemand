@@ -192,8 +192,7 @@ jobs:
             - run:
                 name: Prepare to install OnDemand
                 command: |
-                  apt install apt-transport-https ca-certificates -y
-                  apt install wget -y
+                  apt install apt-transport-https ca-certificates wget -y
       - when:
           condition:
             equal: [ ubuntu20_04, << parameters.os >> ]
@@ -307,27 +306,46 @@ jobs:
               - equal: [ alma8, << parameters.os >> ]
               - equal: [ rocky9, << parameters.os >> ]
               - equal: [ alma9, << parameters.os >> ]
+              - equal: [ amazonlinux2023, << parameters.os >> ]
           steps:
             - run:
                 name: Upgrade Python version
-                command: dnf install python3.11 -y
+                command: |
+                  export max_python_version=3.11
+                  dnf install python${max_python_version} -y
+      - when:
+          condition:
+            equal: [ ubuntu20_04, << parameters.os >> ]
+          steps:
+            - run:
+                name: Upgrade Python version
+                command: |
+                  export max_python_version=3.9
+                  apt install python${max_python_version}-venv -y
       - when:
           condition:
             or:
-              - equal: [ ubuntu20_04, << parameters.os >> ]
               - equal: [ ubuntu22_04, << parameters.os >> ]
-              - equal: [ ubuntu24_04, << parameters.os >> ]
               - equal: [ debian12, << parameters.os >> ]
           steps:
             - run:
                 name: Upgrade Python version
-                command: apt install python3.11 -y
+                command: |
+                  export max_python_version=3.11
+                  apt install python${max_python_version}-venv -y
+      - when:
+          condition:
+            equal: [ ubuntu24_04, << parameters.os >> ]
+          steps:
+            - run:
+                name: Upgrade Python version
+                command: |
+                  export max_python_version=3.12
+                  apt install python${max_python_version}-venv -y
       - run:
           name: Make sure the script still works after upgrading the Python version
           command: |
-            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${python_version:-3.11} 1
-            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2
-            update-alternatives --set python3 /usr/bin/python3.11
+            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version:-3.11} 1
             su -c 'python3 -m venv /home/xdmod-ondemand-export/venv' -s /bin/bash xdmod-ondemand-export
             su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install xdmod-ondemand-export' -s /bin/bash xdmod-ondemand-export
             su -c '/home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export --check-config -l INFO' -s /bin/bash xdmod-ondemand-export
