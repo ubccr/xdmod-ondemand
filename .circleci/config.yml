@@ -311,8 +311,9 @@ jobs:
             - run:
                 name: Upgrade Python version
                 command: |
-                  export max_python_version=3.11
+                  max_python_version=3.11
                   dnf install python${max_python_version} -y
+                  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version} 1
       - when:
           condition:
             equal: [ ubuntu20_04, << parameters.os >> ]
@@ -320,8 +321,9 @@ jobs:
             - run:
                 name: Upgrade Python version
                 command: |
-                  export max_python_version=3.9
+                  max_python_version=3.9
                   apt install python${max_python_version}-venv -y
+                  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version} 1
       - when:
           condition:
             or:
@@ -331,8 +333,9 @@ jobs:
             - run:
                 name: Upgrade Python version
                 command: |
-                  export max_python_version=3.11
+                  max_python_version=3.11
                   apt install python${max_python_version}-venv -y
+                  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version} 1
       - when:
           condition:
             equal: [ ubuntu24_04, << parameters.os >> ]
@@ -340,12 +343,12 @@ jobs:
             - run:
                 name: Upgrade Python version
                 command: |
-                  export max_python_version=3.12
+                  max_python_version=3.12
                   apt install python${max_python_version}-venv -y
+                  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version} 1
       - run:
           name: Make sure the script still works after upgrading the Python version
           command: |
-            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${max_python_version:-3.11} 1
             su -c 'python3 -m venv /home/xdmod-ondemand-export/venv' -s /bin/bash xdmod-ondemand-export
             su -c 'source /home/xdmod-ondemand-export/venv/bin/activate && python3 -m pip install xdmod-ondemand-export' -s /bin/bash xdmod-ondemand-export
             su -c '/home/xdmod-ondemand-export/venv/bin/xdmod-ondemand-export --check-config -l INFO' -s /bin/bash xdmod-ondemand-export
