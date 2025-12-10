@@ -13,7 +13,7 @@ ticket](https://support.access-ci.org/open-a-ticket):
 
 - For the "Summary" and "Description" you can say "Requesting
   xdmod-ondemand-export API token for [resource name]."
-- For "ACCESS Support Issue," choose "XDMoD Question."
+- For "ACCESS User Support Issue," choose "XDMoD Question."
 
 ## Installation
 
@@ -216,5 +216,6 @@ a file has an entry in the JSON file but you want it to be parsed and POSTed
 again, just delete its entry in the JSON file before the next run of the
 script.
 
-For additional assistance, please contact the [XDMoD
-team](mailto:ccr-xdmod-help@buffalo.edu).
+For additional assistance, please [submit a
+ticket](https://support.access-ci.org/open-a-ticket) — for "ACCESS User Support
+Issue," choose "XDMoD Question."
