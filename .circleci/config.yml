@@ -325,7 +325,7 @@ jobs:
       - run:
           name: Make sure the script still works after upgrading the Python version
           command: |
-            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${python_version} 1
+            update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${python_version:-3.11} 1
             update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2
             update-alternatives --set python3 /usr/bin/python3.11
             su -c 'python3 -m venv /home/xdmod-ondemand-export/venv' -s /bin/bash xdmod-ondemand-export
